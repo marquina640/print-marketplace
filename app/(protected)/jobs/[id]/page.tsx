@@ -1,0 +1,289 @@
+import { redirect, notFound } from 'next/navigation'
+import Link from 'next/link'
+import { cookies } from 'next/headers'
+import { createClient } from '@/lib/supabase/server'
+import { QuoteForm } from '@/components/quotes/quote-form'
+import { StatusBadge, MaterialBadge, CertificationBadge, JobTypeBadge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { formatCurrency, formatDate, formatFileSize } from '@/lib/utils'
+import { AcceptQuoteButton } from './accept-quote-button'
+import { CompleteJobButton } from './complete-job-button'
+import { ReviewForm } from './review-form'
+import { PaymentButton } from '@/components/payments/payment-button'
+
+interface PageProps {
+  params: Promise<{ id: string }>
+}
+
+export default async function JobDetailPage({ params }: PageProps) {
+  const { id } = await params
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect('/login')
+
+  const { data: profile } = await supabase
+    .from('profiles').select('role').eq('user_id', user.id).single()
+
+  const cookieStore = await cookies()
+  const previewAs     = profile?.role === 'admin' ? cookieStore.get('admin_preview_as')?.value : undefined
+  const previewUserId = profile?.role === 'admin' ? cookieStore.get('admin_preview_user_id')?.value : undefined
+  const effectiveRole = previewAs ?? profile?.role
+  const effectiveUserId = previewUserId ?? user.id
+
+  const { data: job } = await supabase.from('jobs').select('*').eq('id', id).single()
+  if (!job) notFound()
+
+  const isOwner   = job.client_id === effectiveUserId
+  const isPrinter = effectiveRole === 'printer_owner'
+  const isAdmin   = profile?.role === 'admin'
+
+  const { data: quotes } = await supabase
+    .from('quotes')
+    .select('*, profiles:printer_id(display_name, email)')
+    .eq('job_id', id)
+    .order('created_at', { ascending: false })
+
+  // Fetch cert levels separately (no FK from quotes → printer_profiles)
+  const printerIds = [...new Set(quotes?.map((q) => q.printer_id) ?? [])]
+  const { data: printerProfiles } = printerIds.length > 0
+    ? await supabase.from('printer_profiles').select('user_id, certification_level').in('user_id', printerIds)
+    : { data: [] }
+  const certByPrinter = Object.fromEntries(
+    (printerProfiles ?? []).map((p) => [p.user_id, p.certification_level ?? 0])
+  )
+
+  const myQuote         = isPrinter ? (quotes?.find((q) => q.printer_id === effectiveUserId) ?? null) : null
+  const acceptedQuote   = quotes?.find((q) => q.status === 'accepted') ?? null
+  const acceptedPrinter = acceptedQuote?.printer_id
+
+  const visibleQuotes = isOwner || isAdmin
+    ? quotes ?? []
+    : isPrinter
+    ? (myQuote ? [myQuote] : [])
+    : []
+
+  const canSeeFiles = isOwner || isAdmin || (isPrinter && user.id === acceptedPrinter)
+  const { data: files } = canSeeFiles
+    ? await supabase.from('job_files').select('*').eq('job_id', id)
+    : { data: [] }
+
+  const canSubmitQuote = isPrinter && job.status === 'open'
+  const canAcceptQuote = isOwner && job.status === 'open'
+
+  // Reviews (only show after completion)
+  const isCompleted  = job.status === 'completed'
+  const isParticipant = isOwner || (isPrinter && user.id === acceptedPrinter)
+
+  const { data: myReview } = isCompleted && isParticipant
+    ? await supabase.from('reviews').select('*').eq('job_id', id).eq('reviewer_id', user.id).single()
+    : { data: null }
+
+  const { data: publicReviews } = isCompleted
+    ? await supabase.from('reviews').select('*, profiles:reviewer_id(display_name,email)')
+        .eq('job_id', id).eq('is_public', true)
+    : { data: [] }
+
+  const revieweeId    = isOwner ? (acceptedPrinter ?? '') : job.client_id
+  const revieweeLabel = isOwner
+    ? ((acceptedQuote?.profiles as { display_name: string | null; email: string } | null)?.display_name ?? 'the printer')
+    : 'the client'
+
+  return (
+    <div className="max-w-4xl mx-auto space-y-6">
+      <Link href={isOwner ? '/dashboard/client' : '/jobs'}
+        className="inline-flex items-center gap-1 text-sm text-warm-400 hover:text-warm-900">
+        ← Back
+      </Link>
+
+      {/* Header card */}
+      <div className="card p-6">
+        <div className="flex items-start justify-between gap-4 mb-4">
+          <h1 className="text-2xl font-bold text-warm-900 leading-tight">{job.title}</h1>
+          <StatusBadge status={job.status} />
+        </div>
+        <p className="text-warm-600 mb-6 whitespace-pre-wrap leading-relaxed">{job.description}</p>
+
+        <div className="flex flex-wrap gap-2 mb-5">
+          <MaterialBadge material={job.material} />
+          {(job as any).job_type && <JobTypeBadge type={(job as any).job_type} />}
+          {job.color && (
+            <span className="rounded-full border border-warm-200 px-2.5 py-0.5 text-xs text-warm-600">{job.color}</span>
+          )}
+          {job.shipping_required && (
+            <span className="rounded-full border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-xs text-amber-700">Shipping OK</span>
+          )}
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4">
+          <Stat label="Quantity"  value={job.quantity.toString()} />
+          <Stat label="Budget"    value={formatCurrency(job.budget)} />
+          <Stat label="Deadline"  value={formatDate(job.deadline)} />
+          <Stat label="Location"  value={job.location ?? '—'} />
+        </div>
+        <p className="text-xs text-warm-400">Posted {formatDate(job.created_at)}</p>
+      </div>
+
+      {/* Files */}
+      {canSeeFiles && files && files.length > 0 && (
+        <div className="card p-6">
+          <h2 className="font-semibold text-warm-900 mb-4">Attached Files</h2>
+          <ul className="space-y-2">
+            {files.map((f) => (
+              <li key={f.id} className="flex items-center justify-between rounded-xl bg-warm-50 px-3 py-2">
+                <div className="flex items-center gap-2 min-w-0">
+                  <svg className="h-4 w-4 text-ink-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  <span className="text-sm text-warm-700 truncate">{f.file_name}</span>
+                  {f.file_size && <span className="text-xs text-warm-400 flex-shrink-0">{formatFileSize(f.file_size)}</span>}
+                </div>
+                <a href={f.file_url} target="_blank" rel="noopener noreferrer"
+                  className="text-sm text-ink-600 hover:text-ink-700 font-medium ml-2">Download</a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {/* Quotes + Submit form */}
+      <div className="grid lg:grid-cols-5 gap-6">
+        <div className="lg:col-span-3 space-y-4">
+          <h2 className="font-semibold text-warm-900">
+            {isOwner || isAdmin ? `Quotes (${visibleQuotes.length})` : 'Your Quote'}
+          </h2>
+
+          {visibleQuotes.length === 0 ? (
+            <div className="card p-8 text-center text-sm text-warm-400">
+              {isPrinter ? 'You haven\'t submitted a quote yet.' : 'No quotes received yet.'}
+            </div>
+          ) : (
+            visibleQuotes.map((q) => {
+              const printer   = q.profiles as { display_name: string | null; email: string } | null
+              const certLevel = certByPrinter[q.printer_id] ?? 0
+              return (
+                <div key={q.id} className="card p-5">
+                  {/* Quote image */}
+                  {q.image_url && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={q.image_url} alt="Model preview"
+                      className="w-full h-48 object-cover rounded-xl mb-4" />
+                  )}
+                  <div className="flex items-start justify-between gap-3 mb-3">
+                    <div>
+                      <p className="font-bold text-warm-900 text-lg">{formatCurrency(q.price)}</p>
+                      <div className="flex items-center gap-2 mt-1 flex-wrap">
+                        <Link href={`/makers/${q.printer_id}`} className="text-sm text-ink-600 hover:text-ink-800 font-medium hover:underline">
+                          {printer?.display_name ?? printer?.email}
+                        </Link>
+                        <CertificationBadge level={certLevel} size="sm" />
+                        <span className="text-xs text-warm-400">{q.lead_time_days}d lead</span>
+                      </div>
+                    </div>
+                    <StatusBadge status={q.status} />
+                  </div>
+                  {q.message && <p className="text-sm text-warm-600 mb-3">{q.message}</p>}
+                  <p className="text-xs text-warm-400">{formatDate(q.created_at)}</p>
+
+                  {canAcceptQuote && q.status === 'pending' && (
+                    <div className="mt-3 pt-3 border-t border-warm-100">
+                      <AcceptQuoteButton
+                        jobId={job.id}
+                        quoteId={q.id}
+                        printerId={q.printer_id}
+                        printerEmail={(q.profiles as { email: string } | null)?.email}
+                        priceAmount={q.price}
+                        jobTitle={job.title}
+                      />
+                    </div>
+                  )}
+                  {q.status === 'accepted' && (isOwner || (isPrinter && q.printer_id === user.id)) && (
+                    <div className="mt-3 pt-3 border-t border-warm-100 space-y-3">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <Link href={`/messages/${job.id}`}>
+                          <Button variant="outline" size="sm">Open Messages</Button>
+                        </Link>
+                        {isOwner && (job as any).paid_at && <CompleteJobButton jobId={job.id} />}
+                      </div>
+                      {isOwner && !(job as any).paid_at && (
+                        <div className="rounded-xl border border-gold-300 bg-gold-50 p-4">
+                          <p className="text-sm font-semibold text-ink-900 mb-1">Ready to confirm the order?</p>
+                          <p className="text-xs text-warm-600 mb-3">Pay via Stripe to release funds to the maker when the job is complete.</p>
+                          <PaymentButton jobId={job.id} amount={q.price} />
+                        </div>
+                      )}
+                      {isOwner && (job as any).paid_at && (
+                        <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm text-emerald-700 font-medium">
+                          ✓ Payment received — funds held in escrow
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )
+            })
+          )}
+        </div>
+
+        {canSubmitQuote && (
+          <div className="lg:col-span-2">
+            <div className="card p-5">
+              <QuoteForm jobId={job.id} printerId={effectiveUserId} existingQuote={myQuote} />
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Reviews section */}
+      {isCompleted && (
+        <div className="space-y-4">
+          <h2 className="font-semibold text-warm-900">Reviews</h2>
+
+          {/* Public reviews */}
+          {publicReviews && publicReviews.length > 0 && (
+            <div className="space-y-3">
+              {publicReviews.map((r) => {
+                const reviewer = r.profiles as { display_name: string | null; email: string } | null
+                return (
+                  <div key={r.id} className="card p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <p className="text-sm font-medium text-warm-900">
+                        {reviewer?.display_name ?? reviewer?.email}
+                      </p>
+                      <div className="flex text-gold-500">
+                        {'★'.repeat(r.rating)}
+                        <span className="text-warm-200">{'★'.repeat(5 - r.rating)}</span>
+                      </div>
+                    </div>
+                    {r.comment && <p className="text-sm text-warm-600">{r.comment}</p>}
+                  </div>
+                )
+              })}
+            </div>
+          )}
+
+          {/* Leave review form */}
+          {isParticipant && revieweeId && (
+            <div className="card p-5">
+              <ReviewForm
+                jobId={job.id}
+                revieweeId={revieweeId}
+                revieweeLabel={revieweeLabel}
+                existingReview={myReview ?? null}
+              />
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
+function Stat({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <p className="text-xs text-warm-400 mb-0.5">{label}</p>
+      <p className="text-sm font-semibold text-warm-900">{value}</p>
+    </div>
+  )
+}

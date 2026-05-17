@@ -1,0 +1,245 @@
+import { redirect } from 'next/navigation'
+import { cookies } from 'next/headers'
+import Link from 'next/link'
+import { createClient } from '@/lib/supabase/server'
+import { StatusBadge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { EmptyState } from '@/components/ui/empty-state'
+import { formatCurrency, formatDate } from '@/lib/utils'
+
+export const metadata = { title: 'Client Dashboard' }
+
+export default async function ClientDashboardPage() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect('/login')
+
+  const { data: profile } = await supabase
+    .from('profiles').select('role, display_name').eq('user_id', user.id).single()
+
+  if (profile?.role !== 'client' && profile?.role !== 'admin') redirect('/dashboard')
+
+  // When admin previews as a specific user, use their ID for data queries
+  const cookieStore = await cookies()
+  const previewUserId = profile?.role === 'admin'
+    ? cookieStore.get('admin_preview_user_id')?.value
+    : undefined
+  const effectiveUserId = previewUserId ?? user.id
+
+  const { data: effectiveProfile } = previewUserId
+    ? await supabase.from('profiles').select('display_name').eq('user_id', previewUserId).single()
+    : { data: null }
+  const displayName = effectiveProfile?.display_name ?? profile?.display_name
+
+  const { data: jobs } = await supabase
+    .from('jobs').select('*').eq('client_id', effectiveUserId)
+    .order('created_at', { ascending: false })
+
+  const jobIds = jobs?.map((j) => j.id) ?? []
+
+  const { data: allQuotes } = jobIds.length > 0
+    ? await supabase
+        .from('quotes')
+        .select('*, profiles:printer_id(display_name, email)')
+        .in('job_id', jobIds)
+        .order('created_at', { ascending: false })
+    : { data: [] }
+
+  const openJobs      = jobs?.filter((j) => j.status === 'open') ?? []
+  const activeJobs    = jobs?.filter((j) => ['accepted', 'in_progress'].includes(j.status)) ?? []
+  const completedJobs = jobs?.filter((j) => j.status === 'completed') ?? []
+
+  // Group pending quotes by job
+  const pendingQuotes = allQuotes?.filter((q) => q.status === 'pending') ?? []
+  const quotesByJob = pendingQuotes.reduce<Record<string, number>>((acc, q) => {
+    acc[q.job_id] = (acc[q.job_id] ?? 0) + 1
+    return acc
+  }, {})
+  const jobsWithNewQuotes = openJobs.filter((j) => (quotesByJob[j.id] ?? 0) > 0)
+
+  const stats = [
+    { label: 'Active Jobs',  value: activeJobs.length,    color: 'text-emerald-600' },
+    { label: 'Open',         value: openJobs.length,      color: 'text-ink-700'     },
+    { label: 'Completed',    value: completedJobs.length, color: 'text-warm-500'    },
+    { label: 'Total Posted', value: jobs?.length ?? 0,    color: 'text-warm-900'    },
+  ]
+
+  return (
+    <div className="max-w-5xl mx-auto space-y-8">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="section-heading">
+            {displayName ? `Hey, ${displayName}` : 'My Dashboard'}
+          </h1>
+          <p className="text-warm-500 text-sm mt-0.5">Manage your 3D printing jobs</p>
+        </div>
+        <Link href="/jobs/new"><Button variant="gold">+ Post a Job</Button></Link>
+      </div>
+
+      {/* Stats */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {stats.map((s) => (
+          <div key={s.label} className="stat-card">
+            <p className="text-xs text-warm-500 font-medium uppercase tracking-wide">{s.label}</p>
+            <p className={`text-3xl font-bold ${s.color}`}>{s.value}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* ── NEW QUOTES ALERT ── */}
+      {jobsWithNewQuotes.length > 0 && (
+        <div className="rounded-2xl border-2 border-amber-300 bg-amber-50 p-5">
+          <div className="flex items-center gap-2 mb-3">
+            <span className="h-2.5 w-2.5 rounded-full bg-amber-500 animate-pulse inline-block" />
+            <h2 className="font-bold text-amber-900">
+              You have quotes waiting for review!
+            </h2>
+          </div>
+          <div className="space-y-2">
+            {jobsWithNewQuotes.map((job) => (
+              <div key={job.id} className="flex items-center justify-between bg-white rounded-xl px-4 py-3 border border-amber-200">
+                <div>
+                  <p className="font-semibold text-warm-900 text-sm">{job.title}</p>
+                  <p className="text-xs text-warm-400 mt-0.5">{job.material}</p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="rounded-full bg-amber-500 text-white text-xs font-bold px-2.5 py-0.5">
+                    {quotesByJob[job.id]} quote{quotesByJob[job.id] !== 1 ? 's' : ''}
+                  </span>
+                  <Link href={`/jobs/${job.id}`}>
+                    <Button variant="gold" size="sm">Review Quotes →</Button>
+                  </Link>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── ACTIVE JOBS ── */}
+      {activeJobs.length > 0 && (
+        <section>
+          <h2 className="text-lg font-semibold text-warm-900 mb-4 flex items-center gap-2">
+            <span className="h-2 w-2 rounded-full bg-emerald-500 inline-block" />
+            In Progress
+          </h2>
+          <div className="card divide-y divide-warm-100">
+            {activeJobs.map((job) => (
+              <div key={job.id} className="flex items-center justify-between p-4 hover:bg-warm-50 transition-colors">
+                <div className="min-w-0">
+                  <p className="font-semibold text-warm-900 truncate">{job.title}</p>
+                  <p className="text-xs text-warm-400 mt-0.5">{job.material} · Due {formatDate(job.deadline)}</p>
+                </div>
+                <div className="flex items-center gap-3 flex-shrink-0">
+                  <StatusBadge status={job.status} />
+                  <div className="flex gap-2">
+                    <Link href={`/messages/${job.id}`}><Button variant="outline" size="sm">Message</Button></Link>
+                    <Link href={`/jobs/${job.id}`}><Button size="sm">View</Button></Link>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* ── ALL QUOTES RECEIVED ── */}
+      <section>
+        <h2 className="text-lg font-semibold text-warm-900 mb-4 flex items-center gap-2">
+          <span className="h-2 w-2 rounded-full bg-amber-400 inline-block" />
+          All Quotes Received
+          {(allQuotes?.length ?? 0) > 0 && (
+            <span className="ml-1 text-xs text-warm-400 font-normal">({allQuotes?.length})</span>
+          )}
+        </h2>
+
+        {!allQuotes || allQuotes.length === 0 ? (
+          <div className="card p-8 text-center">
+            <p className="text-3xl mb-2">📬</p>
+            <p className="font-semibold text-warm-900">No quotes yet</p>
+            <p className="text-sm text-warm-500 mt-1">Makers will submit quotes on your open jobs. Check back soon.</p>
+          </div>
+        ) : (
+          <div className="card divide-y divide-warm-100">
+            {allQuotes.map((q) => {
+              const printer = q.profiles as { display_name: string | null; email: string } | null
+              const job = jobs?.find((j) => j.id === q.job_id)
+              return (
+                <div key={q.id} className="flex items-center justify-between p-4 hover:bg-warm-50 transition-colors">
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-warm-900 truncate">{job?.title}</p>
+                    <p className="text-xs text-warm-400 mt-0.5">
+                      From <span className="text-ink-700 font-medium">{printer?.display_name ?? printer?.email}</span>
+                      {' · '}{formatDate(q.created_at)}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-3 flex-shrink-0">
+                    <div className="text-right">
+                      <p className="font-bold text-warm-900">{formatCurrency(q.price)}</p>
+                      <p className="text-xs text-warm-400">{q.lead_time_days}d lead time</p>
+                    </div>
+                    <StatusBadge status={q.status} />
+                    <Link href={`/jobs/${q.job_id}`}>
+                      <Button variant={q.status === 'pending' ? 'gold' : 'outline'} size="sm">
+                        {q.status === 'pending' ? 'Review →' : 'View'}
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        )}
+      </section>
+
+      {/* ── ALL MY JOBS ── */}
+      <section>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold text-warm-900">My Jobs</h2>
+          <Link href="/jobs/new" className="text-sm text-ink-600 hover:text-ink-700 font-medium">
+            + New job
+          </Link>
+        </div>
+
+        {!jobs || jobs.length === 0 ? (
+          <EmptyState
+            icon={<svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>}
+            title="No jobs yet"
+            description="Post your first job and start receiving quotes from Zurich's best makers."
+            action={{ label: 'Post a Job', href: '/jobs/new' }}
+          />
+        ) : (
+          <div className="space-y-3">
+            {jobs.map((job) => {
+              const qCount = quotesByJob[job.id] ?? 0
+              return (
+                <div key={job.id} className="card flex items-center justify-between p-4 hover:bg-warm-50 transition-colors">
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2">
+                      <p className="font-semibold text-warm-900 truncate">{job.title}</p>
+                      {qCount > 0 && (
+                        <span className="rounded-full bg-amber-500 text-white text-xs font-bold px-2 py-0.5 flex-shrink-0">
+                          {qCount} new
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-warm-400 mt-0.5">{job.material} · Posted {formatDate(job.created_at)}</p>
+                  </div>
+                  <div className="flex items-center gap-3 flex-shrink-0">
+                    <StatusBadge status={job.status} />
+                    <Link href={`/jobs/${job.id}`}>
+                      <Button variant={qCount > 0 ? 'gold' : 'outline'} size="sm">
+                        {qCount > 0 ? `Review ${qCount} quote${qCount !== 1 ? 's' : ''}` : 'View'}
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        )}
+      </section>
+    </div>
+  )
+}
