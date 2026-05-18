@@ -7,9 +7,11 @@ import { StatusBadge, MaterialBadge, CertificationBadge, JobTypeBadge } from '@/
 import { Button } from '@/components/ui/button'
 import { formatCurrency, formatDate, formatFileSize } from '@/lib/utils'
 import { AcceptQuoteButton } from './accept-quote-button'
-import { CompleteJobButton } from './complete-job-button'
 import { ReviewForm } from './review-form'
 import { PaymentButton } from '@/components/payments/payment-button'
+import { MarkShippedButton } from './mark-shipped-button'
+import { ConfirmReceiptButton } from './confirm-receipt-button'
+import { MarkPayoutButton } from './mark-payout-button'
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -67,11 +69,14 @@ export default async function JobDetailPage({ params }: PageProps) {
     ? await supabase.from('job_files').select('*').eq('job_id', id)
     : { data: [] }
 
-  const canSubmitQuote = isPrinter && job.status === 'open'
-  const canAcceptQuote = isOwner && job.status === 'open'
+  const canSubmitQuote    = isPrinter && job.status === 'open'
+  const canAcceptQuote    = isOwner && job.status === 'open'
+  const canMarkShipped    = isPrinter && effectiveUserId === acceptedPrinter && (job as any).status === 'paid'
+  const canConfirmReceipt = isOwner && (job as any).status === 'shipped'
+  const needsPayout       = isAdmin && (job as any).status === 'delivered' && !(job as any).payout_at
 
-  // Reviews (only show after completion)
-  const isCompleted  = job.status === 'completed'
+  // Reviews show after delivered or completed
+  const isCompleted   = job.status === 'completed' || (job as any).status === 'delivered'
   const isParticipant = isOwner || (isPrinter && user.id === acceptedPrinter)
 
   const { data: myReview } = isCompleted && isParticipant
@@ -197,24 +202,75 @@ export default async function JobDetailPage({ params }: PageProps) {
                       />
                     </div>
                   )}
-                  {q.status === 'accepted' && (isOwner || (isPrinter && q.printer_id === user.id)) && (
+                  {q.status === 'accepted' && (isOwner || isAdmin || (isPrinter && q.printer_id === effectiveUserId)) && (
                     <div className="mt-3 pt-3 border-t border-warm-100 space-y-3">
                       <div className="flex items-center gap-2 flex-wrap">
                         <Link href={`/messages/${job.id}`}>
                           <Button variant="outline" size="sm">Open Messages</Button>
                         </Link>
-                        {isOwner && (job as any).paid_at && <CompleteJobButton jobId={job.id} />}
                       </div>
+
+                      {/* Step 1: Client pays */}
                       {isOwner && !(job as any).paid_at && (
                         <div className="rounded-xl border border-gold-300 bg-gold-50 p-4">
-                          <p className="text-sm font-semibold text-ink-900 mb-1">Ready to confirm the order?</p>
-                          <p className="text-xs text-warm-600 mb-3">Pay via Stripe to release funds to the maker when the job is complete.</p>
+                          <p className="text-sm font-semibold text-ink-900 mb-1">Confirm your order</p>
+                          <p className="text-xs text-warm-600 mb-3">Pay now to hold funds in escrow. The maker gets paid once you confirm delivery.</p>
                           <PaymentButton jobId={job.id} amount={q.price} />
                         </div>
                       )}
-                      {isOwner && (job as any).paid_at && (
+
+                      {/* Step 2: Paid — maker ships */}
+                      {(job as any).status === 'paid' && (
+                        <div className="rounded-xl border border-blue-200 bg-blue-50 p-4 space-y-2">
+                          <p className="text-sm font-semibold text-blue-900">Payment received — waiting for shipment</p>
+                          {canMarkShipped && (
+                            <>
+                              <p className="text-xs text-blue-700">Ship the order and mark it as shipped so the client knows it's on the way.</p>
+                              <MarkShippedButton jobId={job.id} />
+                            </>
+                          )}
+                          {isOwner && <p className="text-xs text-blue-700">The maker will mark your order as shipped once it's dispatched.</p>}
+                        </div>
+                      )}
+
+                      {/* Step 3: Shipped — client confirms receipt */}
+                      {(job as any).status === 'shipped' && (
+                        <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 space-y-2">
+                          <p className="text-sm font-semibold text-amber-900">Order shipped — awaiting delivery confirmation</p>
+                          {canConfirmReceipt && (
+                            <>
+                              <p className="text-xs text-amber-700">Once you've received your order, confirm receipt to release payment to the maker.</p>
+                              <ConfirmReceiptButton jobId={job.id} />
+                            </>
+                          )}
+                          {isPrinter && <p className="text-xs text-amber-700">Waiting for the client to confirm they received the order.</p>}
+                        </div>
+                      )}
+
+                      {/* Step 4: Delivered — admin pays out */}
+                      {(job as any).status === 'delivered' && !(job as any).payout_at && (
+                        <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 space-y-2">
+                          <p className="text-sm font-semibold text-emerald-900">Delivered — payout pending</p>
+                          {isAdmin && (
+                            <>
+                              <p className="text-xs text-emerald-700">
+                                Client confirmed receipt. Send {formatCurrency(q.price)} to the maker, then mark payout as sent.
+                              </p>
+                              <MarkPayoutButton
+                                jobId={job.id}
+                                makerName={(q.profiles as { display_name: string | null; email: string } | null)?.display_name ?? 'maker'}
+                                amount={q.price}
+                              />
+                            </>
+                          )}
+                          {!isAdmin && <p className="text-xs text-emerald-700">Receipt confirmed. Payment is being processed by the platform.</p>}
+                        </div>
+                      )}
+
+                      {/* Payout complete */}
+                      {(job as any).payout_at && (
                         <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm text-emerald-700 font-medium">
-                          ✓ Payment received — funds held in escrow
+                          ✓ Payout sent to maker on {formatDate((job as any).payout_at)}
                         </div>
                       )}
                     </div>

@@ -5,6 +5,7 @@ import { formatDate, formatCurrency } from '@/lib/utils'
 import Link from 'next/link'
 import { AdminPreviewButtons } from './preview-buttons'
 import { CertificationPanel } from './certification-panel'
+import { MarkPayoutButton } from '@/app/(protected)/jobs/[id]/mark-payout-button'
 
 export const metadata = { title: 'Admin Dashboard' }
 
@@ -34,6 +35,7 @@ export default async function AdminDashboardPage() {
     { count: pendingCerts },
     { data: previewClients },
     { data: previewMakers },
+    { data: pendingPayouts },
   ] = await Promise.all([
     supabase.from('profiles').select('*', { count: 'exact', head: true }),
     supabase.from('jobs').select('*', { count: 'exact', head: true }),
@@ -49,6 +51,12 @@ export default async function AdminDashboardPage() {
     supabase.from('certification_requests').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
     supabase.from('profiles').select('user_id, display_name, email, role').eq('role', 'client').order('created_at', { ascending: false }).limit(10),
     supabase.from('profiles').select('user_id, display_name, email, role').eq('role', 'printer_owner').order('created_at', { ascending: false }).limit(10),
+    (supabase as any).from('jobs')
+      .select('*, quotes!inner(price, printer_id, profiles:printer_id(display_name, email))')
+      .eq('status', 'delivered')
+      .is('payout_at', null)
+      .eq('quotes.status', 'accepted')
+      .order('delivered_at', { ascending: true }),
   ])
 
   const roleCounts = {
@@ -68,6 +76,46 @@ export default async function AdminDashboardPage() {
         clients={(previewClients ?? []).map((u) => ({ user_id: u.user_id, display_name: u.display_name, email: u.email, role: u.role }))}
         makers={(previewMakers ?? []).map((u) => ({ user_id: u.user_id, display_name: u.display_name, email: u.email, role: u.role }))}
       />
+
+      {/* Pending Payouts */}
+      {pendingPayouts && pendingPayouts.length > 0 && (
+        <section>
+          <div className="mb-4 flex items-center gap-3">
+            <h2 className="text-lg font-semibold text-ink-900">Pending Payouts</h2>
+            <span className="rounded-full bg-red-500 text-white text-xs font-bold px-2 py-0.5">
+              {pendingPayouts.length}
+            </span>
+          </div>
+          <div className="space-y-3">
+            {pendingPayouts.map((job: any) => {
+              const acceptedQuote = Array.isArray(job.quotes) ? job.quotes[0] : job.quotes
+              const makerProfile  = acceptedQuote?.profiles as { display_name: string | null; email: string } | null
+              const makerName     = makerProfile?.display_name ?? makerProfile?.email ?? 'maker'
+              return (
+                <div key={job.id} className="card p-5 border-l-4 border-emerald-400">
+                  <div className="flex items-center justify-between gap-4 flex-wrap">
+                    <div>
+                      <Link href={`/jobs/${job.id}`} className="font-semibold text-ink-900 hover:underline">
+                        {job.title}
+                      </Link>
+                      <p className="text-xs text-warm-500 mt-0.5">
+                        Maker: <span className="font-medium text-ink-700">{makerName}</span>
+                        {' · '}Delivered {formatDate((job as any).delivered_at)}
+                        {' · '}<span className="font-bold text-emerald-700">{formatCurrency(acceptedQuote?.price ?? 0)}</span>
+                      </p>
+                    </div>
+                    <MarkPayoutButton
+                      jobId={job.id}
+                      makerName={makerName}
+                      amount={acceptedQuote?.price ?? 0}
+                    />
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </section>
+      )}
 
       {/* Maker Certification */}
       <section>
