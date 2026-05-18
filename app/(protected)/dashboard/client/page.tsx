@@ -235,6 +235,97 @@ export default async function ClientDashboardPage() {
         )}
       </section>
 
+      {/* ── FIND YOUR MODEL ── */}
+      <section>
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h2 className="text-lg font-semibold text-warm-900">Find your 3D model</h2>
+            <p className="text-xs text-warm-400 mt-0.5">Browse free models, then post a job to get it printed</p>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {/* MakerWorld */}
+          <div className="card p-5 flex flex-col gap-3 hover:shadow-md transition-shadow">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-xl bg-[#1a1a2e] flex items-center justify-center flex-shrink-0">
+                <span className="text-white font-bold text-sm">MW</span>
+              </div>
+              <div>
+                <p className="font-semibold text-warm-900">MakerWorld</p>
+                <p className="text-xs text-warm-400">By Bambu Lab · millions of free models</p>
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {[
+                { label: 'All Models',     path: '/en/models'                    },
+                { label: 'Trending',       path: '/en/models#profileName=trending' },
+                { label: 'Home & Garden',  path: '/en/search?keyword=home+garden' },
+                { label: 'Miniatures',     path: '/en/search?keyword=miniatures'  },
+                { label: 'Phone Cases',    path: '/en/search?keyword=phone+case'  },
+              ].map(({ label, path }) => (
+                <a
+                  key={label}
+                  href={`https://makerworld.com${path}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="rounded-full border border-ink-200 bg-ink-50 px-2.5 py-0.5 text-xs font-medium text-ink-700 hover:bg-ink-100 transition-colors"
+                >
+                  {label}
+                </a>
+              ))}
+            </div>
+            <a
+              href="https://makerworld.com/en/models"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-auto text-xs font-medium text-ink-600 hover:text-ink-800 flex items-center gap-1"
+            >
+              Open MakerWorld →
+            </a>
+          </div>
+
+          {/* Thingiverse */}
+          <div className="card p-5 flex flex-col gap-3 hover:shadow-md transition-shadow">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-xl bg-[#248bfb] flex items-center justify-center flex-shrink-0">
+                <span className="text-white font-bold text-sm">TV</span>
+              </div>
+              <div>
+                <p className="font-semibold text-warm-900">Thingiverse</p>
+                <p className="text-xs text-warm-400">By MakerBot · the classic 3D model library</p>
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {[
+                { label: 'Popular',        path: '/explore/popular'   },
+                { label: 'Newest',         path: '/explore/newest'    },
+                { label: 'Gadgets',        path: '/explore/popular/gadgets' },
+                { label: 'Toys & Games',   path: '/explore/popular/toys-and-games' },
+                { label: 'Art',            path: '/explore/popular/art' },
+              ].map(({ label, path }) => (
+                <a
+                  key={label}
+                  href={`https://www.thingiverse.com${path}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="rounded-full border border-sky-200 bg-sky-50 px-2.5 py-0.5 text-xs font-medium text-sky-700 hover:bg-sky-100 transition-colors"
+                >
+                  {label}
+                </a>
+              ))}
+            </div>
+            <a
+              href="https://www.thingiverse.com/explore/popular"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-auto text-xs font-medium text-sky-600 hover:text-sky-800 flex items-center gap-1"
+            >
+              Open Thingiverse →
+            </a>
+          </div>
+        </div>
+      </section>
+
       {/* ── ALL MY JOBS ── */}
       <section>
         <div className="flex items-center justify-between mb-4">
