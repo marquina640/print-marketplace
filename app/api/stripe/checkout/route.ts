@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { createClient } from '@/lib/supabase/server'
+import { cookies } from 'next/headers'
 
 export async function POST(req: NextRequest) {
   const key = process.env.STRIPE_SECRET_KEY
@@ -14,26 +15,34 @@ export async function POST(req: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
 
+  // Support admin preview mode
+  const { data: profile } = await supabase.from('profiles').select('role').eq('user_id', user.id).single()
+  const cookieStore = await cookies()
+  const previewUserId = profile?.role === 'admin' ? cookieStore.get('admin_preview_user_id')?.value : undefined
+  const effectiveUserId = previewUserId ?? user.id
+
   const { jobId } = await req.json() as { jobId: string }
   if (!jobId) return NextResponse.json({ error: 'Missing jobId' }, { status: 400 })
 
-  const { data: job } = await (supabase as any)
+  const { data: job } = await supabase
     .from('jobs')
-    .select('id, title, client_id, accepted_quote_id')
+    .select('id, title, client_id')
     .eq('id', jobId)
     .eq('status', 'accepted')
-    .single() as { data: { id: string; title: string; client_id: string; accepted_quote_id: string } | null }
+    .single()
 
-  if (!job) return NextResponse.json({ error: 'Job not found or not accepted' }, { status: 404 })
-  if (job.client_id !== user.id) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  if (!job) return NextResponse.json({ error: 'Job not found or not in accepted state' }, { status: 404 })
+  if (job.client_id !== effectiveUserId) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
-  const { data: quote } = await (supabase as any)
+  // Find the accepted quote by status (not a column on jobs)
+  const { data: quote } = await supabase
     .from('quotes')
-    .select('price')
-    .eq('id', job.accepted_quote_id)
-    .single() as { data: { price: number } | null }
+    .select('id, price')
+    .eq('job_id', jobId)
+    .eq('status', 'accepted')
+    .single()
 
-  if (!quote) return NextResponse.json({ error: 'Quote not found' }, { status: 404 })
+  if (!quote) return NextResponse.json({ error: 'No accepted quote found' }, { status: 404 })
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'
 
@@ -49,7 +58,7 @@ export async function POST(req: NextRequest) {
     }],
     metadata: { jobId: job.id },
     success_url: `${appUrl}/jobs/${job.id}?payment=success`,
-    cancel_url: `${appUrl}/jobs/${job.id}?payment=cancelled`,
+    cancel_url:  `${appUrl}/jobs/${job.id}?payment=cancelled`,
   })
 
   await (supabase as any).from('jobs').update({ stripe_session_id: session.id }).eq('id', jobId)
