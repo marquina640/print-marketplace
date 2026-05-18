@@ -292,7 +292,7 @@ export default async function LandingPage() {
               {
                 icon: '🏅',
                 title: 'Certified makers',
-                desc: 'Makers earn certification levels by printing benchmark parts reviewed by our team. You always know what you're getting.',
+                desc: "Makers earn certification levels by printing benchmark parts reviewed by our team. You always know what you're getting.",
               },
               {
                 icon: '⭐',
