@@ -38,6 +38,7 @@ const statusConfig: Record<string, { label: string; variant: BadgeProps['variant
   delivered:   { label: 'Delivered',     variant: 'success' },
   completed:   { label: 'Completed',     variant: 'default' },
   cancelled:   { label: 'Cancelled',     variant: 'danger'  },
+  expired:     { label: 'Expired',       variant: 'danger'  },
   pending:     { label: 'Pending',       variant: 'warning' },
   rejected:    { label: 'Rejected',      variant: 'danger'  },
   client:      { label: 'Client',      variant: 'info'    },

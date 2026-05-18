@@ -69,6 +69,23 @@ export default async function JobDetailPage({ params }: PageProps) {
     ? await supabase.from('job_files').select('*').eq('job_id', id)
     : { data: [] }
 
+  const now = new Date()
+  function isExpired(q: { status: string; expires_at?: string | null }) {
+    if (q.status !== 'pending') return false
+    return !!(q as any).expires_at && new Date((q as any).expires_at) < now
+  }
+  function expiryLabel(q: { expires_at?: string | null }): string | null {
+    const exp = (q as any).expires_at
+    if (!exp) return null
+    const diff = new Date(exp).getTime() - now.getTime()
+    if (diff <= 0) return 'Expired'
+    const h = Math.floor(diff / 3600000)
+    const m = Math.floor((diff % 3600000) / 60000)
+    if (h >= 24) return `Valid for ${Math.floor(h / 24)}d ${h % 24}h`
+    if (h > 0) return `Expires in ${h}h ${m}m`
+    return `Expires in ${m}m`
+  }
+
   const canSubmitQuote    = isPrinter && job.status === 'open'
   const canAcceptQuote    = isOwner && job.status === 'open'
   const canMarkShipped    = isPrinter && effectiveUserId === acceptedPrinter && (job as any).status === 'paid'
@@ -185,12 +202,19 @@ export default async function JobDetailPage({ params }: PageProps) {
                         <span className="text-xs text-warm-400">{q.lead_time_days}d lead</span>
                       </div>
                     </div>
-                    <StatusBadge status={q.status} />
+                    <StatusBadge status={isExpired(q) ? 'expired' : q.status} />
                   </div>
                   {q.message && <p className="text-sm text-warm-600 mb-3">{q.message}</p>}
-                  <p className="text-xs text-warm-400">{formatDate(q.created_at)}</p>
+                  <div className="flex items-center gap-3">
+                    <p className="text-xs text-warm-400">{formatDate(q.created_at)}</p>
+                    {q.status === 'pending' && (
+                      <p className={`text-xs font-medium ${isExpired(q) ? 'text-red-500' : 'text-warm-400'}`}>
+                        · {expiryLabel(q)}
+                      </p>
+                    )}
+                  </div>
 
-                  {canAcceptQuote && q.status === 'pending' && (
+                  {canAcceptQuote && q.status === 'pending' && !isExpired(q) && (
                     <div className="mt-3 pt-3 border-t border-warm-100">
                       <AcceptQuoteButton
                         jobId={job.id}

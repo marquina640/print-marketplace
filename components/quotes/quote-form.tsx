@@ -87,6 +87,8 @@ export function QuoteForm({ jobId, printerId: printerIdProp, existingQuote }: Qu
       image_url = publicUrl
     }
 
+    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
+
     const payload = {
       job_id: jobId,
       printer_id: effectivePrinterId,
@@ -94,6 +96,7 @@ export function QuoteForm({ jobId, printerId: printerIdProp, existingQuote }: Qu
       lead_time_days: parseInt(leadTime),
       message: message.trim() || null,
       image_url,
+      expires_at: expiresAt,
     }
 
     const { error: dbError } = await supabase

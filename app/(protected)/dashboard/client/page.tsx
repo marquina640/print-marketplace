@@ -45,12 +45,24 @@ export default async function ClientDashboardPage() {
         .order('created_at', { ascending: false })
     : { data: [] }
 
+  const now = new Date()
+
   const openJobs      = jobs?.filter((j) => j.status === 'open') ?? []
-  const activeJobs    = jobs?.filter((j) => ['accepted', 'in_progress'].includes(j.status)) ?? []
+  const activeJobs    = jobs?.filter((j) => ['paid', 'shipped', 'delivered', 'in_progress'].includes(j.status)) ?? []
   const completedJobs = jobs?.filter((j) => j.status === 'completed') ?? []
 
-  // Group pending quotes by job
-  const pendingQuotes = allQuotes?.filter((q) => q.status === 'pending') ?? []
+  // Jobs accepted but not yet paid
+  const unpaidJobs = jobs?.filter((j) => j.status === 'accepted' && !(j as any).paid_at) ?? []
+  const acceptedQuoteByJob = Object.fromEntries(
+    (allQuotes?.filter((q) => q.status === 'accepted') ?? []).map((q) => [q.job_id, q])
+  )
+
+  // Group non-expired pending quotes by job
+  const pendingQuotes = allQuotes?.filter((q) => {
+    if (q.status !== 'pending') return false
+    const exp = (q as any).expires_at
+    return !exp || new Date(exp) > now
+  }) ?? []
   const quotesByJob = pendingQuotes.reduce<Record<string, number>>((acc, q) => {
     acc[q.job_id] = (acc[q.job_id] ?? 0) + 1
     return acc
@@ -86,6 +98,36 @@ export default async function ClientDashboardPage() {
           </div>
         ))}
       </div>
+
+      {/* ── MISSING PAYMENT ALERT ── */}
+      {unpaidJobs.length > 0 && (
+        <div className="rounded-2xl border-2 border-red-300 bg-red-50 p-5">
+          <div className="flex items-center gap-2 mb-3">
+            <span className="h-2.5 w-2.5 rounded-full bg-red-500 animate-pulse inline-block" />
+            <h2 className="font-bold text-red-900">Payment required</h2>
+          </div>
+          <div className="space-y-2">
+            {unpaidJobs.map((job) => {
+              const quote = acceptedQuoteByJob[job.id]
+              return (
+                <div key={job.id} className="flex items-center justify-between bg-white rounded-xl px-4 py-3 border border-red-200">
+                  <div>
+                    <p className="font-semibold text-warm-900 text-sm">{job.title}</p>
+                    {quote && (
+                      <p className="text-xs text-warm-400 mt-0.5">
+                        Quote accepted · <span className="font-semibold text-red-700">{formatCurrency(quote.price)} due</span>
+                      </p>
+                    )}
+                  </div>
+                  <Link href={`/jobs/${job.id}`}>
+                    <Button variant="gold" size="sm">Pay Now →</Button>
+                  </Link>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
 
       {/* ── NEW QUOTES ALERT ── */}
       {jobsWithNewQuotes.length > 0 && (
