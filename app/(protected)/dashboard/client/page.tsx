@@ -257,11 +257,11 @@ export default async function ClientDashboardPage() {
             </div>
             <div className="flex flex-wrap gap-1.5">
               {[
-                { label: 'All Models',     path: '/en/models'                    },
-                { label: 'Trending',       path: '/en/models#profileName=trending' },
-                { label: 'Home & Garden',  path: '/en/search?keyword=home+garden' },
-                { label: 'Miniatures',     path: '/en/search?keyword=miniatures'  },
-                { label: 'Phone Cases',    path: '/en/search?keyword=phone+case'  },
+                { label: 'All Models',    path: '/en' },
+                { label: 'Home & Garden', path: '/en/search?keyword=home+garden' },
+                { label: 'Miniatures',    path: '/en/search?keyword=miniatures'  },
+                { label: 'Phone Cases',   path: '/en/search?keyword=phone+case'  },
+                { label: 'Tools',         path: '/en/search?keyword=tools'       },
               ].map(({ label, path }) => (
                 <a
                   key={label}
@@ -297,11 +297,11 @@ export default async function ClientDashboardPage() {
             </div>
             <div className="flex flex-wrap gap-1.5">
               {[
-                { label: 'Popular',        path: '/explore/popular'   },
-                { label: 'Newest',         path: '/explore/newest'    },
-                { label: 'Gadgets',        path: '/explore/popular/gadgets' },
-                { label: 'Toys & Games',   path: '/explore/popular/toys-and-games' },
-                { label: 'Art',            path: '/explore/popular/art' },
+                { label: 'Popular',      path: '/search?q=&sort=popular&type=things' },
+                { label: 'Gadgets',      path: '/search?q=gadgets&sort=popular&type=things' },
+                { label: 'Toys & Games', path: '/search?q=toys+games&sort=popular&type=things' },
+                { label: 'Art',          path: '/search?q=art&sort=popular&type=things' },
+                { label: 'Tools',        path: '/search?q=tools&sort=popular&type=things' },
               ].map(({ label, path }) => (
                 <a
                   key={label}
