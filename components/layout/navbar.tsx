@@ -42,7 +42,7 @@ const printerNav = [
   { href: '/profile/machines',      label: 'Machines' },
   { href: '/profile/portfolio',     label: 'Portfolio' },
   { href: '/profile/certification', label: 'Certification' },
-  { href: '/profile/setup',         label: 'Settings' },
+  { href: '/profile/setup',         label: 'My Profile' },
 ]
 
 const adminNav = [

@@ -102,7 +102,7 @@ const printerNav: NavItem[] = [
   { href: '/profile/machines',        label: 'Machines',      icon: icons.cog       },
   { href: '/profile/portfolio',       label: 'Portfolio',     icon: icons.briefcase },
   { href: '/profile/certification',   label: 'Certification', icon: icons.users     },
-  { href: '/profile/setup',           label: 'Settings',      icon: icons.user      },
+  { href: '/profile/setup',           label: 'My Profile',    icon: icons.user      },
 ]
 
 const adminNav: NavItem[] = [
