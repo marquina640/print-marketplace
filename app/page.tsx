@@ -282,7 +282,7 @@ export default async function LandingPage() {
               {
                 icon: '🔒',
                 title: 'Escrow payments',
-                desc: 'Your payment is held securely until you confirm delivery. Makers only get paid when you're happy.',
+                desc: "Your payment is held securely until you confirm delivery. Makers only get paid when you're happy.",
               },
               {
                 icon: '💳',
