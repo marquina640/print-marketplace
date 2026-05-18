@@ -51,14 +51,14 @@ export default async function LandingPage() {
             <div>
               <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-gold-500/30 bg-gold-500/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-gold-400">
                 <span className="h-1.5 w-1.5 rounded-full bg-gold-400 animate-pulse" />
-                Switzerland's 3D Printing Marketplace
+                The 3D Printing Marketplace
               </div>
               <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black leading-[0.92] tracking-tighter text-white mb-6">
                 Get your idea<br />
                 <span className="text-gold-400">printed today.</span>
               </h1>
               <p className="text-lg text-warm-400 max-w-lg mb-8 leading-relaxed">
-                Post a job, collect quotes from verified Swiss makers, pay securely — and track your order every step of the way.
+                Post a job, collect quotes from verified local makers, pay securely — and track your order every step of the way.
               </p>
               <div className="flex flex-col sm:flex-row gap-3 mb-6">
                 <Link href="/signup">
@@ -146,7 +146,7 @@ export default async function LandingPage() {
 
           <div className="grid sm:grid-cols-2 gap-5 max-w-3xl mx-auto mb-6">
             {/* MakerWorld */}
-            <a href="https://makerworld.com/en/models" target="_blank" rel="noopener noreferrer"
+            <a href="https://makerworld.com/en" target="_blank" rel="noopener noreferrer"
               className="group rounded-2xl border-2 border-warm-200 bg-white p-6 hover:border-ink-400 hover:shadow-lg transition-all">
               <div className="flex items-center gap-3 mb-3">
                 <div className="h-10 w-10 rounded-xl bg-ink-900 flex items-center justify-center flex-shrink-0">
@@ -169,7 +169,7 @@ export default async function LandingPage() {
             </a>
 
             {/* Thingiverse */}
-            <a href="https://www.thingiverse.com/explore/popular" target="_blank" rel="noopener noreferrer"
+            <a href="https://www.thingiverse.com" target="_blank" rel="noopener noreferrer"
               className="group rounded-2xl border-2 border-warm-200 bg-white p-6 hover:border-ink-400 hover:shadow-lg transition-all">
               <div className="flex items-center gap-3 mb-3">
                 <div className="h-10 w-10 rounded-xl bg-blue-600 flex items-center justify-center flex-shrink-0">
@@ -213,7 +213,7 @@ export default async function LandingPage() {
               {[
                 { n: '1', icon: '📁', title: 'Find or upload your model', desc: 'Browse MakerWorld or Thingiverse, or upload your own STL / STEP file.' },
                 { n: '2', icon: '📋', title: 'Post your job', desc: 'Describe material, color, quantity, deadline, and budget. Takes 2 minutes.' },
-                { n: '3', icon: '💬', title: 'Receive quotes', desc: 'Swiss makers review your job and submit quotes with preview photos within 24h.' },
+                { n: '3', icon: '💬', title: 'Receive quotes', desc: 'Local makers review your job and submit quotes with preview photos within 24h.' },
                 { n: '4', icon: '📦', title: 'Pay & receive', desc: 'Accept the best quote, pay securely into escrow, and confirm when it arrives.' },
               ].map((s) => (
                 <div key={s.n} className="rounded-2xl border border-warm-200 bg-white p-5 relative">
@@ -274,7 +274,7 @@ export default async function LandingPage() {
         <div className="page-container">
           <div className="text-center mb-14">
             <p className="text-xs font-bold uppercase tracking-widest text-gold-500 mb-3">Why PrintMarket</p>
-            <h2 className="text-4xl font-black text-white tracking-tight">Built for trust.<br />Designed for Switzerland.</h2>
+            <h2 className="text-4xl font-black text-white tracking-tight">Built for trust.<br />Made for makers everywhere.</h2>
           </div>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -287,7 +287,7 @@ export default async function LandingPage() {
               {
                 icon: '💳',
                 title: 'Pay your way',
-                desc: 'Card, TWINT, or bank transfer — we support all major Swiss payment methods through Stripe.',
+                desc: 'Card, TWINT, bank transfer and more — we support local and international payment methods through Stripe.',
               },
               {
                 icon: '🏅',
@@ -302,7 +302,7 @@ export default async function LandingPage() {
               {
                 icon: '🗺️',
                 title: 'Local-first',
-                desc: 'See makers near you on an interactive map. Pickup in person, local delivery, or Swiss-wide shipping.',
+                desc: 'See makers near you on an interactive map. Pickup in person or local delivery — choose what works for you.',
               },
               {
                 icon: '📎',
@@ -349,7 +349,7 @@ export default async function LandingPage() {
             Your part is waiting.
           </h2>
           <p className="text-ink-700 mb-10 text-lg max-w-md mx-auto leading-relaxed">
-            Join hundreds of Swiss makers and clients already using PrintMarket to bring ideas to life.
+            Join makers and clients already using PrintMarket to bring ideas to life.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
             <Link href="/signup">
@@ -379,7 +379,7 @@ export default async function LandingPage() {
               </div>
               PrintMarket
             </div>
-            <p className="text-xs text-warm-400 uppercase tracking-wider">© 2025 PrintMarket · Zurich, Switzerland</p>
+            <p className="text-xs text-warm-400 uppercase tracking-wider">© 2025 PrintMarket</p>
             <div className="flex gap-5 text-xs text-warm-500">
               <a href="#" className="hover:text-ink-900 transition-colors">Privacy</a>
               <a href="#" className="hover:text-ink-900 transition-colors">Terms</a>

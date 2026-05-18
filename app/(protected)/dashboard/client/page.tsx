@@ -275,7 +275,7 @@ export default async function ClientDashboardPage() {
               ))}
             </div>
             <a
-              href="https://makerworld.com/en/models"
+              href="https://makerworld.com/en"
               target="_blank"
               rel="noopener noreferrer"
               className="mt-auto text-xs font-medium text-ink-600 hover:text-ink-800 flex items-center gap-1"
@@ -315,7 +315,7 @@ export default async function ClientDashboardPage() {
               ))}
             </div>
             <a
-              href="https://www.thingiverse.com/explore/popular"
+              href="https://www.thingiverse.com"
               target="_blank"
               rel="noopener noreferrer"
               className="mt-auto text-xs font-medium text-sky-600 hover:text-sky-800 flex items-center gap-1"
@@ -339,7 +339,7 @@ export default async function ClientDashboardPage() {
           <EmptyState
             icon={<svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>}
             title="No jobs yet"
-            description="Post your first job and start receiving quotes from Zurich's best makers."
+            description="Post your first job and start receiving quotes from local makers."
             action={{ label: 'Post a Job', href: '/jobs/new' }}
           />
         ) : (
