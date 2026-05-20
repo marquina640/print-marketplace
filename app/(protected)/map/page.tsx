@@ -49,6 +49,7 @@ export default async function MapPage() {
     .from('jobs')
     .select('id, title, material, budget, location, latitude, longitude')
     .eq('status', 'open')
+    .neq('client_id', user.id)
   if (testIds.length > 0) jobsQuery = jobsQuery.not('client_id', 'in', `(${testIds.join(',')})`)
 
   // Only show printer_profiles whose user still has an active, non-test profile
