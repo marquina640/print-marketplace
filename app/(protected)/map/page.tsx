@@ -52,11 +52,14 @@ export default async function MapPage() {
   if (testIds.length > 0) jobsQuery = jobsQuery.not('client_id', 'in', `(${testIds.join(',')})`)
 
   // Only show printer_profiles whose user still has an active, non-test profile
+  // Exclude the current user's own maker profile (visible when browsing as customer)
+  const visibleMakerIds = validMakerIds.filter((id) => id !== user.id)
+
   let printersQuery = supabase
     .from('printer_profiles')
     .select('user_id, display_name, city, certification_level, latitude, longitude')
-  if (validMakerIds.length > 0) {
-    printersQuery = printersQuery.in('user_id', validMakerIds)
+  if (visibleMakerIds.length > 0) {
+    printersQuery = printersQuery.in('user_id', visibleMakerIds)
   } else {
     printersQuery = printersQuery.eq('user_id', '00000000-0000-0000-0000-000000000000')
   }
