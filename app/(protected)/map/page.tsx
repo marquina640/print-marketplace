@@ -31,10 +31,11 @@ export default async function MapPage() {
     .eq('status', 'open')
   if (testIds.length > 0) jobsQuery = jobsQuery.not('client_id', 'in', `(${testIds.join(',')})`)
 
+  // Inner join ensures orphaned printer_profiles (deleted users) are excluded
   let printersQuery = supabase
     .from('printer_profiles')
-    .select('user_id, display_name, city, certification_level, latitude, longitude')
-  if (testIds.length > 0) printersQuery = printersQuery.not('user_id', 'in', `(${testIds.join(',')})`)
+    .select('user_id, display_name, city, certification_level, latitude, longitude, profiles!inner(is_test)')
+    .eq('profiles.is_test', false)
 
   const [{ data: jobsRaw }, { data: printersRaw }] = await Promise.all([jobsQuery, printersQuery])
 
