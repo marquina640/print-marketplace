@@ -6,7 +6,7 @@ import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
-import { MATERIALS, COLORS, DEFAULT_CITY, DEFAULT_LOCATION } from '@/lib/utils'
+import { MATERIALS, COLORS } from '@/lib/utils'
 import { AddressAutocomplete } from '@/components/ui/address-autocomplete'
 
 function MultiCheckbox({ label, options, selected, onChange }: {
@@ -79,7 +79,7 @@ export function ProfileSetupForm({ effectiveUserId }: { effectiveUserId: string 
         setFormState({
           display_name: data.display_name,
           city: data.city,
-          location: data.location ?? DEFAULT_LOCATION,
+          location: data.location ?? '',
           materials: data.materials,
           colors: data.colors,
           design_services: data.design_services,

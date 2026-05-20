@@ -25,15 +25,17 @@ export function AddressAutocomplete({ label, placeholder, hint, defaultValue, re
   const inputRef = useRef<HTMLInputElement>(null)
   const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null)
   const onSelectRef = useRef(onSelect)
+  const hasUserSelected = useRef(false)
   const [inputValue, setInputValue] = useState(defaultValue ?? '')
 
   // Keep the callback ref current without re-running the effect
   useEffect(() => { onSelectRef.current = onSelect })
 
   // Sync input when defaultValue changes (e.g. after async profile load)
+  // Stop syncing only after the user has actually picked a place from the dropdown
   useEffect(() => {
-    if (defaultValue && !autocompleteRef.current) {
-      setInputValue(defaultValue)
+    if (!hasUserSelected.current) {
+      setInputValue(defaultValue ?? '')
     }
   }, [defaultValue])
 
@@ -62,6 +64,7 @@ export function AddressAutocomplete({ label, placeholder, hint, defaultValue, re
       const city = cityComponent?.long_name
 
       if (lat != null && lng != null) {
+        hasUserSelected.current = true
         setInputValue(address)
         onSelectRef.current({ address, lat, lng, city })
       }
