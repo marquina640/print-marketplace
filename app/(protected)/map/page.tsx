@@ -22,15 +22,21 @@ export default async function MapPage() {
   const viewModeRole = viewMode === 'maker' ? 'printer_owner' : viewMode === 'client' ? 'client' : null
   const effectiveRole = previewAs ?? viewModeRole ?? profile?.role ?? 'client'
 
-  const [{ data: jobsRaw }, { data: printersRaw }] = await Promise.all([
-    supabase
-      .from('jobs')
-      .select('id, title, material, budget, location, latitude, longitude')
-      .eq('status', 'open'),
-    supabase
-      .from('printer_profiles')
-      .select('user_id, display_name, city, certification_level, latitude, longitude'),
-  ])
+  const { data: testUsers } = await supabase.from('profiles').select('user_id').eq('is_test', true)
+  const testIds = testUsers?.map((u) => u.user_id) ?? []
+
+  let jobsQuery = supabase
+    .from('jobs')
+    .select('id, title, material, budget, location, latitude, longitude')
+    .eq('status', 'open')
+  if (testIds.length > 0) jobsQuery = jobsQuery.not('client_id', 'in', `(${testIds.join(',')})`)
+
+  let printersQuery = supabase
+    .from('printer_profiles')
+    .select('user_id, display_name, city, certification_level, latitude, longitude')
+  if (testIds.length > 0) printersQuery = printersQuery.not('user_id', 'in', `(${testIds.join(',')})`)
+
+  const [{ data: jobsRaw }, { data: printersRaw }] = await Promise.all([jobsQuery, printersQuery])
 
   const jobs = (jobsRaw ?? [])
     .map((j) => {
