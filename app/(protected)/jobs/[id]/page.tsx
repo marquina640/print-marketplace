@@ -29,7 +29,9 @@ export default async function JobDetailPage({ params }: PageProps) {
   const cookieStore = await cookies()
   const previewAs     = profile?.role === 'admin' ? cookieStore.get('admin_preview_as')?.value : undefined
   const previewUserId = profile?.role === 'admin' ? cookieStore.get('admin_preview_user_id')?.value : undefined
-  const effectiveRole = previewAs ?? profile?.role
+  const viewMode      = profile?.role !== 'admin' ? cookieStore.get('view_mode')?.value : undefined
+  const viewModeRole  = viewMode === 'maker' ? 'printer_owner' : viewMode === 'client' ? 'client' : null
+  const effectiveRole = previewAs ?? viewModeRole ?? profile?.role
   const effectiveUserId = previewUserId ?? user.id
 
   const { data: job } = await supabase.from('jobs').select('*').eq('id', id).single()
