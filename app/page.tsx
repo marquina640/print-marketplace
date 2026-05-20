@@ -18,7 +18,7 @@ export default async function LandingPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
               </svg>
             </div>
-            PrintMarket
+            PrintMarketHub
           </div>
           <nav className="flex items-center gap-2">
             {user ? (
@@ -269,11 +269,11 @@ export default async function LandingPage() {
         </div>
       </section>
 
-      {/* ── Why PrintMarket ── */}
+      {/* ── Why PrintMarketHub ── */}
       <section className="py-20 bg-ink-950 text-white">
         <div className="page-container">
           <div className="text-center mb-14">
-            <p className="text-xs font-bold uppercase tracking-widest text-gold-500 mb-3">Why PrintMarket</p>
+            <p className="text-xs font-bold uppercase tracking-widest text-gold-500 mb-3">Why PrintMarketHub</p>
             <h2 className="text-4xl font-black text-white tracking-tight">Built for trust.<br />Made for makers everywhere.</h2>
           </div>
 
@@ -349,7 +349,7 @@ export default async function LandingPage() {
             Your part is waiting.
           </h2>
           <p className="text-ink-700 mb-10 text-lg max-w-md mx-auto leading-relaxed">
-            Join makers and clients already using PrintMarket to bring ideas to life.
+            Join makers and clients already using PrintMarketHub to bring ideas to life.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
             <Link href="/signup">
@@ -377,9 +377,9 @@ export default async function LandingPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                 </svg>
               </div>
-              PrintMarket
+              PrintMarketHub
             </div>
-            <p className="text-xs text-warm-400 uppercase tracking-wider">© 2025 PrintMarket</p>
+            <p className="text-xs text-warm-400 uppercase tracking-wider">© 2025 PrintMarketHub</p>
             <div className="flex gap-5 text-xs text-warm-500">
               <a href="#" className="hover:text-ink-900 transition-colors">Privacy</a>
               <a href="#" className="hover:text-ink-900 transition-colors">Terms</a>

@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { MapClient } from '@/components/map/map-client'
 import { cityToCoords } from '@/lib/utils'
 
-export const metadata = { title: 'Map — PrintMarket' }
+export const metadata = { title: 'Map — PrintMarketHub' }
 
 export default async function MapPage() {
   const supabase = await createClient()

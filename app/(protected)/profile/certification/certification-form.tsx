@@ -113,7 +113,7 @@ export function CertificationForm({ effectiveUserId }: { effectiveUserId: string
       <div>
         <h1 className="section-heading">Certification</h1>
         <p className="text-warm-500 text-sm mt-1">
-          PrintMarket certification is your proof of manufacturing quality. Higher levels unlock more jobs and build client trust.
+          PrintMarketHub certification is your proof of manufacturing quality. Higher levels unlock more jobs and build client trust.
         </p>
       </div>
 
@@ -172,7 +172,7 @@ export function CertificationForm({ effectiveUserId }: { effectiveUserId: string
         <div className="card p-6 text-center">
           <p className="text-2xl mb-2">★</p>
           <p className="font-bold text-ink-900">Production Partner — Maximum Level</p>
-          <p className="text-sm text-warm-500 mt-1">You have achieved the highest PrintMarket certification.</p>
+          <p className="text-sm text-warm-500 mt-1">You have achieved the highest PrintMarketHub certification.</p>
         </div>
       )}
 

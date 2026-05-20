@@ -117,9 +117,9 @@ export default function OnboardingPage() {
               <path strokeLinecap="round" strokeLinejoin="round"
                 d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
             </svg>
-            PrintMarket
+            PrintMarketHub
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">How will you use PrintMarket?</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">How will you use PrintMarketHub?</h1>
           <p className="text-gray-500">Choose your role. You can always contact support to change it.</p>
         </div>
 

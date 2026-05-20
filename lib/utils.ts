@@ -127,7 +127,7 @@ export async function geocodeAddress(
   try {
     const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1`
     const res = await fetch(url, {
-      headers: { 'User-Agent': 'PrintMarketplace/1.0 (contact@printmarket.ch)' },
+      headers: { 'User-Agent': 'PrintMarketHub/1.0 (contact@printmarkethub.com)' },
     })
     const data = (await res.json()) as Array<{ lat: string; lon: string }>
     if (data[0]) return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) }
@@ -151,7 +151,7 @@ export const CERTIFICATION_LEVELS = [
     level: 1,
     name: 'Verified Quality',
     shortName: 'Verified',
-    description: 'Passed PrintMarket quality inspection. Suitable for functional parts and reliable consumer products.',
+    description: 'Passed PrintMarketHub quality inspection. Suitable for functional parts and reliable consumer products.',
     color: 'ink' as const,
     icon: '✓',
   },

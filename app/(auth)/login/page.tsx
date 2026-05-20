@@ -53,7 +53,7 @@ export default function LoginPage() {
       <div className="card p-8">
         <div className="mb-6 text-center">
           <h1 className="text-2xl font-bold text-ink-900">Welcome back</h1>
-          <p className="mt-1 text-sm text-warm-500">Sign in to your PrintMarket account</p>
+          <p className="mt-1 text-sm text-warm-500">Sign in to your PrintMarketHub account</p>
         </div>
 
         {/* Google OAuth */}
