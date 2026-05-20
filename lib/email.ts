@@ -1,6 +1,6 @@
 import { Resend } from 'resend'
 
-const FROM = 'PrintMarketHub <noreply@printmarkethub.com>'
+const FROM = 'PrintMarketHub <admin@printmakerhub.com>'
 
 export async function sendEmail({
   to,
