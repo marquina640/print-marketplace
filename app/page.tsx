@@ -381,9 +381,10 @@ export default async function LandingPage() {
             </div>
             <p className="text-xs text-warm-400 uppercase tracking-wider">© 2025 PrintMarketHub</p>
             <div className="flex gap-5 text-xs text-warm-500">
-              <a href="#" className="hover:text-ink-900 transition-colors">Privacy</a>
-              <a href="#" className="hover:text-ink-900 transition-colors">Terms</a>
-              <a href="#" className="hover:text-ink-900 transition-colors">Contact</a>
+              <a href="/legal/privacy" className="hover:text-ink-900 transition-colors">Privacy</a>
+              <a href="/legal/terms" className="hover:text-ink-900 transition-colors">Terms</a>
+              <a href="/legal/impressum" className="hover:text-ink-900 transition-colors">Impressum</a>
+              <a href="mailto:admin@printmakerhub.com" className="hover:text-ink-900 transition-colors">Contact</a>
             </div>
           </div>
         </div>
