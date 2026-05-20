@@ -33,22 +33,14 @@ const EMPTY_FORM = {
 }
 
 export function MachinesForm({ effectiveUserId }: { effectiveUserId: string }) {
-  const [machines, setMachines]   = useState<Machine[]>([])
-  const [loading, setLoading]     = useState(true)
-  const [saving, setSaving]       = useState(false)
-  const [error, setError]         = useState<string | null>(null)
-  const [showForm, setShowForm]   = useState(false)
+  const [machines, setMachines] = useState<Machine[]>([])
+  const [loading, setLoading]   = useState(true)
+  const [saving, setSaving]     = useState(false)
+  const [error, setError]       = useState<string | null>(null)
+  const [showForm, setShowForm] = useState(false)
+  const [editingId, setEditingId] = useState<string | null>(null)
   const [selectedBrand, setSelectedBrand] = useState('')
-  const [form, setForm]           = useState(EMPTY_FORM)
-
-  function toggleNozzle(size: number) {
-    setForm((prev) => ({
-      ...prev,
-      nozzle_diameters: prev.nozzle_diameters.includes(size)
-        ? prev.nozzle_diameters.filter((n) => n !== size)
-        : [...prev.nozzle_diameters, size].sort((a, b) => a - b),
-    }))
-  }
+  const [form, setForm] = useState(EMPTY_FORM)
 
   const modelOptions = selectedBrand ? (PRINTER_BRANDS[selectedBrand] ?? []) : []
   const availableProcesses = MANUFACTURING_PROCESSES.filter((p) => p.available)
@@ -67,7 +59,50 @@ export function MachinesForm({ effectiveUserId }: { effectiveUserId: string }) {
     setForm((prev) => ({ ...prev, [field]: value }))
   }
 
-  async function handleAdd(e: React.FormEvent) {
+  function toggleNozzle(size: number) {
+    setForm((prev) => ({
+      ...prev,
+      nozzle_diameters: prev.nozzle_diameters.includes(size)
+        ? prev.nozzle_diameters.filter((n) => n !== size)
+        : [...prev.nozzle_diameters, size].sort((a, b) => a - b),
+    }))
+  }
+
+  function openAdd() {
+    setEditingId(null)
+    setForm(EMPTY_FORM)
+    setSelectedBrand('')
+    setError(null)
+    setShowForm(true)
+  }
+
+  function openEdit(m: Machine) {
+    setEditingId(m.id)
+    setSelectedBrand(m.brand)
+    setForm({
+      brand: m.brand,
+      model: m.model,
+      process: m.process,
+      build_volume_x: m.build_volume_x?.toString() ?? '',
+      build_volume_y: m.build_volume_y?.toString() ?? '',
+      build_volume_z: m.build_volume_z?.toString() ?? '',
+      nozzle_diameters: m.nozzle_diameters ?? [],
+      notes: m.notes ?? '',
+    })
+    setError(null)
+    setShowForm(true)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  function cancelForm() {
+    setShowForm(false)
+    setEditingId(null)
+    setForm(EMPTY_FORM)
+    setSelectedBrand('')
+    setError(null)
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError(null)
     if (!form.brand) { setError('Select a brand.'); return }
@@ -76,23 +111,28 @@ export function MachinesForm({ effectiveUserId }: { effectiveUserId: string }) {
     setSaving(true)
     const supabase = createClient()
 
-    const { error: insertError } = await supabase.from('machines').insert({
-      maker_id:         effectiveUserId,
-      brand:            form.brand,
-      model:            form.model.trim(),
-      process:          form.process,
-      build_volume_x:    form.build_volume_x ? parseFloat(form.build_volume_x) : null,
-      build_volume_y:    form.build_volume_y ? parseFloat(form.build_volume_y) : null,
-      build_volume_z:    form.build_volume_z ? parseFloat(form.build_volume_z) : null,
-      nozzle_diameters:  form.nozzle_diameters,
-      notes:             form.notes.trim() || null,
-    })
+    const payload = {
+      brand:           form.brand,
+      model:           form.model.trim(),
+      process:         form.process,
+      build_volume_x:  form.build_volume_x ? parseFloat(form.build_volume_x) : null,
+      build_volume_y:  form.build_volume_y ? parseFloat(form.build_volume_y) : null,
+      build_volume_z:  form.build_volume_z ? parseFloat(form.build_volume_z) : null,
+      nozzle_diameters: form.nozzle_diameters,
+      notes:           form.notes.trim() || null,
+    }
 
-    if (insertError) { setError(insertError.message); setSaving(false); return }
+    if (editingId) {
+      const { error: updateError } = await supabase
+        .from('machines').update(payload).eq('id', editingId)
+      if (updateError) { setError(updateError.message); setSaving(false); return }
+    } else {
+      const { error: insertError } = await supabase
+        .from('machines').insert({ ...payload, maker_id: effectiveUserId })
+      if (insertError) { setError(insertError.message); setSaving(false); return }
+    }
 
-    setForm(EMPTY_FORM)
-    setSelectedBrand('')
-    setShowForm(false)
+    cancelForm()
     setSaving(false)
     await loadMachines()
   }
@@ -108,6 +148,7 @@ export function MachinesForm({ effectiveUserId }: { effectiveUserId: string }) {
     const supabase = createClient()
     await supabase.from('machines').delete().eq('id', id)
     setMachines((prev) => prev.filter((m) => m.id !== id))
+    if (editingId === id) cancelForm()
   }
 
   if (loading) return (
@@ -122,17 +163,24 @@ export function MachinesForm({ effectiveUserId }: { effectiveUserId: string }) {
         <div>
           <h1 className="section-heading">My Machines</h1>
           <p className="text-warm-500 text-sm mt-1">
-            List your equipment so clients know exactly what you can produce.
+            List your equipment so customers know exactly what you can produce.
           </p>
         </div>
-        <Button variant="gold" onClick={() => setShowForm((v) => !v)}>
-          {showForm ? 'Cancel' : '+ Add machine'}
-        </Button>
+        {!showForm && (
+          <Button variant="gold" onClick={openAdd}>+ Add machine</Button>
+        )}
       </div>
 
       {showForm && (
-        <form onSubmit={handleAdd} className="card p-6 space-y-5 border-2 border-gold-300">
-          <h2 className="font-semibold text-ink-900">Add a machine</h2>
+        <form onSubmit={handleSubmit} className="card p-6 space-y-5 border-2 border-gold-300">
+          <div className="flex items-center justify-between">
+            <h2 className="font-semibold text-ink-900">
+              {editingId ? 'Edit machine' : 'Add a machine'}
+            </h2>
+            <button type="button" onClick={cancelForm} className="text-xs text-warm-400 hover:text-warm-700">
+              Cancel
+            </button>
+          </div>
 
           <div>
             <p className="form-label mb-2">Brand *</p>
@@ -190,9 +238,9 @@ export function MachinesForm({ effectiveUserId }: { effectiveUserId: string }) {
           <div>
             <p className="form-label mb-2">Build Volume (mm)</p>
             <div className="grid grid-cols-3 gap-3">
-              <Input label="X (Width)"  type="number" min="0" value={form.build_volume_x}  onChange={(e) => set('build_volume_x', e.target.value)}  placeholder="220" />
-              <Input label="Y (Depth)"  type="number" min="0" value={form.build_volume_y}  onChange={(e) => set('build_volume_y', e.target.value)}  placeholder="220" />
-              <Input label="Z (Height)" type="number" min="0" value={form.build_volume_z}  onChange={(e) => set('build_volume_z', e.target.value)}  placeholder="250" />
+              <Input label="X (Width)"  type="number" min="0" value={form.build_volume_x} onChange={(e) => set('build_volume_x', e.target.value)} placeholder="220" />
+              <Input label="Y (Depth)"  type="number" min="0" value={form.build_volume_y} onChange={(e) => set('build_volume_y', e.target.value)} placeholder="220" />
+              <Input label="Z (Height)" type="number" min="0" value={form.build_volume_z} onChange={(e) => set('build_volume_z', e.target.value)} placeholder="250" />
             </div>
           </div>
 
@@ -223,7 +271,12 @@ export function MachinesForm({ effectiveUserId }: { effectiveUserId: string }) {
             <div className="rounded-xl bg-red-50 border border-red-200 p-3 text-sm text-red-700">{error}</div>
           )}
 
-          <Button type="submit" loading={saving} variant="gold">Save machine</Button>
+          <div className="flex gap-3">
+            <Button type="submit" loading={saving} variant="gold">
+              {editingId ? 'Save changes' : 'Save machine'}
+            </Button>
+            <Button type="button" variant="outline" onClick={cancelForm}>Cancel</Button>
+          </div>
         </form>
       )}
 
@@ -231,12 +284,12 @@ export function MachinesForm({ effectiveUserId }: { effectiveUserId: string }) {
         <div className="card p-12 text-center">
           <p className="text-4xl mb-3">🖨️</p>
           <p className="font-semibold text-warm-900 mb-1">No machines yet</p>
-          <p className="text-sm text-warm-500">Add your printers so clients can see your capabilities.</p>
+          <p className="text-sm text-warm-500">Add your printers so customers can see your capabilities.</p>
         </div>
       ) : (
         <div className="space-y-3">
           {machines.map((m) => (
-            <div key={m.id} className={`card p-5 ${m.is_active ? '' : 'opacity-60'}`}>
+            <div key={m.id} className={`card p-5 transition-all ${m.is_active ? '' : 'opacity-60'} ${editingId === m.id ? 'border-2 border-gold-300' : ''}`}>
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
@@ -246,6 +299,9 @@ export function MachinesForm({ effectiveUserId }: { effectiveUserId: string }) {
                     </span>
                     {!m.is_active && (
                       <span className="rounded-full bg-warm-100 text-warm-500 border border-warm-200 px-2 py-0.5 text-xs">Inactive</span>
+                    )}
+                    {editingId === m.id && (
+                      <span className="rounded-full bg-gold-100 text-gold-700 border border-gold-300 px-2 py-0.5 text-xs font-medium">Editing…</span>
                     )}
                   </div>
                   <div className="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-xs text-warm-500">
@@ -259,6 +315,10 @@ export function MachinesForm({ effectiveUserId }: { effectiveUserId: string }) {
                   {m.notes && <p className="mt-1.5 text-xs text-warm-400">{m.notes}</p>}
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0">
+                  <button onClick={() => openEdit(m)}
+                    className="rounded-xl border border-ink-200 px-3 py-1.5 text-xs text-ink-600 hover:bg-ink-50 transition-colors">
+                    Edit
+                  </button>
                   <button onClick={() => toggleActive(m)}
                     className="rounded-xl border border-warm-300 px-3 py-1.5 text-xs text-warm-600 hover:bg-warm-100 transition-colors">
                     {m.is_active ? 'Deactivate' : 'Activate'}
