@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
+import { cookies } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 import { JobFeedCard } from '@/components/jobs/job-feed-card'
 import { MATERIALS, JOB_TYPES } from '@/lib/utils'
@@ -19,7 +20,10 @@ export default async function JobsFeedPage({ searchParams }: PageProps) {
   const { data: profile } = await supabase
     .from('profiles').select('role').eq('user_id', user.id).single()
 
-  if (profile?.role === 'client') redirect('/dashboard/client')
+  const cookieStore = await cookies()
+  const viewMode = cookieStore.get('view_mode')?.value
+  const effectiveRole = viewMode === 'client' ? 'client' : viewMode === 'maker' ? 'printer_owner' : profile?.role
+  if (effectiveRole === 'client') redirect('/dashboard/client')
 
   // Get maker's certification level for smart matching indicator
   const { data: makerProfile } = await supabase
@@ -49,6 +53,8 @@ export default async function JobsFeedPage({ searchParams }: PageProps) {
     .order(col, { ascending: asc })
 
   if (testUserIds.length > 0) query = query.not('client_id', 'in', `(${testUserIds.join(',')})`)
+  // Never show a maker their own requests in the feed
+  query = query.neq('client_id', user.id)
   if (material) query = query.eq('material', material)
   if (q) query = query.ilike('title', `%${q}%`)
   if (shipping === '1') query = query.eq('shipping_required', true)
@@ -65,7 +71,7 @@ export default async function JobsFeedPage({ searchParams }: PageProps) {
         <div>
           <h1 className="section-heading">Open Requests</h1>
           <p className="text-warm-500 text-sm mt-1">
-            {jobs?.length ?? 0} job{jobs?.length !== 1 ? 's' : ''} waiting for a quote
+            {jobs?.length ?? 0} request{jobs?.length !== 1 ? 's' : ''} waiting for a quote
           </p>
         </div>
         {/* Maker certification level */}
@@ -119,7 +125,7 @@ export default async function JobsFeedPage({ searchParams }: PageProps) {
         <input
           name="q"
           defaultValue={q}
-          placeholder="Search jobs…"
+          placeholder="Search requests…"
           className="flex-1 min-w-[160px] rounded-xl border border-warm-300 bg-warm-50 px-3 py-2 text-sm focus:border-ink-500 focus:outline-none focus:ring-2 focus:ring-ink-500/20"
         />
         <select
@@ -163,7 +169,7 @@ export default async function JobsFeedPage({ searchParams }: PageProps) {
       {!jobs || jobs.length === 0 ? (
         <div className="card p-16 text-center">
           <div className="text-5xl mb-4">🔍</div>
-          <h3 className="font-semibold text-warm-900 mb-1">No jobs found</h3>
+          <h3 className="font-semibold text-warm-900 mb-1">No requests found</h3>
           <p className="text-sm text-warm-500">
             {hasFilters ? 'Try adjusting your filters.' : 'No open requests right now. Check back soon!'}
           </p>

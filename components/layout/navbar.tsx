@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { markNotificationsRead } from '@/app/actions/notifications'
+import { switchToClient, switchToMaker } from '@/app/actions/switch-view'
 
 interface Notification {
   id: string
@@ -189,6 +190,32 @@ export function Navbar({ userEmail, userRole, unreadMessages = 0, notifications 
                   </div>
                 )}
               </div>
+
+              {/* Role switcher — only for non-admins */}
+              {userRole !== 'admin' && (
+                <div className="flex items-center rounded-full border border-warm-200 bg-warm-50 p-0.5 gap-0.5">
+                  <form action={switchToClient}>
+                    <button type="submit"
+                      className={`px-3 py-1 text-xs font-semibold rounded-full transition-all ${
+                        userRole === 'client'
+                          ? 'bg-white shadow-sm text-ink-900'
+                          : 'text-warm-400 hover:text-warm-700'
+                      }`}>
+                      Customer
+                    </button>
+                  </form>
+                  <form action={switchToMaker}>
+                    <button type="submit"
+                      className={`px-3 py-1 text-xs font-semibold rounded-full transition-all ${
+                        userRole === 'printer_owner'
+                          ? 'bg-white shadow-sm text-ink-900'
+                          : 'text-warm-400 hover:text-warm-700'
+                      }`}>
+                      Maker
+                    </button>
+                  </form>
+                </div>
+              )}
 
               <div className="flex items-center gap-2 pl-2 ml-1 border-l border-warm-200">
                 <span className="text-xs text-warm-400 truncate max-w-[140px] hidden xl:block">{userEmail}</span>

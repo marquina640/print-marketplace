@@ -29,7 +29,9 @@ export default async function ProtectedLayout({ children }: { children: React.Re
   const previewUserId = profile.role === 'admin'
     ? cookieStore.get('admin_preview_user_id')?.value
     : undefined
-  const effectiveRole = previewAs ?? profile.role
+  const viewModeCookie = profile.role !== 'admin' ? cookieStore.get('view_mode')?.value : undefined
+  const viewModeRole = viewModeCookie === 'maker' ? 'printer_owner' : viewModeCookie === 'client' ? 'client' : null
+  const effectiveRole = previewAs ?? viewModeRole ?? profile.role
 
   // When previewing as a specific user, fetch their name for the banner
   const { data: previewUserProfile } = previewUserId

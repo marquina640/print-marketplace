@@ -20,9 +20,10 @@ export default async function AdminUsersPage() {
     .select('user_id, email, display_name, role, created_at, onboarding_complete')
     .order('created_at', { ascending: false })
 
-  const clients  = users?.filter((u) => u.role === 'client') ?? []
-  const makers   = users?.filter((u) => u.role === 'printer_owner') ?? []
-  const admins   = users?.filter((u) => u.role === 'admin') ?? []
+  const clients      = users?.filter((u) => u.role === 'client' && u.onboarding_complete) ?? []
+  const makers       = users?.filter((u) => u.role === 'printer_owner' && u.onboarding_complete) ?? []
+  const admins       = users?.filter((u) => u.role === 'admin') ?? []
+  const notOnboarded = users?.filter((u) => u.role !== 'admin' && !u.onboarding_complete) ?? []
 
   return (
     <div className="max-w-5xl mx-auto space-y-8">
@@ -30,7 +31,7 @@ export default async function AdminUsersPage() {
         <div>
           <h1 className="section-heading">Users</h1>
           <p className="text-warm-500 text-sm mt-0.5">
-            {users?.length ?? 0} total — {clients.length} clients · {makers.length} makers · {admins.length} admins
+            {users?.length ?? 0} total — {clients.length} customers · {makers.length} makers · {notOnboarded.length} not onboarded
           </p>
         </div>
       </div>
@@ -38,8 +39,11 @@ export default async function AdminUsersPage() {
       {/* Create user form */}
       <CreateUserForm />
 
+      {/* Not onboarded */}
+      {notOnboarded.length > 0 && <UserTable title="Not Onboarded" users={notOnboarded} highlight />}
+
       {/* Clients */}
-      <UserTable title="Clients" users={clients} />
+      <UserTable title="Customers" users={clients} />
 
       {/* Makers */}
       <UserTable title="Makers" users={makers} />
@@ -50,13 +54,15 @@ export default async function AdminUsersPage() {
   )
 }
 
-function UserTable({ title, users }: {
+function UserTable({ title, users, highlight }: {
   title: string
+  highlight?: boolean
   users: { user_id: string; email: string; display_name: string | null; role: string; created_at: string; onboarding_complete: boolean | null }[]
 }) {
   return (
     <section>
-      <h2 className="text-lg font-semibold text-warm-900 mb-3">
+      <h2 className={`text-lg font-semibold mb-3 ${highlight ? 'text-amber-700' : 'text-warm-900'}`}>
+        {highlight && <span className="mr-1.5">⚠</span>}
         {title} <span className="text-warm-400 font-normal text-base">({users.length})</span>
       </h2>
       {users.length === 0 ? (

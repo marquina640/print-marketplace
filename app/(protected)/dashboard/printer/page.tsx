@@ -19,9 +19,9 @@ export default async function PrinterDashboardPage() {
   const { data: profile } = await supabase
     .from('profiles').select('role, display_name').eq('user_id', user.id).single()
 
-  if (profile?.role !== 'printer_owner' && profile?.role !== 'admin') redirect('/dashboard')
-
   const cookieStore = await cookies()
+  const viewMode = cookieStore.get('view_mode')?.value
+  if (profile?.role !== 'printer_owner' && profile?.role !== 'admin' && viewMode !== 'maker') redirect('/dashboard')
   const previewUserId = profile?.role === 'admin'
     ? cookieStore.get('admin_preview_user_id')?.value
     : undefined

@@ -104,7 +104,7 @@ export function LeafletMap({ jobs, printers, filter }: LeafletMapProps) {
               <p style="font-weight:600;margin:0 0 4px">${job.title}</p>
               <p style="color:#6b7280;font-size:12px;margin:0 0 2px">${job.material}</p>
               <p style="color:#4f46e5;font-size:12px;font-weight:600;margin:0">CHF ${job.budget.toFixed(0)}</p>
-              <a href="/jobs/${job.id}" style="display:inline-block;margin-top:8px;font-size:12px;color:#4f46e5">View job →</a>
+              <a href="/jobs/${job.id}" style="display:inline-block;margin-top:8px;font-size:12px;color:#4f46e5">View request →</a>
             </div>
           `)
         markersRef.current.push(m)

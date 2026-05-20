@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { cookies } from 'next/headers'
 import Link from 'next/link'
+
 import { createClient } from '@/lib/supabase/server'
 import { StatusBadge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -17,10 +18,11 @@ export default async function ClientDashboardPage() {
   const { data: profile } = await supabase
     .from('profiles').select('role, display_name').eq('user_id', user.id).single()
 
-  if (profile?.role !== 'client' && profile?.role !== 'admin') redirect('/dashboard')
+  const cookieStore = await cookies()
+  const viewMode = cookieStore.get('view_mode')?.value
+  if (profile?.role !== 'client' && profile?.role !== 'admin' && viewMode !== 'client') redirect('/dashboard')
 
   // When admin previews as a specific user, use their ID for data queries
-  const cookieStore = await cookies()
   const previewUserId = profile?.role === 'admin'
     ? cookieStore.get('admin_preview_user_id')?.value
     : undefined
