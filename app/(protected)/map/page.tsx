@@ -4,6 +4,18 @@ import { createClient } from '@/lib/supabase/server'
 import { MapClient } from '@/components/map/map-client'
 import { cityToCoords } from '@/lib/utils'
 
+// Deterministic ±~100m jitter based on an ID string.
+// Same ID always gets the same offset so pins don't jump on reload,
+// but the true coordinate is never exposed publicly.
+function scramble(id: string, lat: number, lng: number) {
+  let h = 0
+  for (let i = 0; i < id.length; i++) { h = Math.imul(31, h) + id.charCodeAt(i) | 0 }
+  const r1 = ((h & 0xffff) / 0xffff - 0.5) * 2          // -1..1
+  const r2 = (((h >>> 16) & 0xffff) / 0xffff - 0.5) * 2 // -1..1
+  const delta = 0.0009 // ≈ 100 m
+  return { lat: lat + r1 * delta, lng: lng + r2 * delta }
+}
+
 export const metadata = { title: 'Map — PrintMarketHub' }
 
 export default async function MapPage() {
@@ -53,18 +65,20 @@ export default async function MapPage() {
 
   const jobs = (jobsRaw ?? [])
     .map((j) => {
-      const lat = j.latitude ?? cityToCoords(j.location)?.lat ?? null
-      const lng = j.longitude ?? cityToCoords(j.location)?.lng ?? null
-      if (lat == null || lng == null) return null
+      const rawLat = j.latitude ?? cityToCoords(j.location)?.lat ?? null
+      const rawLng = j.longitude ?? cityToCoords(j.location)?.lng ?? null
+      if (rawLat == null || rawLng == null) return null
+      const { lat, lng } = scramble(j.id, rawLat, rawLng)
       return { id: j.id as string, title: j.title as string, material: j.material as string, budget: j.budget as number, lat, lng }
     })
     .filter((j): j is NonNullable<typeof j> => j !== null)
 
   const printers = (printersRaw ?? [])
     .map((p) => {
-      const lat = p.latitude ?? cityToCoords(p.city)?.lat ?? null
-      const lng = p.longitude ?? cityToCoords(p.city)?.lng ?? null
-      if (lat == null || lng == null) return null
+      const rawLat = p.latitude ?? cityToCoords(p.city)?.lat ?? null
+      const rawLng = p.longitude ?? cityToCoords(p.city)?.lng ?? null
+      if (rawLat == null || rawLng == null) return null
+      const { lat, lng } = scramble(p.user_id, rawLat, rawLng)
       return { id: p.user_id as string, display_name: p.display_name as string | null, city: p.city as string | null, certLevel: (p.certification_level as number) ?? 0, lat, lng }
     })
     .filter((p): p is NonNullable<typeof p> => p !== null)

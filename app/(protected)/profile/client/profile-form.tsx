@@ -5,7 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
-import { DEFAULT_CITY, geocodeAddress } from '@/lib/utils'
+import { AddressAutocomplete, type AddressResult } from '@/components/ui/address-autocomplete'
 
 interface ClientProfileFormProps {
   effectiveUserId: string
@@ -19,9 +19,11 @@ export function ClientProfileForm({ effectiveUserId }: ClientProfileFormProps) {
 
   const [form, setForm] = useState({
     display_name: '',
-    city: DEFAULT_CITY,
-    address: '',
     bio: '',
+    location: '',
+    city: '',
+    lat: null as number | null,
+    lng: null as number | null,
   })
 
   useEffect(() => {
@@ -29,16 +31,21 @@ export function ClientProfileForm({ effectiveUserId }: ClientProfileFormProps) {
       const supabase = createClient()
       const { data: profile } = await supabase
         .from('profiles')
-        .select('display_name, city, address, bio')
+        .select('display_name, city, address, bio, latitude, longitude')
         .eq('user_id', effectiveUserId)
         .single()
 
       if (profile) {
+        const savedLocation = profile.address
+          ? `${profile.address}${profile.city ? ', ' + profile.city : ''}`
+          : profile.city ?? ''
         setForm({
           display_name: profile.display_name ?? '',
-          city: profile.city ?? DEFAULT_CITY,
-          address: profile.address ?? '',
           bio: profile.bio ?? '',
+          location: savedLocation,
+          city: profile.city ?? '',
+          lat: profile.latitude ?? null,
+          lng: profile.longitude ?? null,
         })
       }
       setLoading(false)
@@ -46,8 +53,14 @@ export function ClientProfileForm({ effectiveUserId }: ClientProfileFormProps) {
     load()
   }, [effectiveUserId])
 
-  function set(field: string, value: string) {
-    setForm((prev) => ({ ...prev, [field]: value }))
+  function handleAddressSelect(result: AddressResult) {
+    setForm((prev) => ({
+      ...prev,
+      location: result.address,
+      city: result.city ?? result.address.split(',')[0],
+      lat: result.lat,
+      lng: result.lng,
+    }))
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -58,28 +71,19 @@ export function ClientProfileForm({ effectiveUserId }: ClientProfileFormProps) {
     setSaving(true)
     const supabase = createClient()
 
-    const locationStr = form.address.trim()
-      ? `${form.address.trim()}, ${form.city.trim()}, Switzerland`
-      : `${form.city.trim()}, Switzerland`
-    const geo = await geocodeAddress(locationStr)
-
     const { error: updateError } = await supabase
       .from('profiles')
       .update({
         display_name: form.display_name.trim(),
-        city: form.city.trim() || null,
-        address: form.address.trim() || null,
+        city: form.city || null,
+        address: form.location || null,
         bio: form.bio.trim() || null,
-        latitude: geo?.lat ?? null,
-        longitude: geo?.lng ?? null,
+        latitude: form.lat,
+        longitude: form.lng,
       })
       .eq('user_id', effectiveUserId)
 
-    if (updateError) {
-      setError(updateError.message)
-      setSaving(false)
-      return
-    }
+    if (updateError) { setError(updateError.message); setSaving(false); return }
 
     setSaved(true)
     setSaving(false)
@@ -96,7 +100,7 @@ export function ClientProfileForm({ effectiveUserId }: ClientProfileFormProps) {
     <div className="max-w-xl mx-auto">
       <div className="mb-7">
         <h1 className="section-heading">My Profile</h1>
-        <p className="text-warm-500 text-sm mt-1">Update your name and address so makers know where to deliver.</p>
+        <p className="text-warm-500 text-sm mt-1">Update your name and location so makers know where to deliver.</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-5">
@@ -106,13 +110,13 @@ export function ClientProfileForm({ effectiveUserId }: ClientProfileFormProps) {
             label="Display name *"
             required
             value={form.display_name}
-            onChange={(e) => set('display_name', e.target.value)}
+            onChange={(e) => setForm((p) => ({ ...p, display_name: e.target.value }))}
             placeholder="Jane Doe"
           />
           <Textarea
             label="Bio (optional)"
             value={form.bio}
-            onChange={(e) => set('bio', e.target.value)}
+            onChange={(e) => setForm((p) => ({ ...p, bio: e.target.value }))}
             rows={3}
             placeholder="Tell makers a little about yourself or your project…"
           />
@@ -120,21 +124,12 @@ export function ClientProfileForm({ effectiveUserId }: ClientProfileFormProps) {
 
         <div className="card p-6 space-y-4">
           <h2 className="font-semibold text-ink-900">Your Location</h2>
-          <p className="text-xs text-warm-400">
-            Your address is used to show your jobs on the map and help nearby makers find you. Only your general area is shown publicly.
-          </p>
-          <Input
-            label="City"
-            value={form.city}
-            onChange={(e) => set('city', e.target.value)}
-            placeholder="Zürich"
-          />
-          <Input
-            label="Street address (optional)"
-            value={form.address}
-            onChange={(e) => set('address', e.target.value)}
-            placeholder="e.g. Bahnhofstrasse 12"
-            hint="Only used to pin your job to the map — not shown to other users"
+          <AddressAutocomplete
+            label="Your area / address"
+            placeholder="Start typing your city or address…"
+            defaultValue={form.location}
+            onSelect={handleAddressSelect}
+            hint="Only your general area is shown publicly — exact address stays private"
           />
         </div>
 
