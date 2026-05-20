@@ -18,8 +18,20 @@ export default async function NewJobPage() {
     ? cookieStore.get('admin_preview_user_id')?.value
     : undefined
 
-  // Use the previewed client's ID if admin is previewing, otherwise use real user ID
   const clientId = previewUserId ?? user.id
 
-  return <NewJobForm clientId={clientId} />
+  // Load the customer's saved location so the form can use it without asking again
+  const { data: clientProfile } = await supabase
+    .from('profiles')
+    .select('address, city, latitude, longitude')
+    .eq('user_id', clientId)
+    .single()
+
+  const clientLocation = {
+    address: clientProfile?.address ?? clientProfile?.city ?? '',
+    lat: clientProfile?.latitude ?? null,
+    lng: clientProfile?.longitude ?? null,
+  }
+
+  return <NewJobForm clientId={clientId} clientLocation={clientLocation} />
 }

@@ -8,9 +8,10 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Select } from '@/components/ui/select'
 import { MATERIALS, COLORS, formatFileSize, JOB_TYPES, MANUFACTURING_PROCESSES } from '@/lib/utils'
-import { AddressAutocomplete } from '@/components/ui/address-autocomplete'
 
-export function NewJobForm({ clientId }: { clientId: string }) {
+interface ClientLocation { address: string; lat: number | null; lng: number | null }
+
+export function NewJobForm({ clientId, clientLocation }: { clientId: string; clientLocation: ClientLocation }) {
   const router = useRouter()
   const modelFileRef = useRef<HTMLInputElement>(null)
   const imageFileRef = useRef<HTMLInputElement>(null)
@@ -29,9 +30,9 @@ export function NewJobForm({ clientId }: { clientId: string }) {
     quantity: '1',
     deadline: '',
     budget: '',
-    location: '',
-    lat: null as number | null,
-    lng: null as number | null,
+    location: clientLocation.address,
+    lat: clientLocation.lat,
+    lng: clientLocation.lng,
     shipping_required: true,
     pickup_ok: false,
     job_type: 'functional',
@@ -78,7 +79,6 @@ export function NewJobForm({ clientId }: { clientId: string }) {
     setError(null)
 
     if (!form.material) { setError('Please select a material.'); return }
-    if (!form.location.trim()) { setError('Please select your location from the dropdown suggestions.'); return }
     if (modelFiles.length === 0) { setError('Please upload at least one 3D model file (STL, 3MF, etc.).'); return }
     if (!imageFile) { setError('Please upload a reference photo so makers can see what you need.'); return }
 
@@ -331,37 +331,31 @@ export function NewJobForm({ clientId }: { clientId: string }) {
           </div>
         </div>
 
-        {/* Budget & Location */}
+        {/* Budget & Delivery */}
         <div className="card p-6 space-y-4">
-          <h2 className="font-semibold text-ink-900">Budget & Location</h2>
-          <div className="grid grid-cols-2 gap-4">
-            <Input
-              label="Budget (CHF)"
-              type="number"
-              min="0"
-              step="0.01"
-              value={form.budget}
-              onChange={(e) => set('budget', e.target.value)}
-              placeholder="50.00"
-              hint="Leave blank if flexible"
-            />
-            <AddressAutocomplete
-              label="Your location *"
-              required
-              placeholder="Start typing your address…"
-              hint="Select from the dropdown — used to match nearby makers"
-              onSelect={({ address, lat, lng }) => {
-                setForm((prev) => ({ ...prev, location: address, lat, lng }))
-              }}
-            />
-          </div>
+          <h2 className="font-semibold text-ink-900">Budget & Delivery</h2>
+          <Input
+            label="Budget (CHF)"
+            type="number"
+            min="0"
+            step="0.01"
+            value={form.budget}
+            onChange={(e) => set('budget', e.target.value)}
+            placeholder="50.00"
+            hint="Leave blank if flexible"
+          />
           <div className="space-y-2">
-            <div className="flex items-center gap-2 text-sm text-warm-700">
-              <svg className="h-4 w-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-              <span>Shipping always included — makers can ship your order</span>
-            </div>
+            <label className="flex items-center gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={form.shipping_required}
+                onChange={(e) => set('shipping_required', e.target.checked as unknown as boolean)}
+                className="h-4 w-4 rounded border-warm-300 text-ink-600 focus:ring-ink-500"
+              />
+              <span className="text-sm text-warm-700">
+                Shipping OK — makers can ship your order
+              </span>
+            </label>
             <label className="flex items-center gap-3 cursor-pointer">
               <input
                 type="checkbox"
