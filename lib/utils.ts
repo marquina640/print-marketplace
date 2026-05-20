@@ -149,7 +149,7 @@ export const CERTIFICATION_LEVELS = [
   },
   {
     level: 1,
-    name: 'Verified Quality',
+    name: 'Verified Maker',
     shortName: 'Verified',
     description: 'Passed PrintMarketHub quality inspection. Suitable for functional parts and reliable consumer products.',
     color: 'ink' as const,
@@ -157,7 +157,7 @@ export const CERTIFICATION_LEVELS = [
   },
   {
     level: 2,
-    name: 'Engineering Certified',
+    name: 'Engineering Maker',
     shortName: 'Engineering',
     description: 'Calibrated machines, engineering materials, tolerance validation. For prototypes and mechanical parts.',
     color: 'gold' as const,
@@ -165,8 +165,8 @@ export const CERTIFICATION_LEVELS = [
   },
   {
     level: 3,
-    name: 'Production Partner',
-    shortName: 'Production',
+    name: 'Engineering Maker',
+    shortName: 'Engineering+',
     description: 'Elite manufacturing. Batch production, fulfillment, enterprise-grade workflows.',
     color: 'violet' as const,
     icon: '★',

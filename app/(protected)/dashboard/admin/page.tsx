@@ -49,8 +49,8 @@ export default async function AdminDashboardPage() {
       .select('user_id, display_name, city, certification_level, printer_models, profiles!inner(email)')
       .order('certification_level', { ascending: false }),
     supabase.from('certification_requests').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
-    supabase.from('profiles').select('user_id, display_name, email, role').eq('role', 'client').order('created_at', { ascending: false }).limit(10),
-    supabase.from('profiles').select('user_id, display_name, email, role').eq('role', 'printer_owner').order('created_at', { ascending: false }).limit(10),
+    supabase.from('profiles').select('user_id, display_name, email, role').eq('role', 'client').eq('is_test', true).order('created_at', { ascending: false }).limit(10),
+    supabase.from('profiles').select('user_id, display_name, email, role').eq('role', 'printer_owner').eq('is_test', true).order('created_at', { ascending: false }).limit(10),
     (supabase as any).from('jobs')
       .select('*, quotes!inner(price, printer_id, profiles:printer_id(display_name, email))')
       .eq('status', 'delivered')
@@ -137,7 +137,7 @@ export default async function AdminDashboardPage() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
           { label: 'Total Users',    value: userCount    ?? 0 },
-          { label: 'Total Jobs',     value: jobCount     ?? 0 },
+          { label: 'Total Requests',  value: jobCount     ?? 0 },
           { label: 'Total Quotes',   value: quoteCount   ?? 0 },
           { label: 'Cert. Pending',  value: pendingCerts ?? 0, highlight: (pendingCerts ?? 0) > 0 },
         ].map((s) => (
@@ -194,7 +194,7 @@ export default async function AdminDashboardPage() {
 
       {/* Jobs Table */}
       <section>
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Recent Jobs</h2>
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">Recent Requests</h2>
         <div className="card overflow-hidden">
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
@@ -231,7 +231,7 @@ export default async function AdminDashboardPage() {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  {['Job', 'Printer', 'Price', 'Lead Time', 'Status', 'Submitted'].map((h) => (
+                  {['Request', 'Maker', 'Price', 'Lead Time', 'Status', 'Submitted'].map((h) => (
                     <th key={h} className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       {h}
                     </th>

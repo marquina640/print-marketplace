@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { JobFeedCard } from '@/components/jobs/job-feed-card'
 import { MATERIALS, JOB_TYPES } from '@/lib/utils'
 
-export const metadata = { title: 'Browse Jobs' }
+export const metadata = { title: 'Browse Requests' }
 
 interface PageProps {
   searchParams: Promise<{ material?: string; q?: string; shipping?: string; job_type?: string; sort?: string }>
@@ -39,11 +39,16 @@ export default async function JobsFeedPage({ searchParams }: PageProps) {
   }
   const { col, asc } = sortConfig[sort ?? ''] ?? sortConfig.newest
 
+  // Get test user IDs to exclude from the public feed
+  const { data: testUsers } = await supabase.from('profiles').select('user_id').eq('is_test', true)
+  const testUserIds = testUsers?.map((u) => u.user_id) ?? []
+
   let query = supabase
     .from('jobs').select('*')
     .eq('status', 'open')
     .order(col, { ascending: asc })
 
+  if (testUserIds.length > 0) query = query.not('client_id', 'in', `(${testUserIds.join(',')})`)
   if (material) query = query.eq('material', material)
   if (q) query = query.ilike('title', `%${q}%`)
   if (shipping === '1') query = query.eq('shipping_required', true)
@@ -58,7 +63,7 @@ export default async function JobsFeedPage({ searchParams }: PageProps) {
       {/* Header */}
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="section-heading">Open Jobs</h1>
+          <h1 className="section-heading">Open Requests</h1>
           <p className="text-warm-500 text-sm mt-1">
             {jobs?.length ?? 0} job{jobs?.length !== 1 ? 's' : ''} waiting for a quote
           </p>
@@ -160,7 +165,7 @@ export default async function JobsFeedPage({ searchParams }: PageProps) {
           <div className="text-5xl mb-4">🔍</div>
           <h3 className="font-semibold text-warm-900 mb-1">No jobs found</h3>
           <p className="text-sm text-warm-500">
-            {hasFilters ? 'Try adjusting your filters.' : 'No open jobs right now. Check back soon!'}
+            {hasFilters ? 'Try adjusting your filters.' : 'No open requests right now. Check back soon!'}
           </p>
         </div>
       ) : (

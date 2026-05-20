@@ -69,7 +69,7 @@ export default async function MessageThreadPage({ params }: PageProps) {
 
   const otherPartyName = isClient
     ? (printerProfile?.display_name ?? printerProfile?.email ?? 'Printer Owner')
-    : (clientProfile?.display_name ?? clientProfile?.email ?? 'Client')
+    : (clientProfile?.display_name ?? clientProfile?.email ?? 'Customer')
 
   return (
     <div className="max-w-2xl mx-auto space-y-4">

@@ -58,11 +58,11 @@ export default async function LandingPage() {
                 <span className="text-gold-400">printed today.</span>
               </h1>
               <p className="text-lg text-warm-400 max-w-lg mb-8 leading-relaxed">
-                Post a job, collect quotes from verified local makers, pay securely — and track your order every step of the way.
+                Post a request, collect quotes from verified local makers, pay securely — and track your order every step of the way.
               </p>
               <div className="flex flex-col sm:flex-row gap-3 mb-6">
                 <Link href="/signup">
-                  <Button variant="gold" size="lg">Post a Job — It's Free</Button>
+                  <Button variant="gold" size="lg">Post a Request — Free</Button>
                 </Link>
                 <Link href="/signup?role=printer_owner">
                   <Button size="lg" className="bg-white/10 text-white border border-white/20 hover:bg-white/20">
@@ -140,7 +140,7 @@ export default async function LandingPage() {
             <p className="text-xs font-bold uppercase tracking-widest text-gold-600 mb-3">Step 0 — Find your model</p>
             <h2 className="text-3xl font-black text-ink-950 tracking-tight">Don't have a 3D file yet?</h2>
             <p className="text-warm-500 mt-3 max-w-xl mx-auto">
-              Millions of free models are one click away. Browse, download your STL, then come back and post your job.
+              Millions of free models are one click away. Browse, download your STL, then come back and post your request.
             </p>
           </div>
 
@@ -193,7 +193,7 @@ export default async function LandingPage() {
           </div>
 
           <p className="text-center text-sm text-warm-500">
-            Already have your STL? <Link href="/signup" className="font-semibold text-ink-900 hover:underline">Post your job directly →</Link>
+            Already have your STL? <Link href="/signup" className="font-semibold text-ink-900 hover:underline">Post your request directly →</Link>
           </p>
         </div>
       </section>
@@ -208,12 +208,12 @@ export default async function LandingPage() {
 
           {/* Client path */}
           <div className="mb-12">
-            <p className="text-xs font-bold uppercase tracking-widest text-warm-400 mb-6 text-center">For clients</p>
+            <p className="text-xs font-bold uppercase tracking-widest text-warm-400 mb-6 text-center">For customers</p>
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {[
                 { n: '1', icon: '📁', title: 'Find or upload your model', desc: 'Browse MakerWorld or Thingiverse, or upload your own STL / STEP file.' },
-                { n: '2', icon: '📋', title: 'Post your job', desc: 'Describe material, color, quantity, deadline, and budget. Takes 2 minutes.' },
-                { n: '3', icon: '💬', title: 'Receive quotes', desc: 'Local makers review your job and submit quotes with preview photos within 24h.' },
+                { n: '2', icon: '📋', title: 'Post your request', desc: 'Describe material, color, quantity, deadline, and budget. Takes 2 minutes.' },
+                { n: '3', icon: '💬', title: 'Receive quotes', desc: 'Local makers review your request and submit quotes with preview photos within 24h.' },
                 { n: '4', icon: '📦', title: 'Pay & receive', desc: 'Accept the best quote, pay securely into escrow, and confirm when it arrives.' },
               ].map((s) => (
                 <div key={s.n} className="rounded-2xl border border-warm-200 bg-white p-5 relative">
@@ -228,7 +228,7 @@ export default async function LandingPage() {
             </div>
             <div className="mt-6 text-center">
               <Link href="/signup">
-                <Button variant="gold">Post Your First Job — Free</Button>
+                <Button variant="gold">Post Your First Request — Free</Button>
               </Link>
             </div>
           </div>
@@ -247,7 +247,7 @@ export default async function LandingPage() {
             <div className="grid sm:grid-cols-3 gap-4 max-w-3xl mx-auto">
               {[
                 { n: '1', icon: '🖨️', title: 'Set up your profile', desc: 'List your machines, materials, and capabilities. Certification levels build trust.' },
-                { n: '2', icon: '🔍', title: 'Browse open jobs', desc: 'Filter by material, process, and location. Find jobs that match your setup.' },
+                { n: '2', icon: '🔍', title: 'Browse open requests', desc: 'Filter by material, process, and location. Find requests that match your setup.' },
                 { n: '3', icon: '💰', title: 'Submit quotes & earn', desc: 'Send a quote with your price and preview. Get paid into your account on delivery.' },
               ].map((s) => (
                 <div key={s.n} className="rounded-2xl border border-ink-800 bg-ink-950 p-5 relative text-white">

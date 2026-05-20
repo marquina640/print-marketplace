@@ -95,16 +95,16 @@ export default function OnboardingPage() {
     {
       id: 'client',
       title: 'I need something printed',
-      description: "Post jobs, receive quotes from skilled printer owners, and track your orders.",
+      description: "Post requests, receive quotes from skilled makers, and track your orders.",
       icon: '📐',
-      features: ['Post unlimited jobs', 'Receive competitive quotes', 'Direct messaging', 'File uploads (STL, STEP, 3MF)'],
+      features: ['Post unlimited requests', 'Receive competitive quotes', 'Direct messaging', 'File uploads (STL, STEP, 3MF)'],
     },
     {
       id: 'printer_owner',
       title: 'I own a 3D printer',
-      description: 'List your services, browse open jobs, and submit quotes to grow your business.',
+      description: 'List your services, browse open requests, and submit quotes to grow your business.',
       icon: '🖨️',
-      features: ['Browse open jobs', 'Submit unlimited quotes', 'Client messaging', 'Profile & portfolio'],
+      features: ['Browse open requests', 'Submit unlimited quotes', 'Customer messaging', 'Profile & portfolio'],
     },
   ]
 

@@ -3,7 +3,7 @@ import { cookies } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 import { NewJobForm } from './job-form'
 
-export const metadata = { title: 'Post a Job' }
+export const metadata = { title: 'Post a Request' }
 
 export default async function NewJobPage() {
   const supabase = await createClient()

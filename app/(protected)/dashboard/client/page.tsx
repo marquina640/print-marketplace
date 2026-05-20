@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/ui/empty-state'
 import { formatCurrency, formatDate } from '@/lib/utils'
 
-export const metadata = { title: 'Client Dashboard' }
+export const metadata = { title: 'Customer Dashboard' }
 
 export default async function ClientDashboardPage() {
   const supabase = await createClient()
@@ -70,10 +70,10 @@ export default async function ClientDashboardPage() {
   const jobsWithNewQuotes = openJobs.filter((j) => (quotesByJob[j.id] ?? 0) > 0)
 
   const stats = [
-    { label: 'Active Jobs',  value: activeJobs.length,    color: 'text-emerald-600' },
+    { label: 'Active',       value: activeJobs.length,    color: 'text-emerald-600' },
     { label: 'Open',         value: openJobs.length,      color: 'text-ink-700'     },
     { label: 'Completed',    value: completedJobs.length, color: 'text-warm-500'    },
-    { label: 'Total Posted', value: jobs?.length ?? 0,    color: 'text-warm-900'    },
+    { label: 'Total Requests', value: jobs?.length ?? 0,  color: 'text-warm-900'    },
   ]
 
   return (
@@ -84,9 +84,9 @@ export default async function ClientDashboardPage() {
           <h1 className="section-heading">
             {displayName ? `Hey, ${displayName}` : 'My Dashboard'}
           </h1>
-          <p className="text-warm-500 text-sm mt-0.5">Manage your 3D printing jobs</p>
+          <p className="text-warm-500 text-sm mt-0.5">Manage your 3D printing requests</p>
         </div>
-        <Link href="/jobs/new"><Button variant="gold">+ Post a Job</Button></Link>
+        <Link href="/jobs/new"><Button variant="gold">+ Post a Request</Button></Link>
       </div>
 
       {/* Stats */}
@@ -200,7 +200,7 @@ export default async function ClientDashboardPage() {
           <div className="card p-8 text-center">
             <p className="text-3xl mb-2">📬</p>
             <p className="font-semibold text-warm-900">No quotes yet</p>
-            <p className="text-sm text-warm-500 mt-1">Makers will submit quotes on your open jobs. Check back soon.</p>
+            <p className="text-sm text-warm-500 mt-1">Makers will submit quotes on your open requests. Check back soon.</p>
           </div>
         ) : (
           <div className="card divide-y divide-warm-100">
@@ -240,7 +240,7 @@ export default async function ClientDashboardPage() {
         <div className="flex items-center justify-between mb-4">
           <div>
             <h2 className="text-lg font-semibold text-warm-900">Find your 3D model</h2>
-            <p className="text-xs text-warm-400 mt-0.5">Browse free models, then post a job to get it printed</p>
+            <p className="text-xs text-warm-400 mt-0.5">Browse free models, then post a request to get it printed</p>
           </div>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -329,9 +329,9 @@ export default async function ClientDashboardPage() {
       {/* ── ALL MY JOBS ── */}
       <section>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-warm-900">My Jobs</h2>
+          <h2 className="text-lg font-semibold text-warm-900">My Requests</h2>
           <Link href="/jobs/new" className="text-sm text-ink-600 hover:text-ink-700 font-medium">
-            + New job
+            + New Request
           </Link>
         </div>
 
@@ -339,8 +339,8 @@ export default async function ClientDashboardPage() {
           <EmptyState
             icon={<svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>}
             title="No jobs yet"
-            description="Post your first job and start receiving quotes from local makers."
-            action={{ label: 'Post a Job', href: '/jobs/new' }}
+            description="Post your first request and start receiving quotes from local makers."
+            action={{ label: 'Post a Request', href: '/jobs/new' }}
           />
         ) : (
           <div className="space-y-3">

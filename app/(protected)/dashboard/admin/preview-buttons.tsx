@@ -34,7 +34,7 @@ export function AdminPreviewButtons({ clients, makers }: AdminPreviewButtonsProp
 
       {/* Clients */}
       <div>
-        <p className="text-xs font-semibold text-ink-400 uppercase tracking-widest mb-2">Clients</p>
+        <p className="text-xs font-semibold text-ink-400 uppercase tracking-widest mb-2">Customers (test)</p>
         <div className="flex flex-wrap gap-2">
           {clients.length === 0 && (
             <span className="text-xs text-ink-500">No client accounts found</span>
@@ -54,7 +54,7 @@ export function AdminPreviewButtons({ clients, makers }: AdminPreviewButtonsProp
 
       {/* Makers */}
       <div>
-        <p className="text-xs font-semibold text-ink-400 uppercase tracking-widest mb-2">Makers</p>
+        <p className="text-xs font-semibold text-ink-400 uppercase tracking-widest mb-2">Makers (test)</p>
         <div className="flex flex-wrap gap-2">
           {makers.length === 0 && (
             <span className="text-xs text-ink-500">No maker accounts found</span>

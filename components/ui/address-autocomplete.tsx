@@ -23,7 +23,19 @@ interface Props {
 
 export function AddressAutocomplete({ label, placeholder, hint, defaultValue, required, onSelect }: Props) {
   const inputRef = useRef<HTMLInputElement>(null)
+  const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null)
+  const onSelectRef = useRef(onSelect)
   const [inputValue, setInputValue] = useState(defaultValue ?? '')
+
+  // Keep the callback ref current without re-running the effect
+  useEffect(() => { onSelectRef.current = onSelect })
+
+  // Sync input when defaultValue changes (e.g. after async profile load)
+  useEffect(() => {
+    if (defaultValue && !autocompleteRef.current) {
+      setInputValue(defaultValue)
+    }
+  }, [defaultValue])
 
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY ?? '',
@@ -31,20 +43,19 @@ export function AddressAutocomplete({ label, placeholder, hint, defaultValue, re
   })
 
   useEffect(() => {
-    if (!isLoaded || !inputRef.current) return
+    if (!isLoaded || !inputRef.current || autocompleteRef.current) return
 
-    const autocomplete = new window.google.maps.places.Autocomplete(inputRef.current, {
+    autocompleteRef.current = new window.google.maps.places.Autocomplete(inputRef.current, {
       types: ['geocode'],
       fields: ['formatted_address', 'geometry', 'address_components'],
     })
 
-    const listener = autocomplete.addListener('place_changed', () => {
-      const place = autocomplete.getPlace()
+    autocompleteRef.current.addListener('place_changed', () => {
+      const place = autocompleteRef.current!.getPlace()
       const lat = place.geometry?.location?.lat()
       const lng = place.geometry?.location?.lng()
       const address = place.formatted_address ?? ''
 
-      // Extract city from address components
       const cityComponent = place.address_components?.find((c) =>
         c.types.includes('locality') || c.types.includes('postal_town')
       )
@@ -52,12 +63,10 @@ export function AddressAutocomplete({ label, placeholder, hint, defaultValue, re
 
       if (lat != null && lng != null) {
         setInputValue(address)
-        onSelect({ address, lat, lng, city })
+        onSelectRef.current({ address, lat, lng, city })
       }
     })
-
-    return () => window.google.maps.event.removeListener(listener)
-  }, [isLoaded, onSelect])
+  }, [isLoaded])
 
   return (
     <div className="flex flex-col gap-1">

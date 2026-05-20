@@ -15,11 +15,17 @@ export default async function MakersBrowsePage({ searchParams }: PageProps) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
+  // Get test user IDs to exclude from the public makers list
+  const { data: testUsers } = await supabase.from('profiles').select('user_id').eq('is_test', true)
+  const testUserIds = testUsers?.map((u) => u.user_id) ?? []
+
   // Only select columns that actually exist on printer_profiles
   let profileQuery = supabase
     .from('printer_profiles')
     .select('user_id, display_name, city, certification_level, materials, processes, description')
     .order('certification_level', { ascending: false })
+
+  if (testUserIds.length > 0) profileQuery = profileQuery.not('user_id', 'in', `(${testUserIds.join(',')})`)
 
   if (cert)          profileQuery = profileQuery.eq('certification_level', parseInt(cert))
   if (city)          profileQuery = profileQuery.ilike('city', `%${city}%`)

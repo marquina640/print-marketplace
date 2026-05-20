@@ -46,7 +46,7 @@ export function CreateUserForm() {
       if (result.error) {
         setError(result.error)
       } else {
-        setSuccess(`✓ ${form.role === 'client' ? 'Client' : 'Maker'} "${form.display_name}" created successfully`)
+        setSuccess(`✓ ${form.role === 'client' ? 'Customer' : 'Maker'} "${form.display_name}" created successfully`)
         setForm({ email: '', password: '', role: 'client', display_name: '', city: 'Zurich' })
         router.refresh()
       }
@@ -58,7 +58,7 @@ export function CreateUserForm() {
       <div className="flex items-center justify-between px-6 py-4 border-b border-warm-100">
         <div>
           <h2 className="font-semibold text-ink-900">Create User Profile</h2>
-          <p className="text-xs text-warm-400 mt-0.5">Create a client or maker account directly — no email confirmation required</p>
+          <p className="text-xs text-warm-400 mt-0.5">Create a customer or maker account directly — no email confirmation required</p>
         </div>
         <Button variant="gold" size="sm" onClick={() => { setOpen((v) => !v); setError(null); setSuccess(null) }}>
           {open ? 'Cancel' : '+ Create User'}
@@ -78,7 +78,7 @@ export function CreateUserForm() {
             <p className="form-label mb-2">Account type</p>
             <div className="flex gap-3">
               {[
-                { value: 'client', label: '👤 Client', desc: 'Posts jobs and hires makers' },
+                { value: 'client', label: '👤 Customer', desc: 'Posts requests and hires makers' },
                 { value: 'printer_owner', label: '🖨 Maker', desc: 'Takes jobs and prints parts' },
               ].map((opt) => (
                 <button
@@ -146,7 +146,7 @@ export function CreateUserForm() {
 
           <div className="flex gap-3">
             <Button type="submit" loading={pending} variant="gold">
-              Create {form.role === 'client' ? 'Client' : 'Maker'} Account
+              Create {form.role === 'client' ? 'Customer' : 'Maker'} Account
             </Button>
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>
               Cancel

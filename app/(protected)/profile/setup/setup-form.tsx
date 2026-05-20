@@ -63,7 +63,6 @@ export function ProfileSetupForm({ effectiveUserId }: { effectiveUserId: string 
     local_delivery: false,
     pickup: true,
     hourly_rate: '',
-    price_per_gram: '',
     description: '',
     lat: null as number | null,
     lng: null as number | null,
@@ -88,7 +87,6 @@ export function ProfileSetupForm({ effectiveUserId }: { effectiveUserId: string 
           local_delivery: data.local_delivery,
           pickup: data.pickup,
           hourly_rate: data.hourly_rate?.toString() ?? '',
-          price_per_gram: data.price_per_gram?.toString() ?? '',
           description: data.description ?? '',
           lat: data.latitude ?? null,
           lng: data.longitude ?? null,
@@ -124,8 +122,7 @@ export function ProfileSetupForm({ effectiveUserId }: { effectiveUserId: string 
       shipping: form.shipping,
       local_delivery: form.local_delivery,
       pickup: form.pickup,
-      hourly_rate: form.hourly_rate ? parseFloat(form.hourly_rate) : null,
-      price_per_gram: form.price_per_gram ? parseFloat(form.price_per_gram) : null,
+      hourly_rate: form.design_services && form.hourly_rate ? parseFloat(form.hourly_rate) : null,
       description: form.description.trim() || null,
       latitude: form.lat,
       longitude: form.lng,
@@ -182,9 +179,9 @@ export function ProfileSetupForm({ effectiveUserId }: { effectiveUserId: string 
 
         <div className="card p-6 space-y-4">
           <h2 className="font-semibold text-warm-900">Materials & Colors</h2>
-          <MultiCheckbox label="Materials supported *" options={MATERIALS}
+          <MultiCheckbox label="Materials supported *" options={MATERIALS.filter((m) => m !== 'Suggest the best one')}
             selected={form.materials} onChange={(v) => set('materials', v)} />
-          <MultiCheckbox label="Colors available" options={COLORS}
+          <MultiCheckbox label="Colors available" options={COLORS.filter((c) => c !== 'Multicolour')}
             selected={form.colors} onChange={(v) => set('colors', v)} />
         </div>
 
@@ -198,17 +195,14 @@ export function ProfileSetupForm({ effectiveUserId }: { effectiveUserId: string 
           </div>
         </div>
 
-        <div className="card p-6 space-y-4">
-          <h2 className="font-semibold text-warm-900">Pricing (optional)</h2>
-          <div className="grid grid-cols-2 gap-4">
+        {form.design_services && (
+          <div className="card p-6 space-y-4">
+            <h2 className="font-semibold text-warm-900">Design / Engineering Pricing (optional)</h2>
             <Input label="Hourly rate (CHF/hr)" type="number" min="0" step="0.01"
               value={form.hourly_rate} onChange={(e) => set('hourly_rate', e.target.value)}
-              placeholder="45.00" hint="Design / setup labor" />
-            <Input label="Price per gram (CHF/g)" type="number" min="0" step="0.0001"
-              value={form.price_per_gram} onChange={(e) => set('price_per_gram', e.target.value)}
-              placeholder="0.09" hint="Material + machine estimate" />
+              placeholder="45.00" hint="Design and engineering labor rate" />
           </div>
-        </div>
+        )}
 
         <div className="card p-6">
           <Textarea label="About your service" value={form.description}

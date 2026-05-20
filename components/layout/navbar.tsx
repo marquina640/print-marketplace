@@ -27,7 +27,7 @@ interface NavbarProps {
 
 const clientNav = [
   { href: '/dashboard/client', label: 'Dashboard' },
-  { href: '/jobs/new',         label: 'Post a Job' },
+  { href: '/jobs/new',         label: 'Post a Request' },
   { href: '/makers',           label: 'Browse Makers' },
   { href: '/map',              label: 'Map' },
   { href: '/messages',         label: 'Messages' },
@@ -36,7 +36,7 @@ const clientNav = [
 
 const printerNav = [
   { href: '/dashboard/printer',     label: 'Dashboard' },
-  { href: '/jobs',                  label: 'Browse Jobs' },
+  { href: '/jobs',                  label: 'Browse Requests' },
   { href: '/map',                   label: 'Map' },
   { href: '/messages',              label: 'Messages' },
   { href: '/profile/machines',      label: 'Machines' },
@@ -125,13 +125,13 @@ export function Navbar({ userEmail, userRole, unreadMessages = 0, notifications 
               {userRole === 'printer_owner' && (
                 <Link href="/jobs"
                   className="px-3 py-1.5 text-sm font-medium text-warm-600 hover:text-ink-900 hover:bg-warm-100 rounded-lg transition-colors">
-                  Browse Jobs
+                  Browse Requests
                 </Link>
               )}
               {userRole === 'client' && (
                 <Link href="/jobs/new"
                   className="px-3 py-1.5 text-sm font-medium text-warm-600 hover:text-ink-900 hover:bg-warm-100 rounded-lg transition-colors">
-                  Post a Job
+                  Post a Request
                 </Link>
               )}
               {/* Messages with bell badge */}

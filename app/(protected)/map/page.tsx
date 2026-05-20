@@ -55,14 +55,14 @@ export default async function MapPage() {
     : 'both'
 
   const title = effectiveRole === 'client' ? 'Makers Near You'
-    : effectiveRole === 'printer_owner' ? 'Open Jobs Near You'
+    : effectiveRole === 'printer_owner' ? 'Open Requests Near You'
     : 'Map'
 
   const subtitle = effectiveRole === 'client'
     ? `${printers.length} maker${printers.length !== 1 ? 's' : ''} with addresses on the platform`
     : effectiveRole === 'printer_owner'
-    ? `${jobs.length} open job${jobs.length !== 1 ? 's' : ''} in your area`
-    : 'Open jobs and makers across Switzerland'
+    ? `${jobs.length} open request${jobs.length !== 1 ? 's' : ''} in your area`
+    : 'Open requests and makers around the world'
 
   return (
     <div className="max-w-5xl mx-auto space-y-4">

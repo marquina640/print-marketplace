@@ -5,7 +5,7 @@ import { setAdminPreview } from '@/app/actions/admin-preview'
 
 export function PreviewBanner({ role, userName }: { role: string; userName?: string }) {
   const [pending, startTransition] = useTransition()
-  const roleLabel = role === 'client' ? 'Client' : 'Maker'
+  const roleLabel = role === 'client' ? 'Customer' : 'Maker'
   const label = userName ? `${roleLabel} "${userName}"` : roleLabel
 
   function exitPreview() {

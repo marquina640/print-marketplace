@@ -41,8 +41,8 @@ const statusConfig: Record<string, { label: string; variant: BadgeProps['variant
   expired:     { label: 'Expired',       variant: 'danger'  },
   pending:     { label: 'Pending',       variant: 'warning' },
   rejected:    { label: 'Rejected',      variant: 'danger'  },
-  client:      { label: 'Client',      variant: 'info'    },
-  printer_owner:{ label: 'Printer',    variant: 'violet'  },
+  client:      { label: 'Customer',    variant: 'info'    },
+  printer_owner:{ label: 'Maker',      variant: 'violet'  },
   admin:       { label: 'Admin',       variant: 'gold'    },
 }
 

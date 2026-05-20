@@ -163,7 +163,7 @@ export function NewJobForm({ clientId }: { clientId: string }) {
   return (
     <div className="max-w-2xl mx-auto">
       <div className="mb-6">
-        <h1 className="section-heading">Post a New Job</h1>
+        <h1 className="section-heading">Post a New Request</h1>
         <p className="text-warm-500 text-sm mt-0.5">
           Describe your part and receive quotes from local printer owners.
         </p>
@@ -448,7 +448,7 @@ export function NewJobForm({ clientId }: { clientId: string }) {
             Cancel
           </Button>
           <Button type="submit" loading={loading} className="flex-1" variant="gold">
-            Post Job
+            Post Request
           </Button>
         </div>
       </form>

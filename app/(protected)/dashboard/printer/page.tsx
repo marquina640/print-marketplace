@@ -27,6 +27,16 @@ export default async function PrinterDashboardPage() {
     : undefined
   const effectiveUserId = previewUserId ?? user.id
 
+  const { data: testUsers } = await supabase.from('profiles').select('user_id').eq('is_test', true)
+  const testUserIds = testUsers?.map((u) => u.user_id) ?? []
+
+  const recentJobsQuery = supabase
+    .from('jobs')
+    .select('*')
+    .eq('status', 'open')
+    .order('created_at', { ascending: false })
+    .limit(6)
+
   const [
     { data: allMyQuotes },
     { data: recentJobs },
@@ -37,12 +47,9 @@ export default async function PrinterDashboardPage() {
       .select('*')
       .eq('printer_id', effectiveUserId)
       .order('created_at', { ascending: false }),
-    supabase
-      .from('jobs')
-      .select('*')
-      .eq('status', 'open')
-      .order('created_at', { ascending: false })
-      .limit(6),
+    testUserIds.length > 0
+      ? recentJobsQuery.not('client_id', 'in', `(${testUserIds.join(',')})`)
+      : recentJobsQuery,
     supabase
       .from('printer_profiles')
       .select('certification_level, display_name')
@@ -83,7 +90,7 @@ export default async function PrinterDashboardPage() {
           </h1>
           <p className="text-warm-500 text-sm mt-0.5">Your jobs, quotes, and activity</p>
         </div>
-        <Link href="/jobs"><Button variant="gold">Browse Jobs</Button></Link>
+        <Link href="/jobs"><Button variant="gold">Browse Requests</Button></Link>
       </div>
 
       {/* Certification panel */}
@@ -145,8 +152,8 @@ export default async function PrinterDashboardPage() {
           <EmptyState
             icon={<svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>}
             title="No active jobs yet"
-            description="When a client accepts your quote, the job will appear here."
-            action={{ label: 'Browse Open Jobs', href: '/jobs' }}
+            description="When a customer accepts your quote, the request will appear here."
+            action={{ label: 'Browse Open Requests', href: '/jobs' }}
           />
         ) : (
           <div className="card divide-y divide-warm-100">
@@ -199,9 +206,9 @@ export default async function PrinterDashboardPage() {
           <div className="card p-8 text-center">
             <p className="text-3xl mb-2">📋</p>
             <p className="font-semibold text-warm-900">No quotes sent yet</p>
-            <p className="text-sm text-warm-500 mt-1">Browse open jobs and submit your first quote.</p>
+            <p className="text-sm text-warm-500 mt-1">Browse open requests and submit your first quote.</p>
             <Link href="/jobs" className="inline-block mt-3">
-              <Button variant="gold" size="sm">Browse Jobs</Button>
+              <Button variant="gold" size="sm">Browse Requests</Button>
             </Link>
           </div>
         ) : (
@@ -241,13 +248,13 @@ export default async function PrinterDashboardPage() {
       {/* ── RECENT OPEN JOBS ── */}
       <section>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-warm-900">New Jobs on the Feed</h2>
+          <h2 className="text-lg font-semibold text-warm-900">New Requests on the Feed</h2>
           <Link href="/jobs" className="text-sm text-ink-600 hover:text-ink-700 font-medium">
             See all →
           </Link>
         </div>
         {!recentJobs || recentJobs.length === 0 ? (
-          <p className="text-sm text-warm-500">No open jobs right now.</p>
+          <p className="text-sm text-warm-500">No open requests right now.</p>
         ) : (
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {recentJobs.map((job) => <JobFeedCard key={job.id} job={job} />)}

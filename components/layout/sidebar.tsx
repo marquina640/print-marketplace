@@ -87,7 +87,7 @@ const icons = {
 
 const clientNav: NavItem[] = [
   { href: '/dashboard/client', label: 'Dashboard',      icon: icons.home     },
-  { href: '/jobs/new',         label: 'Post a Job',     icon: icons.plus     },
+  { href: '/jobs/new',         label: 'Post a Request', icon: icons.plus     },
   { href: '/makers',           label: 'Browse Makers',  icon: icons.search   },
   { href: '/map',              label: 'Map',            icon: icons.map      },
   { href: '/messages',         label: 'Messages',       icon: icons.chat     },
@@ -96,7 +96,7 @@ const clientNav: NavItem[] = [
 
 const printerNav: NavItem[] = [
   { href: '/dashboard/printer',       label: 'Dashboard',     icon: icons.home      },
-  { href: '/jobs',                    label: 'Browse Jobs',   icon: icons.search    },
+  { href: '/jobs',                    label: 'Browse Requests', icon: icons.search    },
   { href: '/map',                     label: 'Map',           icon: icons.map       },
   { href: '/messages',                label: 'Messages',      icon: icons.chat      },
   { href: '/profile/machines',        label: 'Machines',      icon: icons.cog       },
@@ -109,7 +109,7 @@ const adminNav: NavItem[] = [
   { href: '/dashboard/admin',                 label: 'Dashboard',    icon: icons.home      },
   { href: '/dashboard/admin/certifications',  label: 'Certifications', icon: icons.users   },
   { href: '/dashboard/admin/users',           label: 'Users',        icon: icons.users     },
-  { href: '/dashboard/admin/jobs',            label: 'Jobs',         icon: icons.briefcase },
+  { href: '/dashboard/admin/jobs',            label: 'Requests',     icon: icons.briefcase },
   { href: '/dashboard/admin/settings',        label: 'Settings',     icon: icons.cog       },
 ]
 
@@ -124,7 +124,7 @@ export function Sidebar({ role, unreadMessages = 0 }: { role: string; unreadMess
   )
 
   const roleLabel =
-    role === 'client' ? 'Client'
+    role === 'client' ? 'Customer'
     : role === 'printer_owner' ? 'Maker'
     : 'Admin'
 
