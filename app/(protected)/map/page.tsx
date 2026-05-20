@@ -22,6 +22,14 @@ export default async function MapPage() {
   const viewModeRole = viewMode === 'maker' ? 'printer_owner' : viewMode === 'client' ? 'client' : null
   const effectiveRole = previewAs ?? viewModeRole ?? profile?.role ?? 'client'
 
+  // Get IDs of valid (non-test, non-deleted) makers from profiles
+  const { data: validMakerProfiles } = await supabase
+    .from('profiles')
+    .select('user_id')
+    .eq('role', 'printer_owner')
+    .eq('is_test', false)
+  const validMakerIds = validMakerProfiles?.map((p) => p.user_id) ?? []
+
   const { data: testUsers } = await supabase.from('profiles').select('user_id').eq('is_test', true)
   const testIds = testUsers?.map((u) => u.user_id) ?? []
 
@@ -31,11 +39,15 @@ export default async function MapPage() {
     .eq('status', 'open')
   if (testIds.length > 0) jobsQuery = jobsQuery.not('client_id', 'in', `(${testIds.join(',')})`)
 
-  // Inner join ensures orphaned printer_profiles (deleted users) are excluded
+  // Only show printer_profiles whose user still has an active, non-test profile
   let printersQuery = supabase
     .from('printer_profiles')
-    .select('user_id, display_name, city, certification_level, latitude, longitude, profiles!inner(is_test)')
-    .eq('profiles.is_test', false)
+    .select('user_id, display_name, city, certification_level, latitude, longitude')
+  if (validMakerIds.length > 0) {
+    printersQuery = printersQuery.in('user_id', validMakerIds)
+  } else {
+    printersQuery = printersQuery.eq('user_id', '00000000-0000-0000-0000-000000000000')
+  }
 
   const [{ data: jobsRaw }, { data: printersRaw }] = await Promise.all([jobsQuery, printersQuery])
 
