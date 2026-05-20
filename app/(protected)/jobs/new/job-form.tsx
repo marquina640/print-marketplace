@@ -7,7 +7,8 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Select } from '@/components/ui/select'
-import { MATERIALS, COLORS, formatFileSize, geocodeAddress, JOB_TYPES, MANUFACTURING_PROCESSES } from '@/lib/utils'
+import { MATERIALS, COLORS, formatFileSize, JOB_TYPES, MANUFACTURING_PROCESSES } from '@/lib/utils'
+import { AddressAutocomplete } from '@/components/ui/address-autocomplete'
 
 export function NewJobForm({ clientId }: { clientId: string }) {
   const router = useRouter()
@@ -29,6 +30,8 @@ export function NewJobForm({ clientId }: { clientId: string }) {
     deadline: '',
     budget: '',
     location: '',
+    lat: null as number | null,
+    lng: null as number | null,
     shipping_required: true,
     pickup_ok: false,
     job_type: 'functional',
@@ -74,7 +77,7 @@ export function NewJobForm({ clientId }: { clientId: string }) {
     setError(null)
 
     if (!form.material) { setError('Please select a material.'); return }
-    if (!form.location.trim()) { setError('Location is required so nearby makers can find your job.'); return }
+    if (!form.location.trim()) { setError('Please select your location from the dropdown suggestions.'); return }
     if (modelFiles.length === 0) { setError('Please upload at least one 3D model file (STL, 3MF, etc.).'); return }
     if (!imageFile) { setError('Please upload a reference photo so makers can see what you need.'); return }
 
@@ -83,8 +86,7 @@ export function NewJobForm({ clientId }: { clientId: string }) {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) { router.push('/login'); return }
 
-    // Geocode location for map
-    const geo = await geocodeAddress(`${form.location.trim()}, Switzerland`)
+    // lat/lng already set from address autocomplete selection
 
     // Upload reference image first
     let imageUrl: string | null = null
@@ -117,8 +119,8 @@ export function NewJobForm({ clientId }: { clientId: string }) {
         shipping_required: form.shipping_required,
         pickup_ok: form.pickup_ok,
         image_url: imageUrl,
-        latitude: geo?.lat ?? null,
-        longitude: geo?.lng ?? null,
+        latitude: form.lat,
+        longitude: form.lng,
         job_type: form.job_type,
         process: form.process,
       })
@@ -306,13 +308,14 @@ export function NewJobForm({ clientId }: { clientId: string }) {
               placeholder="50.00"
               hint="Leave blank if flexible"
             />
-            <Input
-              label="Your location / city *"
+            <AddressAutocomplete
+              label="Your location *"
               required
-              value={form.location}
-              onChange={(e) => set('location', e.target.value)}
-              placeholder="e.g. Zürich, Kreis 4"
-              hint="Required — used to find nearby makers"
+              placeholder="Start typing your address…"
+              hint="Select from the dropdown — used to match nearby makers"
+              onSelect={({ address, lat, lng }) => {
+                setForm((prev) => ({ ...prev, location: address, lat, lng }))
+              }}
             />
           </div>
           <div className="space-y-2">

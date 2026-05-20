@@ -6,7 +6,8 @@ import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
-import { MATERIALS, COLORS, DEFAULT_CITY, DEFAULT_LOCATION, geocodeAddress } from '@/lib/utils'
+import { MATERIALS, COLORS, DEFAULT_CITY, DEFAULT_LOCATION } from '@/lib/utils'
+import { AddressAutocomplete } from '@/components/ui/address-autocomplete'
 
 function MultiCheckbox({ label, options, selected, onChange }: {
   label: string; options: string[]; selected: string[]; onChange: (v: string[]) => void
@@ -64,6 +65,8 @@ export function ProfileSetupForm({ effectiveUserId }: { effectiveUserId: string 
     hourly_rate: '',
     price_per_gram: '',
     description: '',
+    lat: null as number | null,
+    lng: null as number | null,
   })
 
   useEffect(() => {
@@ -87,6 +90,8 @@ export function ProfileSetupForm({ effectiveUserId }: { effectiveUserId: string 
           hourly_rate: data.hourly_rate?.toString() ?? '',
           price_per_gram: data.price_per_gram?.toString() ?? '',
           description: data.description ?? '',
+          lat: data.latitude ?? null,
+          lng: data.longitude ?? null,
         })
       }
       setLoading(false)
@@ -108,9 +113,6 @@ export function ProfileSetupForm({ effectiveUserId }: { effectiveUserId: string 
     setSaving(true)
     const supabase = createClient()
 
-    const locationStr = `${form.city}, Switzerland`
-    const geo = await geocodeAddress(locationStr)
-
     const payload = {
       user_id: effectiveUserId,
       display_name: form.display_name.trim(),
@@ -125,8 +127,8 @@ export function ProfileSetupForm({ effectiveUserId }: { effectiveUserId: string 
       hourly_rate: form.hourly_rate ? parseFloat(form.hourly_rate) : null,
       price_per_gram: form.price_per_gram ? parseFloat(form.price_per_gram) : null,
       description: form.description.trim() || null,
-      latitude: geo?.lat ?? null,
-      longitude: geo?.lng ?? null,
+      latitude: form.lat,
+      longitude: form.lng,
     }
 
     const { error: upsertError } = await supabase
@@ -159,15 +161,23 @@ export function ProfileSetupForm({ effectiveUserId }: { effectiveUserId: string 
 
         <div className="card p-6 space-y-4">
           <h2 className="font-semibold text-warm-900">Your Identity</h2>
-          <div className="grid grid-cols-2 gap-4">
-            <Input label="Display name *" required value={form.display_name}
-              onChange={(e) => set('display_name', e.target.value)} placeholder="Zurich Maker Studio" />
-            <Input label="City *" required value={form.city}
-              onChange={(e) => set('city', e.target.value)} placeholder={DEFAULT_CITY} />
-          </div>
-          <Input label="Full address / area" value={form.location}
-            onChange={(e) => set('location', e.target.value)} placeholder={DEFAULT_LOCATION}
-            hint="Used for the map — only your general area is shown publicly" />
+          <Input label="Display name *" required value={form.display_name}
+            onChange={(e) => set('display_name', e.target.value)} placeholder="Zurich Maker Studio" />
+          <AddressAutocomplete
+            label="Your location / area *"
+            placeholder="Start typing your address or city…"
+            hint="Only your general area is shown publicly — exact address stays private"
+            defaultValue={form.location || form.city}
+            onSelect={({ address, lat, lng, city }) => {
+              setFormState((prev) => ({
+                ...prev,
+                location: address,
+                city: city ?? prev.city,
+                lat,
+                lng,
+              }))
+            }}
+          />
         </div>
 
         <div className="card p-6 space-y-4">
