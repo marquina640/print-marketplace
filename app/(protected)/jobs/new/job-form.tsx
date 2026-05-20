@@ -36,6 +36,7 @@ export function NewJobForm({ clientId }: { clientId: string }) {
     pickup_ok: false,
     job_type: 'functional',
     process: 'fdm',
+    print_quality: 'normal',
   })
 
   function set(field: string, value: string | boolean) {
@@ -123,6 +124,7 @@ export function NewJobForm({ clientId }: { clientId: string }) {
         longitude: form.lng,
         job_type: form.job_type,
         process: form.process,
+        print_quality: form.print_quality,
       })
       .select()
       .single()
@@ -276,6 +278,41 @@ export function NewJobForm({ clientId }: { clientId: string }) {
               value={form.color}
               onChange={(e) => set('color', e.target.value)}
             />
+          </div>
+
+          {/* Print quality */}
+          <div>
+            <div className="flex items-center gap-1.5 mb-2">
+              <p className="form-label !mb-0">Print Quality</p>
+              <div className="relative group">
+                <svg className="h-3.5 w-3.5 text-warm-400 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-72 rounded-xl bg-ink-900 text-white text-xs p-3 shadow-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50 space-y-2">
+                  <p><span className="font-semibold text-gold-400">Smooth</span> — Ultra-fine layer lines for an excellent surface finish. Great for display pieces or parts where appearance matters. Takes longer and costs more.</p>
+                  <p><span className="font-semibold text-warm-300">Normal</span> — The standard for most 3D prints. A good balance of quality, strength, and cost. Works well for most functional and everyday parts.</p>
+                  <p><span className="font-semibold text-emerald-400">Strong</span> — Thicker layer lines that improve structural integrity, making the part more resistant to mechanical stress. Ideal for load-bearing parts. Slightly rougher surface.</p>
+                  <div className="absolute left-1/2 -translate-x-1/2 top-full border-4 border-transparent border-t-ink-900" />
+                </div>
+              </div>
+            </div>
+            <div className="grid grid-cols-3 gap-3">
+              {([
+                { value: 'smooth', label: 'Smooth', icon: '✦', desc: 'Best finish, finer detail', color: 'border-violet-300 bg-violet-50 ring-violet-200 text-violet-800', inactive: 'border-warm-200 hover:border-violet-300' },
+                { value: 'normal', label: 'Normal', icon: '◆', desc: 'Balanced quality & speed', color: 'border-ink-400 bg-ink-50 ring-ink-200 text-ink-800', inactive: 'border-warm-200 hover:border-ink-300' },
+                { value: 'strong', label: 'Strong', icon: '▲', desc: 'Maximum strength', color: 'border-emerald-400 bg-emerald-50 ring-emerald-200 text-emerald-800', inactive: 'border-warm-200 hover:border-emerald-300' },
+              ] as const).map((q) => {
+                const active = form.print_quality === q.value
+                return (
+                  <button key={q.value} type="button" onClick={() => set('print_quality', q.value)}
+                    className={`text-left rounded-xl border-2 p-3 transition-all ${active ? `${q.color} ring-2` : q.inactive}`}>
+                    <p className="font-mono text-base mb-1">{q.icon}</p>
+                    <p className="font-semibold text-ink-900 text-sm">{q.label}</p>
+                    <p className="text-xs text-warm-500 mt-0.5">{q.desc}</p>
+                  </button>
+                )
+              })}
+            </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <Input

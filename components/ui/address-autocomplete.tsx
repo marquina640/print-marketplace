@@ -82,6 +82,10 @@ export function AddressAutocomplete({ label, placeholder, hint, defaultValue, re
         onChange={(e) => setInputValue(e.target.value)}
         placeholder={isLoaded ? placeholder : 'Loading…'}
         required={required}
+        autoComplete="off"
+        autoCorrect="off"
+        autoCapitalize="off"
+        spellCheck={false}
         className="flex h-9 w-full rounded-lg border border-warm-300 bg-white px-3 py-1.5 text-sm text-warm-900 shadow-sm transition-colors placeholder:text-warm-400 focus:border-ink-400 focus:outline-none focus:ring-2 focus:ring-ink-200 disabled:cursor-not-allowed disabled:opacity-50"
       />
       {hint && <p className="text-xs text-warm-400">{hint}</p>}

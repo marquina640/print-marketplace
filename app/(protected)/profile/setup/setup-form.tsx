@@ -54,8 +54,8 @@ export function ProfileSetupForm({ effectiveUserId }: { effectiveUserId: string 
 
   const [form, setFormState] = useState({
     display_name: '',
-    city: DEFAULT_CITY,
-    location: DEFAULT_LOCATION,
+    city: '',
+    location: '',
     materials: [] as string[],
     colors: [] as string[],
     design_services: false,
@@ -164,7 +164,7 @@ export function ProfileSetupForm({ effectiveUserId }: { effectiveUserId: string 
             label="Your location / area *"
             placeholder="Start typing your address or city…"
             hint="Only your general area is shown publicly — exact address stays private"
-            defaultValue={form.location || form.city}
+            defaultValue={form.location}
             onSelect={({ address, lat, lng, city }) => {
               setFormState((prev) => ({
                 ...prev,

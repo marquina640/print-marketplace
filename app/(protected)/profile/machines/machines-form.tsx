@@ -14,13 +14,12 @@ interface Machine {
   build_volume_x: number | null
   build_volume_y: number | null
   build_volume_z: number | null
-  nozzle_diameter: number | null
-  min_layer_height: number | null
-  max_layer_height: number | null
-  tolerance_mm: number | null
+  nozzle_diameters: number[]
   is_active: boolean
   notes: string | null
 }
+
+const NOZZLE_SIZES = [0.2, 0.4, 0.6, 0.8, 1.0]
 
 const EMPTY_FORM = {
   brand: '',
@@ -29,10 +28,7 @@ const EMPTY_FORM = {
   build_volume_x: '',
   build_volume_y: '',
   build_volume_z: '',
-  nozzle_diameter: '',
-  min_layer_height: '',
-  max_layer_height: '',
-  tolerance_mm: '',
+  nozzle_diameters: [] as number[],
   notes: '',
 }
 
@@ -44,6 +40,15 @@ export function MachinesForm({ effectiveUserId }: { effectiveUserId: string }) {
   const [showForm, setShowForm]   = useState(false)
   const [selectedBrand, setSelectedBrand] = useState('')
   const [form, setForm]           = useState(EMPTY_FORM)
+
+  function toggleNozzle(size: number) {
+    setForm((prev) => ({
+      ...prev,
+      nozzle_diameters: prev.nozzle_diameters.includes(size)
+        ? prev.nozzle_diameters.filter((n) => n !== size)
+        : [...prev.nozzle_diameters, size].sort((a, b) => a - b),
+    }))
+  }
 
   const modelOptions = selectedBrand ? (PRINTER_BRANDS[selectedBrand] ?? []) : []
   const availableProcesses = MANUFACTURING_PROCESSES.filter((p) => p.available)
@@ -76,14 +81,11 @@ export function MachinesForm({ effectiveUserId }: { effectiveUserId: string }) {
       brand:            form.brand,
       model:            form.model.trim(),
       process:          form.process,
-      build_volume_x:   form.build_volume_x  ? parseFloat(form.build_volume_x)  : null,
-      build_volume_y:   form.build_volume_y  ? parseFloat(form.build_volume_y)  : null,
-      build_volume_z:   form.build_volume_z  ? parseFloat(form.build_volume_z)  : null,
-      nozzle_diameter:  form.nozzle_diameter ? parseFloat(form.nozzle_diameter) : null,
-      min_layer_height: form.min_layer_height ? parseFloat(form.min_layer_height) : null,
-      max_layer_height: form.max_layer_height ? parseFloat(form.max_layer_height) : null,
-      tolerance_mm:     form.tolerance_mm    ? parseFloat(form.tolerance_mm)    : null,
-      notes:            form.notes.trim() || null,
+      build_volume_x:    form.build_volume_x ? parseFloat(form.build_volume_x) : null,
+      build_volume_y:    form.build_volume_y ? parseFloat(form.build_volume_y) : null,
+      build_volume_z:    form.build_volume_z ? parseFloat(form.build_volume_z) : null,
+      nozzle_diameters:  form.nozzle_diameters,
+      notes:             form.notes.trim() || null,
     })
 
     if (insertError) { setError(insertError.message); setSaving(false); return }
@@ -194,19 +196,23 @@ export function MachinesForm({ effectiveUserId }: { effectiveUserId: string }) {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <Input label="Nozzle diameter (mm)" type="number" step="0.01" min="0"
-              value={form.nozzle_diameter} onChange={(e) => set('nozzle_diameter', e.target.value)}
-              placeholder="0.4" hint="e.g. 0.4" />
-            <Input label="Tolerance ±(mm)" type="number" step="0.01" min="0"
-              value={form.tolerance_mm} onChange={(e) => set('tolerance_mm', e.target.value)}
-              placeholder="0.2" hint="Best achievable" />
-            <Input label="Min layer height (mm)" type="number" step="0.001" min="0"
-              value={form.min_layer_height} onChange={(e) => set('min_layer_height', e.target.value)}
-              placeholder="0.05" />
-            <Input label="Max layer height (mm)" type="number" step="0.001" min="0"
-              value={form.max_layer_height} onChange={(e) => set('max_layer_height', e.target.value)}
-              placeholder="0.3" />
+          <div>
+            <p className="form-label mb-2">Available nozzle sizes (mm)</p>
+            <div className="flex gap-2">
+              {NOZZLE_SIZES.map((size) => {
+                const active = form.nozzle_diameters.includes(size)
+                return (
+                  <button key={size} type="button" onClick={() => toggleNozzle(size)}
+                    className={`rounded-xl border px-4 py-2 text-sm font-mono font-semibold transition-all ${
+                      active
+                        ? 'bg-ink-900 text-white border-ink-900'
+                        : 'bg-white text-warm-700 border-warm-300 hover:border-ink-400'}`}>
+                    {size}
+                  </button>
+                )
+              })}
+            </div>
+            <p className="text-xs text-warm-400 mt-1.5">Select all sizes you have available for this printer</p>
           </div>
 
           <Input label="Notes (optional)" value={form.notes}
@@ -246,10 +252,8 @@ export function MachinesForm({ effectiveUserId }: { effectiveUserId: string }) {
                     {m.build_volume_x && m.build_volume_y && m.build_volume_z && (
                       <span>📦 {m.build_volume_x}×{m.build_volume_y}×{m.build_volume_z} mm</span>
                     )}
-                    {m.nozzle_diameter && <span>⌀ {m.nozzle_diameter} mm nozzle</span>}
-                    {m.tolerance_mm && <span>±{m.tolerance_mm} mm tolerance</span>}
-                    {m.min_layer_height && m.max_layer_height && (
-                      <span>Layer: {m.min_layer_height}–{m.max_layer_height} mm</span>
+                    {m.nozzle_diameters?.length > 0 && (
+                      <span>⌀ {m.nozzle_diameters.join(', ')} mm nozzle{m.nozzle_diameters.length > 1 ? 's' : ''}</span>
                     )}
                   </div>
                   {m.notes && <p className="mt-1.5 text-xs text-warm-400">{m.notes}</p>}
