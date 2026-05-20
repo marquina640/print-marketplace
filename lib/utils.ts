@@ -73,6 +73,16 @@ export const PRINTER_BRANDS: Record<string, string[]> = {
   'Phrozen':      ['Sonic Mega 8K S', 'Sonic Mini 8K S', 'Transform'],
   'Markforged':   ['Mark Two', 'Onyx One', 'Onyx Pro'],
   'Other / DIY':  ['Custom Build', 'RepRap', 'Other'],
+  // ── Laser cutters ──
+  'xTool':        ['S1', 'P2', 'F1 Ultra', 'F1', 'M1 Ultra', 'M1', 'D1 Pro 20W', 'D1 Pro 10W', 'D1 Pro 5W', 'D1'],
+  'Sculpfun':     ['S30 Ultra 20W', 'S30 Pro Max', 'S30 Pro', 'S30', 'S10 Pro', 'S10', 'S9', 'S6 Pro'],
+  'Atomstack':    ['X70 Pro', 'X50 Pro', 'A30 Pro', 'A20 Pro', 'S20 Pro', 'X20 Pro', 'A10 Pro'],
+  'Ortur':        ['Laser Master 3 LE', 'Laser Master 3', 'Laser Master 2 Pro S2', 'Laser Master 2 Pro'],
+  'Glowforge':    ['Pro', 'Plus', 'Basic', 'Aura'],
+  'Creality Laser':['Falcon 2 Pro 22W', 'Falcon 2 Pro', 'Falcon 2', 'Falcon'],
+  'ComMarker':    ['B6 Mopa', 'B4 20W', 'B4', 'Omni 1'],
+  'Boss Laser':   ['LS-3655', 'LS-2440', 'LS-1630', 'HP Series'],
+  'K40 / Generic':['K40 CO2', 'Blue Box CO2', 'Other CO2'],
 }
 
 export const ALL_PRINTER_BRAND_NAMES = Object.keys(PRINTER_BRANDS)
@@ -229,7 +239,7 @@ export const MANUFACTURING_PROCESSES = [
   { value: 'resin',        label: 'Resin (SLA/MSLA)',   description: 'High detail, smooth finish',                  available: true  },
   { value: 'sls',          label: 'SLS (Powder)',        description: 'Nylon sintering — strong, no supports',       available: true  },
   { value: 'cnc',          label: 'CNC Machining',       description: 'Subtractive machining — coming soon',         available: false },
-  { value: 'laser',        label: 'Laser Cutting',       description: 'Flat sheet cutting & engraving — coming soon', available: false },
+  { value: 'laser',        label: 'Laser Cutting',       description: 'Flat sheet cutting & engraving',              available: true  },
   { value: 'sheet_metal',  label: 'Sheet Metal',         description: 'Bending, punching, forming — coming soon',    available: false },
   { value: 'other',        label: 'Other',               description: 'Other process',                               available: true  },
 ] as const

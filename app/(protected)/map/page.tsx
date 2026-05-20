@@ -18,7 +18,9 @@ export default async function MapPage() {
   const previewAs = profile?.role === 'admin'
     ? cookieStore.get('admin_preview_as')?.value
     : undefined
-  const effectiveRole = previewAs ?? profile?.role ?? 'client'
+  const viewMode = profile?.role !== 'admin' ? cookieStore.get('view_mode')?.value : undefined
+  const viewModeRole = viewMode === 'maker' ? 'printer_owner' : viewMode === 'client' ? 'client' : null
+  const effectiveRole = previewAs ?? viewModeRole ?? profile?.role ?? 'client'
 
   const [{ data: jobsRaw }, { data: printersRaw }] = await Promise.all([
     supabase
