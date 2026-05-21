@@ -105,14 +105,8 @@ export function Navbar({ userEmail, userRole, unreadMessages = 0, notifications 
     <header className="sticky top-0 z-40 border-b border-warm-200 bg-warm-100/95 backdrop-blur-sm">
       <div className="page-container flex h-14 items-center justify-between">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2.5 font-black text-warm-900 text-base tracking-tight">
-          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gold-500">
-            <svg className="h-4 w-4 text-ink-950" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-              <path strokeLinecap="round" strokeLinejoin="round"
-                d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-            </svg>
-          </div>
-          <span>PrintMarket<span className="text-gold-500">Hub</span></span>
+        <Link href="/" className="flex items-center">
+          <img src="/logo.svg" alt="PrintMarketHub" className="h-8 w-auto" />
         </Link>
 
         {/* Desktop nav */}
