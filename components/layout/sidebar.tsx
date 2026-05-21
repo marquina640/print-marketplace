@@ -21,11 +21,11 @@ function NavLink({ href, label, icon, badge }: NavItem) {
       className={cn(
         'flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-colors',
         active
-          ? 'bg-ink-900 text-white'
-          : 'text-warm-500 hover:bg-warm-100 hover:text-ink-900'
+          ? 'bg-gold-500 text-ink-950'
+          : 'text-warm-500 hover:bg-warm-200 hover:text-warm-900'
       )}
     >
-      <span className={cn('h-4 w-4 flex-shrink-0', active ? 'text-gold-400' : 'text-warm-400')}>{icon}</span>
+      <span className={cn('h-4 w-4 flex-shrink-0', active ? 'text-ink-950' : 'text-warm-400')}>{icon}</span>
       <span className="flex-1">{label}</span>
       {badge != null && badge > 0 && (
         <span className="rounded-full bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 leading-none">
@@ -129,7 +129,7 @@ export function Sidebar({ role, unreadMessages = 0 }: { role: string; unreadMess
     : 'Admin'
 
   return (
-    <aside className="hidden lg:flex w-52 flex-col border-r border-warm-200 bg-white px-3 py-5 gap-0.5">
+    <aside className="hidden lg:flex w-52 flex-col border-r border-warm-200 bg-warm-100 px-3 py-5 gap-0.5">
       <p className="px-3 mb-4 text-[10px] font-bold text-warm-400 uppercase tracking-widest">
         {roleLabel}
       </p>

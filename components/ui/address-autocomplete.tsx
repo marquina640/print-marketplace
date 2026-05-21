@@ -127,12 +127,12 @@ export function AddressAutocomplete({ label, placeholder, hint, defaultValue, re
         autoCorrect="off"
         autoCapitalize="off"
         spellCheck={false}
-        className="flex h-9 w-full rounded-lg border border-warm-300 bg-white px-3 py-1.5 text-sm text-warm-900 shadow-sm transition-colors placeholder:text-warm-400 focus:border-ink-400 focus:outline-none focus:ring-2 focus:ring-ink-200 disabled:cursor-not-allowed disabled:opacity-50"
+        className="flex h-9 w-full rounded-lg border border-warm-300 bg-warm-50 px-3 py-1.5 text-sm text-warm-900 shadow-sm transition-colors placeholder:text-warm-400 focus:border-gold-500 focus:outline-none focus:ring-2 focus:ring-gold-500/30 disabled:cursor-not-allowed disabled:opacity-50"
       />
       {hint && <p className="text-xs text-warm-400">{hint}</p>}
 
       {open && suggestions.length > 0 && (
-        <ul className="absolute top-full mt-1 z-50 w-full rounded-xl border border-warm-200 bg-white shadow-lg overflow-hidden">
+        <ul className="absolute top-full mt-1 z-50 w-full rounded-xl border border-warm-200 bg-warm-100 shadow-lift overflow-hidden">
           {suggestions.map((f, i) => {
             const lbl = formatLabel(f)
             return (
@@ -140,7 +140,7 @@ export function AddressAutocomplete({ label, placeholder, hint, defaultValue, re
                 <button
                   type="button"
                   onMouseDown={(e) => { e.preventDefault(); handlePick(f) }}
-                  className="w-full text-left px-4 py-2.5 text-sm text-warm-800 hover:bg-warm-50 transition-colors flex items-start gap-2"
+                  className="w-full text-left px-4 py-2.5 text-sm text-warm-800 hover:bg-warm-200 transition-colors flex items-start gap-2"
                 >
                   <svg className="h-4 w-4 text-warm-400 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />

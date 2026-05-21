@@ -18,10 +18,10 @@ const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
           id={inputId}
           rows={4}
           className={cn(
-            'w-full rounded-xl border bg-white px-3.5 py-2.5 text-sm text-warm-900 placeholder-warm-400',
-            'transition-all focus:outline-none focus:ring-2 focus:ring-ink-500/20 resize-y',
-            error ? 'border-red-400' : 'border-warm-300 focus:border-ink-500',
-            'disabled:cursor-not-allowed disabled:bg-warm-50',
+            'w-full rounded-xl border bg-warm-50 px-3.5 py-2.5 text-sm text-warm-900 placeholder-warm-400',
+            'transition-all focus:outline-none focus:ring-2 focus:ring-gold-500/30 resize-y',
+            error ? 'border-red-500/50' : 'border-warm-300 focus:border-gold-500',
+            'disabled:cursor-not-allowed disabled:opacity-50',
             className
           )}
           {...props}

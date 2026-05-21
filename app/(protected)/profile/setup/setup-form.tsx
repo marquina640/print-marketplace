@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
@@ -48,9 +48,12 @@ function Toggle({ label, checked, onChange }: { label: string; checked: boolean;
 
 export function ProfileSetupForm({ effectiveUserId }: { effectiveUserId: string }) {
   const router = useRouter()
+  const avatarFileRef = useRef<HTMLInputElement>(null)
   const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [avatarFile, setAvatarFile] = useState<File | null>(null)
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
 
   const [form, setFormState] = useState({
     display_name: '',
@@ -91,6 +94,10 @@ export function ProfileSetupForm({ effectiveUserId }: { effectiveUserId: string 
           lat: data.latitude ?? null,
           lng: data.longitude ?? null,
         })
+        // Load existing avatar from profiles table
+        const supabase2 = createClient()
+        const { data: prof } = await supabase2.from('profiles').select('avatar_url').eq('user_id', effectiveUserId).single()
+        if (prof?.avatar_url) setAvatarPreview(prof.avatar_url)
       }
       setLoading(false)
     }
@@ -99,6 +106,14 @@ export function ProfileSetupForm({ effectiveUserId }: { effectiveUserId: string 
 
   function set(field: string, value: string | boolean | string[]) {
     setFormState((prev) => ({ ...prev, [field]: value }))
+  }
+
+  function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    if (file.size > 5 * 1024 * 1024) { setError('Photo must be under 5 MB.'); return }
+    setAvatarFile(file)
+    setAvatarPreview(URL.createObjectURL(file))
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -110,6 +125,21 @@ export function ProfileSetupForm({ effectiveUserId }: { effectiveUserId: string 
 
     setSaving(true)
     const supabase = createClient()
+
+    // Upload avatar if a new file was chosen
+    let newAvatarUrl: string | undefined
+    if (avatarFile) {
+      const ext = avatarFile.name.split('.').pop()
+      const path = `avatars/${effectiveUserId}-${Date.now()}.${ext}`
+      const { error: uploadErr } = await supabase.storage.from('avatars').upload(path, avatarFile, { upsert: true })
+      if (uploadErr) { setError(`Avatar upload failed: ${uploadErr.message}`); setSaving(false); return }
+      const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(path)
+      newAvatarUrl = publicUrl
+    }
+
+    if (newAvatarUrl) {
+      await supabase.from('profiles').update({ avatar_url: newAvatarUrl }).eq('user_id', effectiveUserId)
+    }
 
     const payload = {
       user_id: effectiveUserId,
@@ -158,6 +188,28 @@ export function ProfileSetupForm({ effectiveUserId }: { effectiveUserId: string 
 
         <div className="card p-6 space-y-4">
           <h2 className="font-semibold text-warm-900">Your Identity</h2>
+
+          {/* Avatar / profile picture */}
+          <div>
+            <p className="form-label mb-2">Profile picture</p>
+            <div className="flex items-center gap-4">
+              <button type="button" onClick={() => avatarFileRef.current?.click()}
+                className="relative h-20 w-20 rounded-full overflow-hidden border-2 border-dashed border-warm-300 hover:border-ink-400 transition-colors flex-shrink-0 bg-warm-50">
+                {avatarPreview ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={avatarPreview} alt="Profile" className="h-full w-full object-cover" />
+                ) : (
+                  <span className="text-3xl text-warm-300 flex items-center justify-center h-full">+</span>
+                )}
+              </button>
+              <div className="text-sm text-warm-500">
+                <p>Upload a photo of yourself or your workspace.</p>
+                <p className="text-xs text-warm-400 mt-0.5">JPG, PNG, WEBP — max 5 MB</p>
+              </div>
+              <input ref={avatarFileRef} type="file" accept="image/*" onChange={handleAvatarChange} className="hidden" />
+            </div>
+          </div>
+
           <Input label="Display name *" required value={form.display_name}
             onChange={(e) => set('display_name', e.target.value)} placeholder="Zurich Maker Studio" />
           <AddressAutocomplete

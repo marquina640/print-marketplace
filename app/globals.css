@@ -1,13 +1,113 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;0,14..32,900;1,14..32,400&display=swap');
+@import url('https://api.fontshare.com/v2/css?f[]=satoshi@300,400,500,700,900&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* ── Brand override — applied after all Tailwind layers ── */
+:root {
+  --pmh-bg:        #0F0D14;
+  --pmh-surface:   #1C1829;
+  --pmh-border:    #2D2845;
+  --pmh-text:      #F2EEFF;
+  --pmh-muted:     #8E86A8;
+  --pmh-ochre:     #D4A017;
+  --pmh-purple:    #2B1B47;
+}
+
+html, body {
+  background-color: var(--pmh-bg) !important;
+  color: var(--pmh-text) !important;
+  font-family: 'Satoshi', 'Inter', system-ui, sans-serif !important;
+}
+
+/* Page layout wrapper */
+.min-h-screen { background-color: var(--pmh-bg); }
+
+/* Cards */
+.card, [class~="card"] {
+  background-color: var(--pmh-surface) !important;
+  border-color: var(--pmh-border) !important;
+}
+
+/* Sidebar */
+aside {
+  background-color: var(--pmh-surface) !important;
+  border-color: var(--pmh-border) !important;
+}
+
+/* Navbar */
+header {
+  background-color: color-mix(in srgb, var(--pmh-surface) 95%, transparent) !important;
+  border-color: var(--pmh-border) !important;
+  backdrop-filter: blur(8px);
+}
+
+/* All bg-white instances */
+.bg-white {
+  background-color: var(--pmh-surface) !important;
+}
+
+/* Form inputs */
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+textarea,
+select {
+  background-color: var(--pmh-bg) !important;
+  border-color: var(--pmh-border) !important;
+  color: var(--pmh-text) !important;
+}
+
+/* Tables */
+table { background-color: var(--pmh-surface) !important; }
+thead { background-color: color-mix(in srgb, var(--pmh-surface) 60%, var(--pmh-bg)) !important; }
+tr:hover { background-color: color-mix(in srgb, var(--pmh-border) 40%, transparent) !important; }
+
+/* Dropdowns / popups */
+[class*="rounded-2xl"], [class*="rounded-xl"] {
+  /* Only override bg if they're surface-level elements — handled by .card above */
+}
+
+/* Text colour corrections on dark bg */
+.text-warm-900 { color: var(--pmh-text) !important; }
+.text-warm-800 { color: #E4DFF2 !important; }
+.text-warm-700 { color: #CEC8E4 !important; }
+.text-warm-600 { color: #B0A8C8 !important; }
+.text-warm-500 { color: var(--pmh-muted) !important; }
+.text-warm-400 { color: #6B6480 !important; }
+
+/* ink text on dark bg needs to be readable */
+.text-ink-950 { color: #F5F5F5 !important; }
+.text-ink-900 { color: #E4DFF2 !important; }
+.text-ink-800 { color: #CEC8E4 !important; }
+.text-ink-700 { color: #B0A8C8 !important; }
+
+/* Gold/ochre stays as-is */
+.text-gold-500 { color: var(--pmh-ochre) !important; }
+.text-gold-400 { color: #EAB82A !important; }
+
+/* Section heading */
+.section-heading { color: var(--pmh-text) !important; }
+
+/* Dividers */
+.divide-y > * + * { border-color: var(--pmh-border) !important; }
+[class*="border-warm"] { border-color: var(--pmh-border) !important; }
+
+/* Buttons — primary stays dark purple, gold stays ochre */
+.bg-ink-800, .bg-ink-900 { background-color: #3D2878 !important; }
+.hover\:bg-ink-900:hover  { background-color: #2B1B47 !important; }
+.bg-gold-500   { background-color: var(--pmh-ochre) !important; }
+.hover\:bg-gold-600:hover { background-color: #B88514 !important; }
+
+/* Active nav — gold ochre */
+.bg-ink-900.text-white {
+  background-color: var(--pmh-ochre) !important;
+  color: #0F0D14 !important;
+}
+
 /* ── Base ───────────────────────────────────────────────── */
 @layer base {
   html {
-    font-family: 'Inter', system-ui, sans-serif;
+    font-family: 'Satoshi', 'Inter', system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     letter-spacing: -0.015em;
@@ -27,11 +127,11 @@
 
   /* Card */
   .card {
-    @apply bg-white rounded-2xl border border-warm-200 shadow-card;
+    @apply bg-warm-100 rounded-2xl border border-warm-200 shadow-card;
   }
 
   .card-hover {
-    @apply card transition-all duration-200 hover:border-ink-300 hover:shadow-lift hover:-translate-y-0.5;
+    @apply card transition-all duration-200 hover:border-gold-500/40 hover:shadow-lift hover:-translate-y-0.5;
   }
 
   /* Layout containers */
@@ -41,12 +141,12 @@
 
   /* Form labels */
   .form-label {
-    @apply block text-xs font-semibold text-warm-600 uppercase tracking-wider mb-2;
+    @apply block text-xs font-semibold text-warm-500 uppercase tracking-wider mb-2;
   }
 
   /* Section headings */
   .section-heading {
-    @apply text-2xl font-black text-ink-950 tracking-tight;
+    @apply text-2xl font-black text-warm-900 tracking-tight;
   }
 
   /* Stat card */
@@ -61,13 +161,13 @@
 
   /* Accent bar */
   .accent-bar {
-    @apply border-l-4 border-gold-400 pl-4;
+    @apply border-l-4 border-gold-500 pl-4;
   }
 
   /* Feed card */
   .feed-card {
     @apply card overflow-hidden cursor-pointer transition-all duration-200
-           hover:shadow-lift hover:-translate-y-1 hover:border-ink-200;
+           hover:shadow-lift hover:-translate-y-1 hover:border-gold-500/40;
   }
 
   /* Pill nav tabs */
@@ -76,12 +176,23 @@
   }
 
   .tab-pill-active {
-    @apply tab-pill bg-ink-900 text-white;
+    @apply tab-pill bg-gold-500 text-ink-950;
   }
 
   .tab-pill-inactive {
-    @apply tab-pill text-warm-500 hover:bg-warm-100 hover:text-ink-900;
+    @apply tab-pill text-warm-500 hover:bg-warm-200 hover:text-warm-900;
   }
+}
+
+/* ── Dark-theme text overrides ──────────────────────────── */
+/* ink-* bg values remain dark purple (buttons, active states).
+   When ink-* is used as TEXT colour it must be readable on dark surfaces. */
+@layer utilities {
+  .text-ink-950 { color: #F5F5F5; }
+  .text-ink-900 { color: #E4DFF2; }
+  .text-ink-800 { color: #CEC8E4; }
+  .text-ink-700 { color: #B0A8C8; }
+  .text-ink-600 { color: #8E86A8; }
 }
 
 /* ── Utilities ──────────────────────────────────────────── */
@@ -94,13 +205,13 @@
 
   .bg-grid {
     background-image:
-      linear-gradient(rgb(231 229 228 / 0.5) 1px, transparent 1px),
-      linear-gradient(to right, rgb(231 229 228 / 0.5) 1px, transparent 1px);
+      linear-gradient(rgb(45 40 69 / 0.6) 1px, transparent 1px),
+      linear-gradient(to right, rgb(45 40 69 / 0.6) 1px, transparent 1px);
     background-size: 24px 24px;
   }
 
   .bg-brand-gradient {
-    background: linear-gradient(135deg, #1c1917 0%, #1e1b4b 50%, #3730a3 100%);
+    background: linear-gradient(135deg, #0F0D14 0%, #2B1B47 50%, #3d2878 100%);
   }
 
   .text-balance {
@@ -110,16 +221,23 @@
 
 /* ── Leaflet ────────────────────────────────────────────── */
 .leaflet-container {
-  font-family: 'Inter', sans-serif !important;
+  font-family: 'Satoshi', sans-serif !important;
   border-radius: 1rem;
+  background: #1C1829 !important;
 }
 
 .leaflet-popup-content-wrapper {
   border-radius: 0.75rem !important;
-  box-shadow: 0 4px 12px -2px rgb(0 0 0 / 0.15) !important;
-  border: 1px solid #e7e5e4;
+  box-shadow: 0 4px 20px -2px rgb(0 0 0 / 0.5) !important;
+  border: 1px solid #2D2845 !important;
+  background: #1C1829 !important;
+  color: #F2EEFF !important;
 }
 
 .leaflet-popup-tip {
-  background: white !important;
+  background: #1C1829 !important;
+}
+
+.leaflet-tile-pane {
+  filter: brightness(0.7) saturate(0.8);
 }

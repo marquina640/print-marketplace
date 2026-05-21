@@ -31,7 +31,17 @@ interface MakerCardProps {
     processes: string[]
     cover_image: string | null
     avatar_url: string | null
+    completed_count?: number
+    avg_reply_hours?: number | null
+    top_materials?: string[]
   }
+}
+
+function formatReplyTime(hours: number): string {
+  if (hours < 1) return 'under an hour'
+  if (hours < 24) return `~${Math.round(hours)}h`
+  const days = Math.round(hours / 24)
+  return `~${days} day${days !== 1 ? 's' : ''}`
 }
 
 export function MakerCard({ maker }: MakerCardProps) {
@@ -41,6 +51,10 @@ export function MakerCard({ maker }: MakerCardProps) {
   const topMaterials = (maker.materials ?? []).slice(0, 3)
   const rating = maker.rating_average ?? 0
   const ratingCount = maker.rating_count ?? 0
+  const completedCount = maker.completed_count ?? 0
+  const avgReplyHours = maker.avg_reply_hours ?? null
+  const topDoneMaterials = maker.top_materials ?? []
+  const showStats = completedCount >= 5
 
   return (
     <Link href={`/makers/${maker.user_id}`} className="block group">
@@ -131,6 +145,19 @@ export function MakerCard({ maker }: MakerCardProps) {
                 <span className="rounded-full border border-warm-200 bg-warm-50 px-2 py-0.5 text-xs text-warm-400">
                   +{(maker.materials?.length ?? 0) - 3} more
                 </span>
+              )}
+            </div>
+          )}
+
+          {/* Stats (only after 5+ completed projects) */}
+          {showStats && (
+            <div className="flex flex-wrap gap-x-3 gap-y-1 mb-3 text-xs text-warm-500">
+              <span>{completedCount} completed</span>
+              {avgReplyHours !== null && (
+                <span>Replies in {formatReplyTime(avgReplyHours)}</span>
+              )}
+              {topDoneMaterials.length > 0 && (
+                <span>Mostly {topDoneMaterials.join(' & ')}</span>
               )}
             </div>
           )}

@@ -11,21 +11,21 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variantClasses: Record<Variant, string> = {
-  // Amber/gold — main CTA (MCM accent)
+  // Ochre — main CTA
   gold:
-    'bg-gold-500 text-white hover:bg-gold-600 focus-visible:ring-gold-400 disabled:bg-gold-300',
-  // Deep indigo — primary action
+    'bg-gold-500 text-ink-950 font-semibold hover:bg-gold-600 focus-visible:ring-gold-400 disabled:bg-gold-300',
+  // Deep purple — primary action
   primary:
-    'bg-ink-800 text-white hover:bg-ink-900 focus-visible:ring-ink-500 disabled:bg-ink-300',
-  // Warm stone — secondary
+    'bg-ink-800 text-white hover:bg-ink-900 focus-visible:ring-gold-500/50 disabled:opacity-50',
+  // Surface — secondary
   secondary:
-    'bg-warm-100 text-warm-900 hover:bg-warm-200 focus-visible:ring-warm-400',
+    'bg-warm-200 text-warm-900 hover:bg-warm-300 focus-visible:ring-warm-400',
   // Outlined
   outline:
-    'border border-warm-300 bg-white text-warm-700 hover:bg-warm-50 hover:border-warm-400 focus-visible:ring-warm-300',
+    'border border-warm-300 bg-transparent text-warm-700 hover:bg-warm-200 hover:border-warm-400 focus-visible:ring-warm-300',
   // Ghost
   ghost:
-    'text-warm-600 hover:bg-warm-100 hover:text-warm-900 focus-visible:ring-warm-300',
+    'text-warm-600 hover:bg-warm-200 hover:text-warm-900 focus-visible:ring-warm-300',
   // Danger
   danger:
     'bg-red-600 text-white hover:bg-red-700 focus-visible:ring-red-500 disabled:bg-red-300',

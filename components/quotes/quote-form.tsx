@@ -30,6 +30,7 @@ export function QuoteForm({ jobId, printerId: printerIdProp, existingQuote }: Qu
   const [price, setPrice] = useState(existingQuote?.price?.toString() ?? '')
   const [leadTime, setLeadTime] = useState(existingQuote?.lead_time_days?.toString() ?? '')
   const [message, setMessage] = useState(existingQuote?.message ?? '')
+  const [justification, setJustification] = useState((existingQuote as any)?.price_justification ?? '')
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState<string | null>(existingQuote?.image_url ?? null)
 
@@ -59,6 +60,10 @@ export function QuoteForm({ jobId, printerId: printerIdProp, existingQuote }: Qu
     }
     if (!message.trim()) {
       setError('Please add a message describing your approach, materials, and timeline.')
+      return
+    }
+    if (!justification.trim()) {
+      setError('Please explain why you quoted this price.')
       return
     }
 
@@ -95,6 +100,7 @@ export function QuoteForm({ jobId, printerId: printerIdProp, existingQuote }: Qu
       price: parseFloat(price),
       lead_time_days: parseInt(leadTime),
       message: message.trim() || null,
+      price_justification: justification.trim() || null,
       image_url,
       expires_at: expiresAt,
     }
@@ -173,6 +179,10 @@ export function QuoteForm({ jobId, printerId: printerIdProp, existingQuote }: Qu
       <Textarea label="Message to client *" value={message}
         onChange={(e) => setMessage(e.target.value)} rows={3}
         placeholder="Describe your approach, materials, timeline, and any questions…" />
+
+      <Textarea label="Why did you quote this price? *" value={justification}
+        onChange={(e) => setJustification(e.target.value)} rows={2}
+        placeholder="e.g. Material cost, print time, post-processing…" />
 
       {error && (
         <div className="rounded-xl bg-red-50 border border-red-200 p-3 text-sm text-red-700">{error}</div>

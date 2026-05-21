@@ -9,41 +9,41 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Deep indigo — primary brand
-        ink: {
-          50:  '#eef2ff',
-          100: '#e0e7ff',
-          200: '#c7d2fe',
-          400: '#818cf8',
-          500: '#6366f1',
-          600: '#4f46e5',
-          700: '#4338ca',
-          800: '#3730a3',
-          900: '#312e81',
-          950: '#1e1b4b',
-        },
-        // Amber/yellow — CTA accent
-        gold: {
-          300: '#fcd34d',
-          400: '#fbbf24',
-          500: '#f59e0b',
-          600: '#d97706',
-          700: '#b45309',
-        },
-        // Warm stone — surfaces
+        // Surface hierarchy — dark theme (50 = page bg, 900 = main text)
         warm: {
-          50:  '#fafaf9',
-          100: '#f5f5f4',
-          200: '#e7e5e4',
-          300: '#d6d3d1',
-          400: '#a8a29e',
-          500: '#78716c',
-          600: '#57534e',
-          700: '#44403c',
-          800: '#292524',
-          900: '#1c1917',
+          50:  '#0F0D14',  // page background
+          100: '#1C1829',  // card / sidebar / navbar surface
+          200: '#2D2845',  // borders, dividers
+          300: '#3D3A58',  // stronger border
+          400: '#6B6480',  // muted icons
+          500: '#8E86A8',  // secondary text
+          600: '#B0A8C8',  // medium text
+          700: '#CEC8E4',  // light text
+          800: '#E4DFF2',  // very light
+          900: '#F2EEFF',  // main body text
         },
-        // Violet — secondary accent
+        // Deep purple — brand primary
+        ink: {
+          50:   '#231840',
+          100:  '#312558',
+          200:  '#4A3880',
+          400:  '#7860B8',
+          500:  '#6850A8',
+          600:  '#584098',
+          700:  '#483088',
+          800:  '#3D2878',  // primary button bg
+          900:  '#332070',  // primary button hover
+          950:  '#2B1B47',  // brand deep purple
+        },
+        // Ochre — CTA accent
+        gold: {
+          300: '#F5D468',
+          400: '#EAB82A',
+          500: '#D4A017',  // brand ochre
+          600: '#B88514',
+          700: '#8F6510',
+        },
+        // Violet — keep for compatibility
         violet: {
           100: '#ede9fe',
           400: '#a78bfa',
@@ -54,8 +54,8 @@ const config: Config = {
         },
       },
       fontFamily: {
-        sans:  ['Inter', 'system-ui', 'sans-serif'],
-        mono:  ['JetBrains Mono', 'monospace'],
+        sans: ['Satoshi', 'Inter', 'system-ui', 'sans-serif'],
+        mono: ['JetBrains Mono', 'monospace'],
       },
       borderRadius: {
         'xl':  '0.75rem',
@@ -63,9 +63,9 @@ const config: Config = {
         '3xl': '1.5rem',
       },
       boxShadow: {
-        card:  '0 1px 3px 0 rgb(0 0 0 / 0.06), 0 1px 2px -1px rgb(0 0 0 / 0.06)',
-        lift:  '0 4px 12px -2px rgb(0 0 0 / 0.10), 0 2px 6px -2px rgb(0 0 0 / 0.06)',
-        glow:  '0 0 0 3px rgb(99 102 241 / 0.15)',
+        card:  '0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3)',
+        lift:  '0 4px 20px -2px rgb(0 0 0 / 0.4), 0 2px 8px -2px rgb(0 0 0 / 0.3)',
+        glow:  '0 0 0 3px rgb(212 160 23 / 0.25)',
       },
     },
   },

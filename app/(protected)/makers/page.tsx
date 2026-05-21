@@ -64,6 +64,42 @@ export default async function MakersBrowsePage({ searchParams }: PageProps) {
         .eq('is_public', true)
     : { data: [] }
 
+  // Completed project counts and response times from quotes
+  // Join quotes → jobs so we can check job.status and get job.created_at
+  const { data: completedQuotes } = makerIds.length > 0
+    ? await supabase
+        .from('quotes')
+        .select('printer_id, created_at, jobs!inner(created_at, status, material)')
+        .in('printer_id', makerIds)
+        .eq('status', 'accepted')
+        .in('jobs.status', ['completed', 'delivered'])
+    : { data: [] }
+
+  // Compute per-maker stats from completed quotes
+  interface MakerStats { completedCount: number; avgReplyHours: number | null; topMaterials: string[] }
+  const statsByMaker: Record<string, MakerStats> = {}
+  for (const q of completedQuotes ?? []) {
+    const job = (q as any).jobs
+    if (!statsByMaker[q.printer_id]) {
+      statsByMaker[q.printer_id] = { completedCount: 0, avgReplyHours: null, topMaterials: [] }
+    }
+    const s = statsByMaker[q.printer_id]
+    s.completedCount++
+    // Response time = hours between job posted and quote submitted
+    if (job?.created_at && q.created_at) {
+      const diffH = (new Date(q.created_at).getTime() - new Date(job.created_at).getTime()) / 3600000
+      if (diffH >= 0) {
+        s.avgReplyHours = s.avgReplyHours === null
+          ? diffH
+          : (s.avgReplyHours * (s.completedCount - 1) + diffH) / s.completedCount
+      }
+    }
+    if (job?.material) {
+      const mat = job.material as string
+      if (!s.topMaterials.includes(mat)) s.topMaterials.push(mat)
+    }
+  }
+
   // Index everything by maker id
   const coverByMaker: Record<string, string> = {}
   for (const item of portfolioItems ?? []) {
@@ -89,18 +125,22 @@ export default async function MakersBrowsePage({ searchParams }: PageProps) {
   const enrichedMakers = (makers ?? []).map((m) => {
     const prof = profileByMaker[m.user_id]
     const rating = ratingByMaker[m.user_id]
+    const stats = statsByMaker[m.user_id]
     return {
-      user_id:           m.user_id,
-      display_name:      m.display_name || prof?.display_name || prof?.email || 'Maker',
-      city:              m.city,
-      certification_level: m.certification_level ?? 0,
-      materials:         m.materials ?? [],
-      processes:         (m.processes as string[] | null) ?? [],
-      description:       m.description,
-      cover_image:       coverByMaker[m.user_id] ?? null,
-      avatar_url:        prof?.avatar_url ?? null,
-      rating_average:    rating?.avg ?? null,
-      rating_count:      rating?.count ?? null,
+      user_id:              m.user_id,
+      display_name:         m.display_name || prof?.display_name || prof?.email || 'Maker',
+      city:                 m.city,
+      certification_level:  m.certification_level ?? 0,
+      materials:            m.materials ?? [],
+      processes:            (m.processes as string[] | null) ?? [],
+      description:          m.description,
+      cover_image:          coverByMaker[m.user_id] ?? null,
+      avatar_url:           prof?.avatar_url ?? null,
+      rating_average:       rating?.avg ?? null,
+      rating_count:         rating?.count ?? null,
+      completed_count:      stats?.completedCount ?? 0,
+      avg_reply_hours:      stats?.avgReplyHours ?? null,
+      top_materials:        stats?.topMaterials.slice(0, 2) ?? [],
     }
   })
 
@@ -111,6 +151,7 @@ export default async function MakersBrowsePage({ searchParams }: PageProps) {
       <div>
         <h1 className="section-heading">Browse Makers</h1>
         <p className="text-warm-500 text-sm mt-1">
+          Get your idea done by a real local maker —{' '}
           {enrichedMakers.length} maker{enrichedMakers.length !== 1 ? 's' : ''} on the platform
           {error && <span className="ml-2 text-red-400 text-xs">(query error: {error.message})</span>}
         </p>
