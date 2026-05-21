@@ -12,7 +12,7 @@ export default async function LandingPage() {
       {/* ── Navbar ── */}
       <header className="sticky top-0 z-50 border-b border-[#2D2845] bg-[#1C1829]/95 backdrop-blur-md">
         <div className="page-container flex h-16 items-center justify-between">
-          <img src="/logo.svg" alt="PrintMarketHub" className="h-9 w-auto" />
+          <img src="/logo-full.png" alt="PrintMarketHub" className="h-10 w-auto" />
           <nav className="flex items-center gap-2">
             {user ? (
               <Link href="/dashboard">
@@ -364,7 +364,7 @@ export default async function LandingPage() {
       <footer className="border-t border-[#2D2845] bg-[#0F0D14] py-10">
         <div className="page-container">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            <img src="/logo.svg" alt="PrintMarketHub" className="h-7 w-auto" />
+            <img src="/logo-full.png" alt="PrintMarketHub" className="h-8 w-auto" />
             <p className="text-xs text-warm-400 uppercase tracking-wider">© 2025 PrintMarketHub</p>
             <div className="flex gap-5 text-xs text-warm-500">
               <a href="/legal/privacy" className="hover:text-ink-900 transition-colors">Privacy</a>

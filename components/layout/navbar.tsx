@@ -106,7 +106,7 @@ export function Navbar({ userEmail, userRole, unreadMessages = 0, notifications 
       <div className="page-container flex h-14 items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center">
-          <img src="/logo.svg" alt="PrintMarketHub" className="h-8 w-auto" />
+          <img src="/logo-icon.png" alt="PrintMarketHub" className="h-8 w-auto" />
         </Link>
 
         {/* Desktop nav */}
