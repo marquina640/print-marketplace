@@ -12,7 +12,10 @@ export default async function LandingPage() {
       {/* ── Navbar ── */}
       <header className="sticky top-0 z-50 border-b border-[#2D2845] bg-[#1C1829]/95 backdrop-blur-md">
         <div className="page-container flex h-16 items-center justify-between">
-          <img src="/logo-full.png" alt="PrintMarketHub" className="h-10 w-auto" />
+          <div className="flex items-center gap-3">
+            <img src="/logo-icon.png" alt="PrintMarketHub" className="h-12 w-auto" />
+            <span className="text-xl font-black tracking-tight text-white">PrintMarket<span className="text-[#D4A017]">Hub</span></span>
+          </div>
           <nav className="flex items-center gap-2">
             {user ? (
               <Link href="/dashboard">

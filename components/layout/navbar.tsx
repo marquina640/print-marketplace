@@ -105,8 +105,9 @@ export function Navbar({ userEmail, userRole, unreadMessages = 0, notifications 
     <header className="sticky top-0 z-40 border-b border-warm-200 bg-warm-100/95 backdrop-blur-sm">
       <div className="page-container flex h-14 items-center justify-between">
         {/* Logo */}
-        <Link href="/" className="flex items-center">
-          <img src="/logo-icon.png" alt="PrintMarketHub" className="h-8 w-auto" />
+        <Link href="/" className="flex items-center gap-2.5">
+          <img src="/logo-icon.png" alt="PrintMarketHub" className="h-9 w-auto" />
+          <span className="text-base font-black tracking-tight text-warm-900">PrintMarket<span className="text-gold-500">Hub</span></span>
         </Link>
 
         {/* Desktop nav */}
