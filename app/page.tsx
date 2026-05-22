@@ -57,7 +57,7 @@ export default async function LandingPage() {
                 Post a request, collect quotes from verified local makers, pay securely — and track your order every step of the way.
               </p>
               <div className="flex flex-col sm:flex-row gap-3 mb-6">
-                <Link href="/signup">
+                <Link href="/jobs/new">
                   <Button variant="gold" size="lg">Post a Request — Free</Button>
                 </Link>
                 <Link href="/signup?role=printer_owner">
@@ -223,7 +223,7 @@ export default async function LandingPage() {
               ))}
             </div>
             <div className="mt-6 text-center">
-              <Link href="/signup">
+              <Link href="/jobs/new">
                 <Button variant="gold">Post Your First Request — Free</Button>
               </Link>
             </div>
@@ -348,9 +348,9 @@ export default async function LandingPage() {
             Join makers and clients already using PrintMarketHub to bring ideas to life.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-            <Link href="/signup">
+            <Link href="/jobs/new">
               <Button size="lg" className="bg-ink-950 text-white hover:bg-ink-900 shadow-lg">
-                Create free account →
+                Post a Request →
               </Button>
             </Link>
             <Link href="/signup?role=printer_owner">
