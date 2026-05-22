@@ -53,7 +53,7 @@ export default async function LandingPage() {
                 Get your idea<br />
                 <span className="text-gold-400">printed today.</span>
               </h1>
-              <p className="text-lg text-warm-400 max-w-lg mb-8 leading-relaxed">
+              <p className="text-lg text-[#CEC8E4] max-w-lg mb-8 leading-relaxed">
                 Post a request, collect quotes from verified local makers, pay securely — and track your order every step of the way.
               </p>
               <div className="flex flex-col sm:flex-row gap-3 mb-6">
@@ -66,7 +66,7 @@ export default async function LandingPage() {
                   </Button>
                 </Link>
               </div>
-              <p className="text-xs text-warm-600 uppercase tracking-widest">No subscription · Pay only when you print</p>
+              <p className="text-xs text-[#B0A8C8] uppercase tracking-widest">No subscription · Pay only when you print</p>
             </div>
 
             {/* Right — UI mockup */}
@@ -115,9 +115,9 @@ export default async function LandingPage() {
       </section>
 
       {/* ── Trust bar ── */}
-      <section className="bg-ink-900 text-white border-b border-warm-800">
-        <div className="page-container py-4">
-          <div className="flex flex-wrap items-center justify-center gap-x-10 gap-y-2 text-xs text-warm-500 uppercase tracking-wider">
+      <section className="border-y border-[#3D3A58]" style={{backgroundColor:'#D4A017'}}>
+        <div className="page-container py-3">
+          <div className="flex flex-wrap items-center justify-center gap-x-10 gap-y-2 text-xs font-semibold text-[#1C1829] uppercase tracking-wider">
             {[
               '🔒 Secure escrow payments',
               '🏅 Certified Swiss makers',
@@ -135,7 +135,7 @@ export default async function LandingPage() {
           <div className="text-center mb-10">
             <p className="text-xs font-bold uppercase tracking-widest text-gold-600 mb-3">Step 0 — Find your model</p>
             <h2 className="text-3xl font-black text-white tracking-tight">Don't have a 3D file yet?</h2>
-            <p className="text-warm-500 mt-3 max-w-xl mx-auto">
+            <p className="text-[#CEC8E4] mt-3 max-w-xl mx-auto">
               Millions of free models are one click away. Browse, download your STL, then come back and post your request.
             </p>
           </div>
@@ -156,7 +156,7 @@ export default async function LandingPage() {
                 </div>
                 <svg className="h-4 w-4 text-warm-400 group-hover:text-ink-900 ml-auto transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
               </div>
-              <p className="text-sm text-[#8E86A8] mb-4">High-quality models with print profiles. Great for functional parts and validated designs.</p>
+              <p className="text-sm text-[#CEC8E4] mb-4">High-quality models with print profiles. Great for functional parts and validated designs.</p>
               <div className="flex flex-wrap gap-1.5">
                 {['Mechanical', 'Hobby', 'Home', 'Engineering', 'Art'].map(c => (
                   <span key={c} className="rounded-full bg-[#2D2845] border border-[#3D3A58] px-2.5 py-0.5 text-xs text-[#8E86A8]">{c}</span>
@@ -179,7 +179,7 @@ export default async function LandingPage() {
                 </div>
                 <svg className="h-4 w-4 text-warm-400 group-hover:text-ink-900 ml-auto transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
               </div>
-              <p className="text-sm text-[#8E86A8] mb-4">The world's largest 3D model library. Millions of free community designs for every use case.</p>
+              <p className="text-sm text-[#CEC8E4] mb-4">The world's largest 3D model library. Millions of free community designs for every use case.</p>
               <div className="flex flex-wrap gap-1.5">
                 {['Gadgets', 'Tools', 'Toys', 'Architecture', 'Fashion'].map(c => (
                   <span key={c} className="rounded-full bg-[#2D2845] border border-[#3D3A58] px-2.5 py-0.5 text-xs text-[#8E86A8]">{c}</span>
@@ -188,8 +188,8 @@ export default async function LandingPage() {
             </a>
           </div>
 
-          <p className="text-center text-sm text-warm-500">
-            Already have your STL? <Link href="/signup" className="font-semibold text-gold-500 hover:underline">Post your request directly →</Link>
+          <p className="text-center text-sm text-[#CEC8E4]">
+            Already have your STL? <Link href="/signup" className="font-semibold text-[#D4A017] hover:underline">Post your request directly →</Link>
           </p>
         </div>
       </section>
@@ -204,7 +204,7 @@ export default async function LandingPage() {
 
           {/* Client path */}
           <div className="mb-12">
-            <p className="text-xs font-bold uppercase tracking-widest text-warm-400 mb-6 text-center">For customers</p>
+            <p className="text-xs font-bold uppercase tracking-widest text-[#B0A8C8] mb-6 text-center">For customers</p>
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {[
                 { n: '1', icon: '📁', title: 'Find or upload your model', desc: 'Browse MakerWorld or Thingiverse, or upload your own STL / STEP file.' },
@@ -218,7 +218,7 @@ export default async function LandingPage() {
                   </div>
                   <p className="text-2xl mb-3 mt-2">{s.icon}</p>
                   <p className="font-bold text-white text-sm mb-1">{s.title}</p>
-                  <p className="text-xs text-warm-500 leading-relaxed">{s.desc}</p>
+                  <p className="text-xs text-[#CEC8E4] leading-relaxed">{s.desc}</p>
                 </div>
               ))}
             </div>
@@ -239,7 +239,7 @@ export default async function LandingPage() {
 
           {/* Maker path */}
           <div>
-            <p className="text-xs font-bold uppercase tracking-widest text-warm-400 mb-6 text-center">For makers</p>
+            <p className="text-xs font-bold uppercase tracking-widest text-[#B0A8C8] mb-6 text-center">For makers</p>
             <div className="grid sm:grid-cols-3 gap-4 max-w-3xl mx-auto">
               {[
                 { n: '1', icon: '🖨️', title: 'Set up your profile', desc: 'List your machines, materials, and capabilities. Certification levels build trust.' },
@@ -252,7 +252,7 @@ export default async function LandingPage() {
                   </div>
                   <p className="text-2xl mb-3 mt-2">{s.icon}</p>
                   <p className="font-bold text-white text-sm mb-1">{s.title}</p>
-                  <p className="text-xs text-warm-500 leading-relaxed">{s.desc}</p>
+                  <p className="text-xs text-[#CEC8E4] leading-relaxed">{s.desc}</p>
                 </div>
               ))}
             </div>
@@ -309,7 +309,7 @@ export default async function LandingPage() {
               <div key={f.title} className="rounded-2xl border border-warm-800 bg-ink-900 p-6 hover:border-warm-700 transition-colors">
                 <div className="text-3xl mb-4">{f.icon}</div>
                 <h3 className="font-bold text-white mb-2">{f.title}</h3>
-                <p className="text-sm text-warm-400 leading-relaxed">{f.desc}</p>
+                <p className="text-sm text-[#CEC8E4] leading-relaxed">{f.desc}</p>
               </div>
             ))}
           </div>
@@ -319,7 +319,7 @@ export default async function LandingPage() {
       {/* ── Materials / Technologies ── */}
       <section className="py-16 bg-[#1C1829] border-y border-[#2D2845]">
         <div className="page-container">
-          <p className="text-center text-xs font-bold uppercase tracking-widest text-warm-400 mb-8">Supported technologies & materials</p>
+          <p className="text-center text-xs font-bold uppercase tracking-widest text-[#B0A8C8] mb-8">Supported technologies & materials</p>
           <div className="flex flex-wrap justify-center gap-3">
             {[
               { label: 'FDM', sub: 'PLA · PETG · ABS · ASA · TPU · CF' },
@@ -330,7 +330,7 @@ export default async function LandingPage() {
             ].map((t) => (
               <div key={t.label} className="rounded-2xl border border-[#2D2845] bg-[#0F0D14] px-5 py-3 text-center">
                 <p className="font-bold text-white text-sm">{t.label}</p>
-                <p className="text-[11px] text-warm-400 mt-0.5">{t.sub}</p>
+                <p className="text-[11px] text-[#CEC8E4] mt-0.5">{t.sub}</p>
               </div>
             ))}
           </div>
