@@ -102,7 +102,7 @@ export function Navbar({ userEmail, userRole, unreadMessages = 0, notifications 
     : []
 
   return (
-    <header className="sticky top-0 z-40 border-b border-warm-200 bg-warm-100/95 backdrop-blur-sm">
+    <header className="sticky top-0 z-40 border-b border-warm-200 bg-white/95 backdrop-blur-sm">
       <div className="page-container flex h-14 items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2.5">

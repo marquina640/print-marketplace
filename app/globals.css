@@ -4,109 +4,21 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ── Warm-bg overrides (covers hardcoded bg-warm-* classes) ── */
-.bg-warm-50  { background-color: #0F0D14 !important; }
-.bg-warm-100 { background-color: #1C1829 !important; }
-.bg-warm-200 { background-color: #2D2845 !important; }
-
-/* ── Brand override — applied after all Tailwind layers ── */
+/* ── Brand variables ── */
 :root {
-  --pmh-bg:        #0F0D14;
-  --pmh-surface:   #1C1829;
-  --pmh-border:    #2D2845;
-  --pmh-text:      #F2EEFF;
-  --pmh-muted:     #8E86A8;
-  --pmh-ochre:     #D4A017;
-  --pmh-purple:    #2B1B47;
+  --pmh-bg:      #FFFFFF;
+  --pmh-surface: #F4F3F8;
+  --pmh-border:  #E8E4F0;
+  --pmh-text:    #1A1028;
+  --pmh-muted:   #7A6F96;
+  --pmh-ochre:   #D4A017;
+  --pmh-purple:  #2B1B47;
 }
 
 html, body {
   background-color: var(--pmh-bg) !important;
   color: var(--pmh-text) !important;
   font-family: 'Satoshi', 'Inter', system-ui, sans-serif !important;
-}
-
-/* Page layout wrapper */
-.min-h-screen { background-color: var(--pmh-bg); }
-
-/* Cards */
-.card, [class~="card"] {
-  background-color: var(--pmh-surface) !important;
-  border-color: var(--pmh-border) !important;
-}
-
-/* Sidebar */
-aside {
-  background-color: var(--pmh-surface) !important;
-  border-color: var(--pmh-border) !important;
-}
-
-/* Navbar */
-header {
-  background-color: color-mix(in srgb, var(--pmh-surface) 95%, transparent) !important;
-  border-color: var(--pmh-border) !important;
-  backdrop-filter: blur(8px);
-}
-
-/* All bg-white instances */
-.bg-white {
-  background-color: var(--pmh-surface) !important;
-}
-
-/* Form inputs */
-input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
-textarea,
-select {
-  background-color: var(--pmh-bg) !important;
-  border-color: var(--pmh-border) !important;
-  color: var(--pmh-text) !important;
-}
-
-/* Tables */
-table { background-color: var(--pmh-surface) !important; }
-thead { background-color: color-mix(in srgb, var(--pmh-surface) 60%, var(--pmh-bg)) !important; }
-tr:hover { background-color: color-mix(in srgb, var(--pmh-border) 40%, transparent) !important; }
-
-/* Dropdowns / popups */
-[class*="rounded-2xl"], [class*="rounded-xl"] {
-  /* Only override bg if they're surface-level elements — handled by .card above */
-}
-
-/* Text colour corrections on dark bg */
-.text-warm-900 { color: var(--pmh-text) !important; }
-.text-warm-800 { color: #E4DFF2 !important; }
-.text-warm-700 { color: #CEC8E4 !important; }
-.text-warm-600 { color: #B0A8C8 !important; }
-.text-warm-500 { color: var(--pmh-muted) !important; }
-.text-warm-400 { color: #6B6480 !important; }
-
-/* ink text on dark bg needs to be readable */
-.text-ink-950 { color: #F5F5F5 !important; }
-.text-ink-900 { color: #E4DFF2 !important; }
-.text-ink-800 { color: #CEC8E4 !important; }
-.text-ink-700 { color: #B0A8C8 !important; }
-
-/* Gold/ochre stays as-is */
-.text-gold-500 { color: var(--pmh-ochre) !important; }
-.text-gold-400 { color: #EAB82A !important; }
-
-/* Section heading */
-.section-heading { color: var(--pmh-text) !important; }
-
-/* Dividers */
-.divide-y > * + * { border-color: var(--pmh-border) !important; }
-[class*="border-warm"] { border-color: var(--pmh-border) !important; }
-
-/* Buttons — primary stays dark purple, gold stays ochre */
-.bg-ink-800, .bg-ink-900 { background-color: #3D2878 !important; }
-.hover\:bg-ink-900:hover  { background-color: #2B1B47 !important; }
-.bg-gold-500   { background-color: var(--pmh-ochre) !important; }
-.hover\:bg-gold-600:hover { background-color: #B88514 !important; }
-
-/* Active nav — gold ochre */
-.bg-ink-900.text-white {
-  background-color: var(--pmh-ochre) !important;
-  color: #0F0D14 !important;
 }
 
 /* ── Base ───────────────────────────────────────────────── */
@@ -132,7 +44,7 @@ tr:hover { background-color: color-mix(in srgb, var(--pmh-border) 40%, transpare
 
   /* Card */
   .card {
-    @apply bg-warm-100 rounded-2xl border border-warm-200 shadow-card;
+    @apply bg-white rounded-2xl border border-warm-200 shadow-card;
   }
 
   .card-hover {
@@ -181,23 +93,12 @@ tr:hover { background-color: color-mix(in srgb, var(--pmh-border) 40%, transpare
   }
 
   .tab-pill-active {
-    @apply tab-pill bg-gold-500 text-ink-950;
+    @apply tab-pill bg-ink-900 text-white;
   }
 
   .tab-pill-inactive {
-    @apply tab-pill text-warm-500 hover:bg-warm-200 hover:text-warm-900;
+    @apply tab-pill text-warm-500 hover:bg-warm-100 hover:text-warm-800;
   }
-}
-
-/* ── Dark-theme text overrides ──────────────────────────── */
-/* ink-* bg values remain dark purple (buttons, active states).
-   When ink-* is used as TEXT colour it must be readable on dark surfaces. */
-@layer utilities {
-  .text-ink-950 { color: #F5F5F5; }
-  .text-ink-900 { color: #E4DFF2; }
-  .text-ink-800 { color: #CEC8E4; }
-  .text-ink-700 { color: #B0A8C8; }
-  .text-ink-600 { color: #8E86A8; }
 }
 
 /* ── Utilities ──────────────────────────────────────────── */
@@ -210,13 +111,13 @@ tr:hover { background-color: color-mix(in srgb, var(--pmh-border) 40%, transpare
 
   .bg-grid {
     background-image:
-      linear-gradient(rgb(45 40 69 / 0.6) 1px, transparent 1px),
-      linear-gradient(to right, rgb(45 40 69 / 0.6) 1px, transparent 1px);
+      linear-gradient(rgb(232 228 240 / 0.8) 1px, transparent 1px),
+      linear-gradient(to right, rgb(232 228 240 / 0.8) 1px, transparent 1px);
     background-size: 24px 24px;
   }
 
   .bg-brand-gradient {
-    background: linear-gradient(135deg, #0F0D14 0%, #2B1B47 50%, #3d2878 100%);
+    background: linear-gradient(135deg, #2B1B47 0%, #3D2878 50%, #483088 100%);
   }
 
   .text-balance {
@@ -228,21 +129,21 @@ tr:hover { background-color: color-mix(in srgb, var(--pmh-border) 40%, transpare
 .leaflet-container {
   font-family: 'Satoshi', sans-serif !important;
   border-radius: 1rem;
-  background: #1C1829 !important;
+  background: #F4F3F8 !important;
 }
 
 .leaflet-popup-content-wrapper {
   border-radius: 0.75rem !important;
-  box-shadow: 0 4px 20px -2px rgb(0 0 0 / 0.5) !important;
-  border: 1px solid #2D2845 !important;
-  background: #1C1829 !important;
-  color: #F2EEFF !important;
+  box-shadow: 0 4px 20px -2px rgb(0 0 0 / 0.15) !important;
+  border: 1px solid #E8E4F0 !important;
+  background: #FFFFFF !important;
+  color: #1A1028 !important;
 }
 
 .leaflet-popup-tip {
-  background: #1C1829 !important;
+  background: #FFFFFF !important;
 }
 
 .leaflet-tile-pane {
-  filter: brightness(0.7) saturate(0.8);
+  filter: brightness(1) saturate(1);
 }

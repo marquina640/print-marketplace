@@ -10,7 +10,7 @@ export default async function LandingPage() {
     <div className="min-h-screen bg-warm-50 font-sans">
 
       {/* ── Navbar ── */}
-      <header className="sticky top-0 z-50 border-b border-[#2D2845] bg-[#1C1829]/95 backdrop-blur-md">
+      <header className="sticky top-0 z-50 border-b border-warm-200 bg-white/95 backdrop-blur-md">
         <div className="page-container flex h-16 items-center justify-between">
           <div className="flex items-center gap-3">
             <img src="/logo-icon.png" alt="PrintMarketHub" className="h-12 w-auto" />
@@ -115,7 +115,7 @@ export default async function LandingPage() {
       </section>
 
       {/* ── Trust bar ── */}
-      <section className="border-y border-[#3D3A58]" style={{backgroundColor:'#D4A017'}}>
+      <section className="border-y border-gold-400" style={{backgroundColor:'#D4A017'}}>
         <div className="page-container py-3">
           <div className="flex flex-wrap items-center justify-center gap-x-10 gap-y-2 text-xs font-semibold text-[#1C1829] uppercase tracking-wider">
             {[
@@ -130,7 +130,7 @@ export default async function LandingPage() {
       </section>
 
       {/* ── Find your model ── */}
-      <section className="py-20 bg-[#1C1829]">
+      <section className="py-20 bg-warm-50">
         <div className="page-container">
           <div className="text-center mb-10">
             <p className="text-xs font-bold uppercase tracking-widest text-gold-600 mb-3">Step 0 — Find your model</p>
@@ -143,9 +143,9 @@ export default async function LandingPage() {
           <div className="grid sm:grid-cols-2 gap-5 max-w-3xl mx-auto mb-6">
             {/* MakerWorld */}
             <a href="https://makerworld.com/en" target="_blank" rel="noopener noreferrer"
-              className="group rounded-2xl border-2 border-[#2D2845] bg-[#0F0D14] p-6 hover:border-gold-500/50 hover:shadow-lg transition-all">
+              className="group rounded-2xl border-2 border-warm-200 bg-white p-6 hover:border-gold-500/50 hover:shadow-lg transition-all">
               <div className="flex items-center gap-3 mb-3">
-                <div className="h-10 w-10 rounded-xl bg-ink-900 flex items-center justify-center flex-shrink-0">
+                <div className="h-10 w-10 rounded-xl bg-ink-50 border border-warm-200 flex items-center justify-center flex-shrink-0">
                   <svg className="h-5 w-5 text-gold-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                   </svg>
@@ -159,14 +159,14 @@ export default async function LandingPage() {
               <p className="text-sm text-[#CEC8E4] mb-4">High-quality models with print profiles. Great for functional parts and validated designs.</p>
               <div className="flex flex-wrap gap-1.5">
                 {['Mechanical', 'Hobby', 'Home', 'Engineering', 'Art'].map(c => (
-                  <span key={c} className="rounded-full bg-[#2D2845] border border-[#3D3A58] px-2.5 py-0.5 text-xs text-[#8E86A8]">{c}</span>
+                  <span key={c} className="rounded-full bg-warm-100 border border-warm-200 px-2.5 py-0.5 text-xs text-warm-600">{c}</span>
                 ))}
               </div>
             </a>
 
             {/* Thingiverse */}
             <a href="https://www.thingiverse.com" target="_blank" rel="noopener noreferrer"
-              className="group rounded-2xl border-2 border-[#2D2845] bg-[#0F0D14] p-6 hover:border-gold-500/50 hover:shadow-lg transition-all">
+              className="group rounded-2xl border-2 border-warm-200 bg-white p-6 hover:border-gold-500/50 hover:shadow-lg transition-all">
               <div className="flex items-center gap-3 mb-3">
                 <div className="h-10 w-10 rounded-xl bg-blue-600 flex items-center justify-center flex-shrink-0">
                   <svg className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -182,7 +182,7 @@ export default async function LandingPage() {
               <p className="text-sm text-[#CEC8E4] mb-4">The world's largest 3D model library. Millions of free community designs for every use case.</p>
               <div className="flex flex-wrap gap-1.5">
                 {['Gadgets', 'Tools', 'Toys', 'Architecture', 'Fashion'].map(c => (
-                  <span key={c} className="rounded-full bg-[#2D2845] border border-[#3D3A58] px-2.5 py-0.5 text-xs text-[#8E86A8]">{c}</span>
+                  <span key={c} className="rounded-full bg-warm-100 border border-warm-200 px-2.5 py-0.5 text-xs text-warm-600">{c}</span>
                 ))}
               </div>
             </a>
@@ -195,7 +195,7 @@ export default async function LandingPage() {
       </section>
 
       {/* ── How it works ── */}
-      <section className="py-20 bg-[#0F0D14]">
+      <section className="py-20 bg-white">
         <div className="page-container">
           <div className="text-center mb-14">
             <p className="text-xs font-bold uppercase tracking-widest text-gold-600 mb-3">How it works</p>
@@ -212,7 +212,7 @@ export default async function LandingPage() {
                 { n: '3', icon: '💬', title: 'Receive quotes', desc: 'Local makers review your request and submit quotes with preview photos within 24h.' },
                 { n: '4', icon: '📦', title: 'Pay & receive', desc: 'Accept the best quote, pay securely into escrow, and confirm when it arrives.' },
               ].map((s) => (
-                <div key={s.n} className="rounded-2xl border border-[#2D2845] bg-[#1C1829] p-5 relative">
+                <div key={s.n} className="rounded-2xl border border-warm-200 bg-white p-5 relative">
                   <div className="absolute -top-3 left-5 h-6 w-6 rounded-full bg-gold-400 flex items-center justify-center text-[11px] font-black text-ink-950">
                     {s.n}
                   </div>
@@ -233,7 +233,7 @@ export default async function LandingPage() {
           <div className="relative my-10">
             <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-warm-200" /></div>
             <div className="relative flex justify-center">
-              <span className="bg-[#0F0D14] px-4 text-xs font-bold text-[#6B6480] uppercase tracking-widest">or</span>
+              <span className="bg-white px-4 text-xs font-bold text-warm-400 uppercase tracking-widest">or</span>
             </div>
           </div>
 
@@ -246,7 +246,7 @@ export default async function LandingPage() {
                 { n: '2', icon: '🔍', title: 'Browse open requests', desc: 'Filter by material, process, and location. Find requests that match your setup.' },
                 { n: '3', icon: '💰', title: 'Submit quotes & earn', desc: 'Send a quote with your price and preview. Get paid into your account on delivery.' },
               ].map((s) => (
-                <div key={s.n} className="rounded-2xl border border-ink-800 bg-ink-950 p-5 relative text-white">
+                <div key={s.n} className="rounded-2xl border border-warm-200 bg-white p-5 relative">
                   <div className="absolute -top-3 left-5 h-6 w-6 rounded-full bg-gold-400 flex items-center justify-center text-[11px] font-black text-ink-950">
                     {s.n}
                   </div>
@@ -266,11 +266,11 @@ export default async function LandingPage() {
       </section>
 
       {/* ── Why PrintMarketHub ── */}
-      <section className="py-20 bg-ink-950 text-white">
+      <section className="py-20 bg-warm-50">
         <div className="page-container">
           <div className="text-center mb-14">
-            <p className="text-xs font-bold uppercase tracking-widest text-gold-500 mb-3">Why PrintMarketHub</p>
-            <h2 className="text-4xl font-black text-white tracking-tight">Built for trust.<br />Made for makers everywhere.</h2>
+            <p className="text-xs font-bold uppercase tracking-widest text-gold-600 mb-3">Why PrintMarketHub</p>
+            <h2 className="text-4xl font-black text-warm-900 tracking-tight">Built for trust.<br />Made for makers everywhere.</h2>
           </div>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -306,9 +306,9 @@ export default async function LandingPage() {
                 desc: 'Your STL, STEP, or 3MF files are only visible to the maker you choose. Not to other bidders.',
               },
             ].map((f) => (
-              <div key={f.title} className="rounded-2xl border border-warm-800 bg-ink-900 p-6 hover:border-warm-700 transition-colors">
+              <div key={f.title} className="rounded-2xl border border-warm-200 bg-white p-6 hover:border-ink-200 hover:shadow-md transition-all">
                 <div className="text-3xl mb-4">{f.icon}</div>
-                <h3 className="font-bold text-white mb-2">{f.title}</h3>
+                <h3 className="font-bold text-warm-900 mb-2">{f.title}</h3>
                 <p className="text-sm text-[#CEC8E4] leading-relaxed">{f.desc}</p>
               </div>
             ))}
@@ -317,7 +317,7 @@ export default async function LandingPage() {
       </section>
 
       {/* ── Materials / Technologies ── */}
-      <section className="py-16 bg-[#1C1829] border-y border-[#2D2845]">
+      <section className="py-16 bg-white border-y border-warm-200">
         <div className="page-container">
           <p className="text-center text-xs font-bold uppercase tracking-widest text-[#B0A8C8] mb-8">Supported technologies & materials</p>
           <div className="flex flex-wrap justify-center gap-3">
@@ -328,8 +328,8 @@ export default async function LandingPage() {
               { label: 'MJF', sub: 'PA12 · PA12-GB' },
               { label: 'Metal FDM', sub: '316L · 17-4 PH' },
             ].map((t) => (
-              <div key={t.label} className="rounded-2xl border border-[#2D2845] bg-[#0F0D14] px-5 py-3 text-center">
-                <p className="font-bold text-white text-sm">{t.label}</p>
+              <div key={t.label} className="rounded-2xl border border-warm-200 bg-warm-50 px-5 py-3 text-center">
+                <p className="font-bold text-warm-800 text-sm">{t.label}</p>
                 <p className="text-[11px] text-[#CEC8E4] mt-0.5">{t.sub}</p>
               </div>
             ))}
@@ -364,7 +364,7 @@ export default async function LandingPage() {
       </section>
 
       {/* ── Footer ── */}
-      <footer className="border-t border-[#2D2845] bg-[#0F0D14] py-10">
+      <footer className="border-t border-warm-200 bg-[#2B1B47] py-10">
         <div className="page-container">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <img src="/logo-full.png" alt="PrintMarketHub" className="h-8 w-auto" />

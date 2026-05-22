@@ -129,7 +129,7 @@ export function Sidebar({ role, unreadMessages = 0 }: { role: string; unreadMess
     : 'Admin'
 
   return (
-    <aside className="hidden lg:flex w-52 flex-col border-r border-warm-200 bg-warm-100 px-3 py-5 gap-0.5">
+    <aside className="hidden lg:flex w-52 flex-col border-r border-warm-200 bg-white px-3 py-5 gap-0.5">
       <p className="px-3 mb-4 text-[10px] font-bold text-warm-400 uppercase tracking-widest">
         {roleLabel}
       </p>
