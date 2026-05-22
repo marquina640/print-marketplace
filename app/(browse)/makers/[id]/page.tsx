@@ -13,7 +13,6 @@ interface PageProps {
 export default async function MakerProfilePage({ params }: PageProps) {
   const { id } = await params
   const supabase = await createClient()
-
   const { data: { user } } = await supabase.auth.getUser()
 
   const [
@@ -45,6 +44,7 @@ export default async function MakerProfilePage({ params }: PageProps) {
   const displayPortfolio  = [...featuredPortfolio, ...otherPortfolio]
 
   const isOwnProfile = user?.id === id
+  const isGuest = !user
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
@@ -52,7 +52,6 @@ export default async function MakerProfilePage({ params }: PageProps) {
       <div className="card p-6 sm:p-8">
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
           <div>
-            {/* Name + badge */}
             <div className="flex items-center gap-3 flex-wrap mb-2">
               <h1 className="text-2xl font-black text-ink-950 tracking-tight">
                 {printerProfile.display_name}
@@ -84,7 +83,12 @@ export default async function MakerProfilePage({ params }: PageProps) {
           </div>
 
           <div className="flex flex-col gap-2 flex-shrink-0">
-            {!isOwnProfile && (
+            {isGuest && (
+              <Link href="/signup">
+                <Button variant="gold" className="w-full sm:w-auto">Sign up to Request a Quote</Button>
+              </Link>
+            )}
+            {!isGuest && !isOwnProfile && (
               <Link href={`/jobs/new?maker=${id}`}>
                 <Button variant="gold" className="w-full sm:w-auto">Request a Quote</Button>
               </Link>
@@ -97,7 +101,6 @@ export default async function MakerProfilePage({ params }: PageProps) {
           </div>
         </div>
 
-        {/* Service toggles */}
         <div className="mt-5 pt-5 border-t border-warm-100 flex flex-wrap gap-3">
           {printerProfile.pickup        && <ServiceChip label="Pickup"          icon="📦" />}
           {printerProfile.local_delivery && <ServiceChip label="Local Delivery" icon="🚗" />}
@@ -106,7 +109,7 @@ export default async function MakerProfilePage({ params }: PageProps) {
         </div>
       </div>
 
-      {/* Certification info */}
+      {/* Certification */}
       <div className="rounded-2xl border-2 border-warm-200 bg-white overflow-hidden">
         <div className="px-6 py-4 bg-warm-50 border-b border-warm-200">
           <p className="text-xs font-bold uppercase tracking-widest text-warm-400">Certification</p>
@@ -147,28 +150,16 @@ export default async function MakerProfilePage({ params }: PageProps) {
                 </div>
                 <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-warm-500">
                   {m.build_volume_x && m.build_volume_y && m.build_volume_z && (
-                    <span className="flex items-center gap-1">
-                      <span className="font-medium text-warm-700">Build</span>
-                      {m.build_volume_x}×{m.build_volume_y}×{m.build_volume_z} mm
-                    </span>
+                    <span><span className="font-medium text-warm-700">Build</span> {m.build_volume_x}×{m.build_volume_y}×{m.build_volume_z} mm</span>
                   )}
                   {m.nozzle_diameter && (
-                    <span className="flex items-center gap-1">
-                      <span className="font-medium text-warm-700">Nozzle</span>
-                      ⌀{m.nozzle_diameter} mm
-                    </span>
+                    <span><span className="font-medium text-warm-700">Nozzle</span> ⌀{m.nozzle_diameter} mm</span>
                   )}
                   {m.tolerance_mm && (
-                    <span className="flex items-center gap-1">
-                      <span className="font-medium text-warm-700">Tolerance</span>
-                      ±{m.tolerance_mm} mm
-                    </span>
+                    <span><span className="font-medium text-warm-700">Tolerance</span> ±{m.tolerance_mm} mm</span>
                   )}
                   {m.min_layer_height && m.max_layer_height && (
-                    <span className="flex items-center gap-1">
-                      <span className="font-medium text-warm-700">Layer</span>
-                      {m.min_layer_height}–{m.max_layer_height} mm
-                    </span>
+                    <span><span className="font-medium text-warm-700">Layer</span> {m.min_layer_height}–{m.max_layer_height} mm</span>
                   )}
                 </div>
                 {m.notes && <p className="mt-2 text-xs text-warm-400 italic">{m.notes}</p>}
@@ -222,9 +213,7 @@ export default async function MakerProfilePage({ params }: PageProps) {
                 </div>
                 <div className="p-3">
                   <p className="font-semibold text-ink-900 text-sm">{item.title}</p>
-                  {item.description && (
-                    <p className="text-xs text-warm-500 mt-0.5 line-clamp-2">{item.description}</p>
-                  )}
+                  {item.description && <p className="text-xs text-warm-500 mt-0.5 line-clamp-2">{item.description}</p>}
                   {item.material && <p className="text-xs text-warm-400 mt-1">{item.material}</p>}
                 </div>
               </div>
@@ -264,7 +253,6 @@ export default async function MakerProfilePage({ params }: PageProps) {
         </section>
       )}
 
-      {/* Member since */}
       <p className="text-xs text-warm-400 text-center pb-4">
         Member since {formatDate(baseProfile?.created_at ?? '')}
       </p>

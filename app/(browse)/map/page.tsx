@@ -1,18 +1,14 @@
-import { redirect } from 'next/navigation'
 import { cookies } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 import { MapClient } from '@/components/map/map-client'
 import { cityToCoords } from '@/lib/utils'
 
-// Deterministic ±~100m jitter based on an ID string.
-// Same ID always gets the same offset so pins don't jump on reload,
-// but the true coordinate is never exposed publicly.
 function scramble(id: string, lat: number, lng: number) {
   let h = 0
   for (let i = 0; i < id.length; i++) { h = Math.imul(31, h) + id.charCodeAt(i) | 0 }
-  const r1 = ((h & 0xffff) / 0xffff - 0.5) * 2          // -1..1
-  const r2 = (((h >>> 16) & 0xffff) / 0xffff - 0.5) * 2 // -1..1
-  const delta = 0.0009 // ≈ 100 m
+  const r1 = ((h & 0xffff) / 0xffff - 0.5) * 2
+  const r2 = (((h >>> 16) & 0xffff) / 0xffff - 0.5) * 2
+  const delta = 0.0009
   return { lat: lat + r1 * delta, lng: lng + r2 * delta }
 }
 
@@ -21,43 +17,33 @@ export const metadata = { title: 'Map — PrintMarketHub' }
 export default async function MapPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/login')
 
-  const { data: profile } = await supabase
-    .from('profiles').select('role').eq('user_id', user.id).single()
-
-  const cookieStore = await cookies()
-  const previewAs = profile?.role === 'admin'
-    ? cookieStore.get('admin_preview_as')?.value
-    : undefined
-  const viewMode = profile?.role !== 'admin' ? cookieStore.get('view_mode')?.value : undefined
-  const viewModeRole = viewMode === 'maker' ? 'printer_owner' : viewMode === 'client' ? 'client' : null
-  const effectiveRole = previewAs ?? viewModeRole ?? profile?.role ?? 'client'
-
-  // Get IDs of valid (non-test, non-deleted) makers from profiles
-  const { data: validMakerProfiles } = await supabase
-    .from('profiles')
-    .select('user_id')
-    .eq('role', 'printer_owner')
-    .eq('is_test', false)
-  const validMakerIds = validMakerProfiles?.map((p) => p.user_id) ?? []
+  let effectiveRole = 'client'
+  if (user) {
+    const { data: profile } = await supabase.from('profiles').select('role').eq('user_id', user.id).single()
+    const cookieStore = await cookies()
+    const previewAs = profile?.role === 'admin' ? cookieStore.get('admin_preview_as')?.value : undefined
+    const viewMode = profile?.role !== 'admin' ? cookieStore.get('view_mode')?.value : undefined
+    const viewModeRole = viewMode === 'maker' ? 'printer_owner' : viewMode === 'client' ? 'client' : null
+    effectiveRole = previewAs ?? viewModeRole ?? profile?.role ?? 'client'
+  }
 
   const { data: testUsers } = await supabase.from('profiles').select('user_id').eq('is_test', true)
   const testIds = testUsers?.map((u) => u.user_id) ?? []
 
-  let jobsQuery = supabase
-    .from('jobs')
+  const { data: validMakerProfiles } = await supabase
+    .from('profiles').select('user_id').eq('role', 'printer_owner').eq('is_test', false)
+  const validMakerIds = validMakerProfiles?.map((p) => p.user_id) ?? []
+
+  let jobsQuery = supabase.from('jobs')
     .select('id, title, material, budget, location, latitude, longitude')
     .eq('status', 'open')
-    .neq('client_id', user.id)
   if (testIds.length > 0) jobsQuery = jobsQuery.not('client_id', 'in', `(${testIds.join(',')})`)
+  if (user) jobsQuery = jobsQuery.neq('client_id', user.id)
 
-  // Only show printer_profiles whose user still has an active, non-test profile
-  // Exclude the current user's own maker profile (visible when browsing as customer)
-  const visibleMakerIds = validMakerIds.filter((id) => id !== user.id)
+  const visibleMakerIds = user ? validMakerIds.filter((id) => id !== user.id) : validMakerIds
 
-  let printersQuery = supabase
-    .from('printer_profiles')
+  let printersQuery = supabase.from('printer_profiles')
     .select('user_id, display_name, city, certification_level, latitude, longitude')
   if (visibleMakerIds.length > 0) {
     printersQuery = printersQuery.in('user_id', visibleMakerIds)
@@ -87,17 +73,19 @@ export default async function MapPage() {
     })
     .filter((p): p is NonNullable<typeof p> => p !== null)
 
-  // Clients see makers only; makers see jobs only; admins see both
-  const showMode: 'jobs' | 'printers' | 'both' =
-    effectiveRole === 'client' ? 'printers'
+  const showMode: 'jobs' | 'printers' | 'both' = !user ? 'both'
+    : effectiveRole === 'client' ? 'printers'
     : effectiveRole === 'printer_owner' ? 'jobs'
     : 'both'
 
-  const title = effectiveRole === 'client' ? 'Makers Near You'
+  const title = !user ? 'Makers & Open Requests'
+    : effectiveRole === 'client' ? 'Makers Near You'
     : effectiveRole === 'printer_owner' ? 'Open Requests Near You'
     : 'Map'
 
-  const subtitle = effectiveRole === 'client'
+  const subtitle = !user
+    ? `${printers.length} maker${printers.length !== 1 ? 's' : ''} · ${jobs.length} open request${jobs.length !== 1 ? 's' : ''}`
+    : effectiveRole === 'client'
     ? `${printers.length} maker${printers.length !== 1 ? 's' : ''} with addresses on the platform`
     : effectiveRole === 'printer_owner'
     ? `${jobs.length} open request${jobs.length !== 1 ? 's' : ''} in your area`

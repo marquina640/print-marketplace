@@ -11,7 +11,7 @@ import { MATERIALS, COLORS, formatFileSize, JOB_TYPES, MANUFACTURING_PROCESSES }
 
 interface ClientLocation { address: string; lat: number | null; lng: number | null }
 
-export function NewJobForm({ clientId, clientLocation }: { clientId: string; clientLocation: ClientLocation }) {
+export function NewJobForm({ clientId, clientLocation, isGuest }: { clientId: string; clientLocation: ClientLocation; isGuest?: boolean }) {
   const router = useRouter()
   const modelFileRef = useRef<HTMLInputElement>(null)
   const imageFileRef = useRef<HTMLInputElement>(null)
@@ -170,6 +170,17 @@ export function NewJobForm({ clientId, clientLocation }: { clientId: string; cli
           Describe your part and receive quotes from local printer owners.
         </p>
       </div>
+
+      {isGuest && (
+        <div className="mb-6 rounded-xl border border-[#D4A017]/40 bg-[#D4A017]/10 px-4 py-3 flex items-start gap-3">
+          <span className="text-[#D4A017] text-lg mt-0.5">👀</span>
+          <p className="text-sm text-[#CEC8E4]">
+            You're previewing the form as a guest. Fill in your details, then{' '}
+            <a href="/signup" className="font-semibold text-[#D4A017] hover:underline">create a free account</a>
+            {' '}to submit your request.
+          </p>
+        </div>
+      )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Basic info */}
@@ -478,9 +489,17 @@ export function NewJobForm({ clientId, clientLocation }: { clientId: string; cli
           <Button type="button" variant="outline" onClick={() => router.back()} disabled={loading}>
             Cancel
           </Button>
-          <Button type="submit" loading={loading} className="flex-1" variant="gold">
-            Post Request
-          </Button>
+          {isGuest ? (
+            <a href="/signup" className="flex-1">
+              <Button type="button" className="w-full" variant="gold">
+                Sign up to Post Request →
+              </Button>
+            </a>
+          ) : (
+            <Button type="submit" loading={loading} className="flex-1" variant="gold">
+              Post Request
+            </Button>
+          )}
         </div>
       </form>
     </div>

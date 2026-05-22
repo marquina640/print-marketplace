@@ -3,6 +3,13 @@ import { NextResponse, type NextRequest } from 'next/server'
 
 const PUBLIC_PATHS = new Set(['/', '/login', '/signup'])
 
+// Paths guests can browse without an account
+function isBrowsePath(pathname: string): boolean {
+  if (pathname === '/jobs' || pathname === '/map' || pathname === '/jobs/new') return true
+  if (pathname === '/makers' || pathname.startsWith('/makers/')) return true
+  return false
+}
+
 export async function middleware(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request })
 
@@ -31,9 +38,10 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
   const isPublic = PUBLIC_PATHS.has(pathname)
   const isAuthCallback = pathname.startsWith('/auth/')
+  const isBrowse = isBrowsePath(pathname)
 
   // Unauthenticated → send to login for protected routes
-  if (!user && !isPublic && !isAuthCallback) {
+  if (!user && !isPublic && !isAuthCallback && !isBrowse) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'
     return NextResponse.redirect(url)

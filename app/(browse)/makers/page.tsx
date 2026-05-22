@@ -1,4 +1,3 @@
-import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { MakerCard } from '@/components/makers/maker-card'
 import { CERTIFICATION_LEVELS, MANUFACTURING_PROCESSES } from '@/lib/utils'
@@ -12,21 +11,16 @@ interface PageProps {
 export default async function MakersBrowsePage({ searchParams }: PageProps) {
   const { cert, city, material, process: processFilter, q } = await searchParams
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/login')
 
-  // Get test user IDs to exclude from the public makers list
   const { data: testUsers } = await supabase.from('profiles').select('user_id').eq('is_test', true)
   const testUserIds = testUsers?.map((u) => u.user_id) ?? []
 
-  // Only select columns that actually exist on printer_profiles
   let profileQuery = supabase
     .from('printer_profiles')
     .select('user_id, display_name, city, certification_level, materials, processes, description')
     .order('certification_level', { ascending: false })
 
   if (testUserIds.length > 0) profileQuery = profileQuery.not('user_id', 'in', `(${testUserIds.join(',')})`)
-
   if (cert)          profileQuery = profileQuery.eq('certification_level', parseInt(cert))
   if (city)          profileQuery = profileQuery.ilike('city', `%${city}%`)
   if (material)      profileQuery = profileQuery.contains('materials', [material])
@@ -34,92 +28,51 @@ export default async function MakersBrowsePage({ searchParams }: PageProps) {
   if (q)             profileQuery = profileQuery.ilike('display_name', `%${q}%`)
 
   const { data: makers, error } = await profileQuery
-
   const makerIds = makers?.map((m) => m.user_id) ?? []
 
-  // Fetch cover images from portfolio_items
   const { data: portfolioItems } = makerIds.length > 0
-    ? await supabase
-        .from('portfolio_items')
-        .select('maker_id, image_url, is_featured')
-        .in('maker_id', makerIds)
-        .order('is_featured', { ascending: false })
-        .order('created_at', { ascending: false })
+    ? await supabase.from('portfolio_items').select('maker_id, image_url, is_featured')
+        .in('maker_id', makerIds).order('is_featured', { ascending: false }).order('created_at', { ascending: false })
     : { data: [] }
 
-  // Fetch name / email / avatar from profiles as fallback
   const { data: baseProfiles } = makerIds.length > 0
-    ? await supabase
-        .from('profiles')
-        .select('user_id, display_name, email, avatar_url')
-        .in('user_id', makerIds)
+    ? await supabase.from('profiles').select('user_id, display_name, email, avatar_url').in('user_id', makerIds)
     : { data: [] }
 
-  // Aggregate ratings from public reviews
   const { data: reviews } = makerIds.length > 0
-    ? await supabase
-        .from('reviews')
-        .select('reviewee_id, rating')
-        .in('reviewee_id', makerIds)
-        .eq('is_public', true)
+    ? await supabase.from('reviews').select('reviewee_id, rating').in('reviewee_id', makerIds).eq('is_public', true)
     : { data: [] }
 
-  // Completed project counts and response times from quotes
-  // Join quotes → jobs so we can check job.status and get job.created_at
   const { data: completedQuotes } = makerIds.length > 0
-    ? await supabase
-        .from('quotes')
-        .select('printer_id, created_at, jobs!inner(created_at, status, material)')
-        .in('printer_id', makerIds)
-        .eq('status', 'accepted')
-        .in('jobs.status', ['completed', 'delivered'])
+    ? await supabase.from('quotes').select('printer_id, created_at, jobs!inner(created_at, status, material)')
+        .in('printer_id', makerIds).eq('status', 'accepted').in('jobs.status', ['completed', 'delivered'])
     : { data: [] }
 
-  // Compute per-maker stats from completed quotes
   interface MakerStats { completedCount: number; avgReplyHours: number | null; topMaterials: string[] }
   const statsByMaker: Record<string, MakerStats> = {}
-  for (const q of completedQuotes ?? []) {
-    const job = (q as any).jobs
-    if (!statsByMaker[q.printer_id]) {
-      statsByMaker[q.printer_id] = { completedCount: 0, avgReplyHours: null, topMaterials: [] }
-    }
-    const s = statsByMaker[q.printer_id]
+  for (const qt of completedQuotes ?? []) {
+    const job = (qt as any).jobs
+    if (!statsByMaker[qt.printer_id]) statsByMaker[qt.printer_id] = { completedCount: 0, avgReplyHours: null, topMaterials: [] }
+    const s = statsByMaker[qt.printer_id]
     s.completedCount++
-    // Response time = hours between job posted and quote submitted
-    if (job?.created_at && q.created_at) {
-      const diffH = (new Date(q.created_at).getTime() - new Date(job.created_at).getTime()) / 3600000
-      if (diffH >= 0) {
-        s.avgReplyHours = s.avgReplyHours === null
-          ? diffH
-          : (s.avgReplyHours * (s.completedCount - 1) + diffH) / s.completedCount
-      }
+    if (job?.created_at && qt.created_at) {
+      const diffH = (new Date(qt.created_at).getTime() - new Date(job.created_at).getTime()) / 3600000
+      if (diffH >= 0) s.avgReplyHours = s.avgReplyHours === null ? diffH : (s.avgReplyHours * (s.completedCount - 1) + diffH) / s.completedCount
     }
-    if (job?.material) {
-      const mat = job.material as string
-      if (!s.topMaterials.includes(mat)) s.topMaterials.push(mat)
-    }
+    if (job?.material && !s.topMaterials.includes(job.material)) s.topMaterials.push(job.material)
   }
 
-  // Index everything by maker id
   const coverByMaker: Record<string, string> = {}
-  for (const item of portfolioItems ?? []) {
-    if (!coverByMaker[item.maker_id]) coverByMaker[item.maker_id] = item.image_url
-  }
+  for (const item of portfolioItems ?? []) { if (!coverByMaker[item.maker_id]) coverByMaker[item.maker_id] = item.image_url }
 
   const profileByMaker: Record<string, { display_name: string | null; email: string; avatar_url: string | null }> = {}
-  for (const p of baseProfiles ?? []) {
-    profileByMaker[p.user_id] = { display_name: p.display_name, email: p.email, avatar_url: p.avatar_url }
-  }
+  for (const p of baseProfiles ?? []) { profileByMaker[p.user_id] = { display_name: p.display_name, email: p.email, avatar_url: p.avatar_url } }
 
   const ratingByMaker: Record<string, { avg: number; count: number }> = {}
   for (const r of reviews ?? []) {
     const existing = ratingByMaker[r.reviewee_id]
-    if (!existing) {
-      ratingByMaker[r.reviewee_id] = { avg: r.rating, count: 1 }
-    } else {
-      existing.count++
-      existing.avg = (existing.avg * (existing.count - 1) + r.rating) / existing.count
-    }
+    if (!existing) ratingByMaker[r.reviewee_id] = { avg: r.rating, count: 1 }
+    else { existing.count++; existing.avg = (existing.avg * (existing.count - 1) + r.rating) / existing.count }
   }
 
   const enrichedMakers = (makers ?? []).map((m) => {
@@ -127,20 +80,20 @@ export default async function MakersBrowsePage({ searchParams }: PageProps) {
     const rating = ratingByMaker[m.user_id]
     const stats = statsByMaker[m.user_id]
     return {
-      user_id:              m.user_id,
-      display_name:         m.display_name || prof?.display_name || prof?.email || 'Maker',
-      city:                 m.city,
-      certification_level:  m.certification_level ?? 0,
-      materials:            m.materials ?? [],
-      processes:            (m.processes as string[] | null) ?? [],
-      description:          m.description,
-      cover_image:          coverByMaker[m.user_id] ?? null,
-      avatar_url:           prof?.avatar_url ?? null,
-      rating_average:       rating?.avg ?? null,
-      rating_count:         rating?.count ?? null,
-      completed_count:      stats?.completedCount ?? 0,
-      avg_reply_hours:      stats?.avgReplyHours ?? null,
-      top_materials:        stats?.topMaterials.slice(0, 2) ?? [],
+      user_id: m.user_id,
+      display_name: m.display_name || prof?.display_name || prof?.email || 'Maker',
+      city: m.city,
+      certification_level: m.certification_level ?? 0,
+      materials: m.materials ?? [],
+      processes: (m.processes as string[] | null) ?? [],
+      description: m.description,
+      cover_image: coverByMaker[m.user_id] ?? null,
+      avatar_url: prof?.avatar_url ?? null,
+      rating_average: rating?.avg ?? null,
+      rating_count: rating?.count ?? null,
+      completed_count: stats?.completedCount ?? 0,
+      avg_reply_hours: stats?.avgReplyHours ?? null,
+      top_materials: stats?.topMaterials.slice(0, 2) ?? [],
     }
   })
 
@@ -157,16 +110,13 @@ export default async function MakersBrowsePage({ searchParams }: PageProps) {
         </p>
       </div>
 
-      {/* Cert level quick filters */}
       <div className="space-y-2">
         <div className="flex flex-wrap gap-2">
           {(() => {
             const certBase = new URLSearchParams({ ...(city && { city }), ...(material && { material }), ...(processFilter && { process: processFilter }), ...(q && { q }) })
             return (
               <>
-                <a href={`/makers?${certBase}`} className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${!cert ? 'bg-ink-900 text-white border-ink-900' : 'border-warm-300 text-warm-600 hover:border-ink-400'}`}>
-                  All levels
-                </a>
+                <a href={`/makers?${certBase}`} className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${!cert ? 'bg-ink-900 text-white border-ink-900' : 'border-warm-300 text-warm-600 hover:border-ink-400'}`}>All levels</a>
                 {CERTIFICATION_LEVELS.map((lvl) => {
                   const params = new URLSearchParams({ ...Object.fromEntries(certBase), cert: lvl.level.toString() })
                   return (
@@ -180,17 +130,13 @@ export default async function MakersBrowsePage({ searchParams }: PageProps) {
             )
           })()}
         </div>
-
-        {/* Process filter pills */}
         <div className="flex flex-wrap gap-2">
           {(() => {
             const processBase = new URLSearchParams({ ...(cert && { cert }), ...(city && { city }), ...(material && { material }), ...(q && { q }) })
             const available = MANUFACTURING_PROCESSES.filter((p) => p.available)
             return (
               <>
-                <a href={`/makers?${processBase}`} className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${!processFilter ? 'bg-gold-500 text-ink-900 border-gold-500' : 'border-warm-300 text-warm-600 hover:border-warm-400'}`}>
-                  All processes
-                </a>
+                <a href={`/makers?${processBase}`} className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${!processFilter ? 'bg-gold-500 text-ink-900 border-gold-500' : 'border-warm-300 text-warm-600 hover:border-warm-400'}`}>All processes</a>
                 {available.map((proc) => {
                   const params = new URLSearchParams({ ...Object.fromEntries(processBase), process: proc.value })
                   return (
@@ -206,7 +152,6 @@ export default async function MakersBrowsePage({ searchParams }: PageProps) {
         </div>
       </div>
 
-      {/* Search / filter bar */}
       <form className="card p-3 flex flex-wrap gap-2 items-center">
         <input name="q" defaultValue={q} placeholder="Search makers…"
           className="flex-1 min-w-[160px] rounded-xl border border-warm-300 bg-warm-50 px-3 py-2 text-sm focus:border-ink-500 focus:outline-none focus:ring-2 focus:ring-ink-500/20" />
@@ -220,7 +165,6 @@ export default async function MakersBrowsePage({ searchParams }: PageProps) {
         {hasFilters && <a href="/makers" className="rounded-xl border border-warm-300 px-4 py-2 text-sm text-warm-600 hover:bg-warm-100 transition-colors">Clear</a>}
       </form>
 
-      {/* Grid */}
       {enrichedMakers.length === 0 ? (
         <div className="card p-16 text-center">
           <div className="text-5xl mb-4">🔍</div>
