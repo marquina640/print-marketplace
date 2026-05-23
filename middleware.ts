@@ -85,6 +85,7 @@ export async function middleware(request: NextRequest) {
       !isAdminPreviewing &&
       profile?.role === 'printer_owner' &&
       !profile.onboarding_complete &&
+      !isBrowse &&
       pathname !== '/profile/setup' &&
       pathname !== '/onboarding'
     ) {
