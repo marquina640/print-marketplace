@@ -71,42 +71,30 @@ export default async function LandingPage() {
                 Post a request, collect quotes from verified local makers, pay securely, and track your order every step of the way.
               </p>
               <div className="flex flex-col sm:flex-row gap-3 mb-6">
-                {isMaker ? (
-                  <>
-                    <Link href="/jobs">
-                      <Button variant="gold" size="lg">Browse Open Requests</Button>
-                    </Link>
-                    <Link href="/dashboard/printer">
-                      <Button size="lg" className="bg-white/10 text-white border border-white/20 hover:bg-white/20">
-                        My Dashboard
-                      </Button>
-                    </Link>
-                  </>
-                ) : (
-                  <>
-                    <Link href="/jobs/new">
-                      <Button variant="gold" size="lg">Post a Request - Free</Button>
-                    </Link>
-                    <Link href="/signup?role=printer_owner">
-                      <Button size="lg" className="bg-white/10 text-white border border-white/20 hover:bg-white/20">
-                        I own a printer
-                      </Button>
-                    </Link>
-                  </>
-                )}
+                <Link href="/jobs/new">
+                  <Button variant="gold" size="lg">Post a Request, it's free</Button>
+                </Link>
+                <Link href="/signup?role=printer_owner">
+                  <Button size="lg" className="bg-white/10 text-white border border-white/20 hover:bg-white/20">
+                    I own a printer
+                  </Button>
+                </Link>
               </div>
               <p className="text-xs text-[#B0A8C8] uppercase tracking-widest">No subscription · Pay only when you print</p>
             </div>
 
-            {/* Right - mockup card */}
+            {/* Right - mockup */}
             <div className="hidden lg:block">
               <p className="text-[10px] font-bold uppercase tracking-widest text-warm-500 mb-2 text-center">What quotes look like</p>
               <div className="rounded-2xl border border-warm-700/40 bg-ink-900/60 p-5 backdrop-blur-sm space-y-3 max-w-sm ml-auto">
                 {/* Job card */}
                 <div className="rounded-xl bg-white/5 border border-white/10 p-4">
+                  <div className="flex items-center gap-1.5 mb-2">
+                    <span className="rounded-full bg-ink-700 border border-white/10 px-2 py-0.5 text-[9px] font-bold text-warm-400 uppercase tracking-wider">Print Request</span>
+                  </div>
                   <div className="flex items-start justify-between mb-2">
                     <div>
-                      <p className="font-semibold text-white text-sm">Drone frame - Carbon PETG</p>
+                      <p className="font-semibold text-white text-sm">Drone frame, Carbon PETG</p>
                       <p className="text-xs text-warm-500 mt-0.5">Posted 2h ago · Zurich</p>
                     </div>
                     <span className="rounded-full bg-emerald-500/20 border border-emerald-500/30 px-2 py-0.5 text-[10px] font-bold text-emerald-400 uppercase">Open</span>
@@ -117,25 +105,34 @@ export default async function LandingPage() {
                     ))}
                   </div>
                 </div>
-                {/* Quotes */}
-                {[
-                  { name: 'Zurich Maker Studio', price: 'CHF 38', cert: '★★', lead: '3 days' },
-                  { name: 'FDM Workshop', price: 'CHF 45', cert: '★★★', lead: '5 days' },
-                ].map((q) => (
-                  <div key={q.name} className="rounded-xl bg-white/5 border border-white/10 p-3 flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-white">{q.name}</p>
-                      <p className="text-[11px] text-warm-500 mt-0.5">{q.cert} certified · {q.lead} lead time</p>
+                {/* Quote 1 */}
+                <div className="rounded-xl bg-white/5 border border-white/10 p-3 flex items-center justify-between">
+                  <div>
+                    <div className="flex items-center gap-1.5 mb-1">
+                      <span className="rounded-full bg-gold-500/20 border border-gold-500/20 px-1.5 py-0.5 text-[9px] font-bold text-gold-400 uppercase tracking-wider">Quote 1</span>
                     </div>
-                    <span className="font-bold text-gold-400 text-sm">{q.price}</span>
+                    <p className="text-sm font-medium text-white">Zurich Maker Studio</p>
+                    <p className="text-[11px] text-warm-500 mt-0.5">★★ certified · 3 days lead time</p>
                   </div>
-                ))}
+                  <span className="font-bold text-gold-400 text-sm">CHF 38</span>
+                </div>
+                {/* Quote 2 */}
+                <div className="rounded-xl bg-white/5 border border-white/10 p-3 flex items-center justify-between">
+                  <div>
+                    <div className="flex items-center gap-1.5 mb-1">
+                      <span className="rounded-full bg-gold-500/20 border border-gold-500/20 px-1.5 py-0.5 text-[9px] font-bold text-gold-400 uppercase tracking-wider">Quote 2</span>
+                    </div>
+                    <p className="text-sm font-medium text-white">FDM Workshop</p>
+                    <p className="text-[11px] text-warm-500 mt-0.5">★★★ certified · 5 days lead time</p>
+                  </div>
+                  <span className="font-bold text-gold-400 text-sm">CHF 45</span>
+                </div>
                 {/* Payment bar */}
                 <div className="rounded-xl bg-gold-500/15 border border-gold-500/20 px-3 py-2.5 flex items-center gap-2">
                   <div className="h-5 w-5 rounded-full bg-gold-400/30 flex items-center justify-center flex-shrink-0">
                     <svg className="h-3 w-3 text-gold-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
                   </div>
-                  <p className="text-[11px] text-gold-300">Secure escrow · Released on delivery</p>
+                  <p className="text-[11px] text-gold-300">Your payment is held safely until you confirm delivery</p>
                 </div>
               </div>
             </div>
@@ -149,8 +146,8 @@ export default async function LandingPage() {
         <div className="page-container py-3">
           <div className="flex flex-wrap items-center justify-center gap-x-10 gap-y-2 text-xs font-semibold text-[#1C1829] uppercase tracking-wider">
             {[
-              '🔒 Secure escrow payments',
-              '🏅 Certified Swiss makers',
+              '🔒 Secure payments',
+              '🏅 Certified makers',
               '📦 Fast local delivery',
               '💳 Card · TWINT · Bank transfer',
               '⭐ Mutual review system',
@@ -163,7 +160,7 @@ export default async function LandingPage() {
       <section className="py-20 bg-warm-50">
         <div className="page-container">
           <div className="text-center mb-10">
-            <p className="text-xs font-bold uppercase tracking-widest text-gold-600 mb-3">Step 0 - Find your model</p>
+            <p className="text-xs font-bold uppercase tracking-widest text-gold-600 mb-3">Step 0: Find your model</p>
             <h2 className="text-3xl font-black text-warm-900 tracking-tight">Don't have a 3D file yet?</h2>
             <p className="text-warm-600 mt-3 max-w-xl mx-auto">
               Millions of free models are one click away. Browse, download your STL, then come back and post your request.
@@ -237,10 +234,10 @@ export default async function LandingPage() {
             <p className="text-xs font-bold uppercase tracking-widest text-warm-400 mb-6 text-center">For customers</p>
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {[
-                { n: '1', icon: '📁', title: 'Find or upload your model', desc: 'Browse MakerWorld or Thingiverse, or upload your own STL / STEP file.' },
+                { n: '1', icon: '📁', title: 'Find or upload your model', desc: 'Browse MakerWorld or Thingiverse, or upload your own STL or STEP file.' },
                 { n: '2', icon: '📋', title: 'Post your request', desc: 'Describe material, color, quantity, deadline, and budget. Takes 2 minutes.' },
                 { n: '3', icon: '💬', title: 'Compare quotes and choose', desc: 'Get multiple quotes from local makers. Compare prices, ratings, and timelines. Ask questions before deciding.' },
-                { n: '4', icon: '📦', title: 'Pay and receive', desc: 'Accept the best quote and pay securely. Funds are held in escrow and released only when you confirm delivery.' },
+                { n: '4', icon: '📦', title: 'Pay and receive', desc: 'Accept the best quote and pay securely. Your money is held safely and released only when you confirm delivery.' },
               ].map((s) => (
                 <div key={s.n} className="rounded-2xl border border-warm-200 bg-white p-5 relative">
                   <div className="absolute -top-3 left-5 h-6 w-6 rounded-full bg-gold-400 flex items-center justify-center text-[11px] font-black text-ink-950">
@@ -253,7 +250,7 @@ export default async function LandingPage() {
               ))}
             </div>
             <div className="mt-6 text-center">
-              <Link href="/jobs/new">
+              <Link href={isMaker ? '/dashboard/client' : '/jobs/new'}>
                 <Button variant="gold">Post Your First Request</Button>
               </Link>
             </div>
@@ -307,13 +304,13 @@ export default async function LandingPage() {
             {[
               {
                 icon: '🔒',
-                title: 'Escrow payments',
-                desc: "Your payment is held securely until you confirm delivery. Makers only get paid when you're happy.",
+                title: 'Your money is protected',
+                desc: "Payment is held safely until you confirm delivery. Makers only get paid when you're happy.",
               },
               {
                 icon: '💳',
                 title: 'Pay your way',
-                desc: 'Card, TWINT, bank transfer and more - we support local and international payment methods through Stripe.',
+                desc: 'Card, TWINT, bank transfer and more. We support local and international payment methods through Stripe.',
               },
               {
                 icon: '🏅',
@@ -323,17 +320,17 @@ export default async function LandingPage() {
               {
                 icon: '⭐',
                 title: 'Verified reviews',
-                desc: 'Reviews only go public when both client and maker submit one - honest, balanced, impossible to game.',
+                desc: 'Reviews only go public when both client and maker submit one. Honest, balanced, impossible to game.',
               },
               {
                 icon: '🗺️',
                 title: 'Local-first',
-                desc: 'See makers near you on an interactive map. Pickup in person or local delivery - choose what works for you.',
+                desc: 'See makers near you on an interactive map. Pickup in person or local delivery, your choice.',
               },
               {
                 icon: '📎',
                 title: 'Your files, your control',
-                desc: 'You upload your file when posting a request. Makers who quote on your request can view it to prepare an accurate price.',
+                desc: 'You upload your file when posting a request. Makers who quote can view it to prepare an accurate price.',
               },
             ].map((f) => (
               <div key={f.title} className="rounded-2xl border border-warm-200 bg-white p-6 hover:border-ink-200 hover:shadow-md transition-all">
@@ -408,7 +405,7 @@ export default async function LandingPage() {
         <div className="page-container">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <img src="/logo-full.png" alt="PrintMarketHub" className="h-8 w-auto" />
-            <p className="text-xs text-warm-400 uppercase tracking-wider">2025 PrintMarketHub</p>
+            <p className="text-xs text-warm-400 uppercase tracking-wider">2026 PrintMarketHub</p>
             <div className="flex gap-5 text-xs text-warm-500">
               <a href="/legal/privacy" className="hover:text-white transition-colors">Privacy</a>
               <a href="/legal/terms" className="hover:text-white transition-colors">Terms</a>

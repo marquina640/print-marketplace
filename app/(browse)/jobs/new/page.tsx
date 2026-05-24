@@ -1,4 +1,5 @@
 import { cookies } from 'next/headers'
+import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { NewJobForm } from './job-form'
 
@@ -14,10 +15,21 @@ export default async function NewJobPage() {
   let clientLocation = { address: '', lat: null as number | null, lng: null as number | null }
 
   if (user) {
+    const cookieStore = await cookies()
+    const viewMode = cookieStore.get('view_mode')?.value
+
     const { data: profile } = await supabase
       .from('profiles').select('role').eq('user_id', user.id).single()
 
-    const cookieStore = await cookies()
+    const effectiveRole = viewMode === 'client' ? 'client'
+      : viewMode === 'maker' ? 'printer_owner'
+      : profile?.role
+
+    // Makers in maker mode cannot post requests, send them to their client dashboard
+    if (effectiveRole === 'printer_owner') {
+      redirect('/dashboard/client')
+    }
+
     const previewUserId = profile?.role === 'admin'
       ? cookieStore.get('admin_preview_user_id')?.value
       : undefined
