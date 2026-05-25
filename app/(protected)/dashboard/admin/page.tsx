@@ -49,8 +49,8 @@ export default async function AdminDashboardPage() {
       .select('user_id, display_name, city, certification_level, printer_models, profiles!inner(email)')
       .order('certification_level', { ascending: false }),
     supabase.from('certification_requests').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
-    supabase.from('profiles').select('user_id, display_name, email, role').eq('role', 'client').eq('is_test', true).order('created_at', { ascending: false }).limit(10),
-    supabase.from('profiles').select('user_id, display_name, email, role').eq('role', 'printer_owner').eq('is_test', true).order('created_at', { ascending: false }).limit(10),
+    supabase.from('profiles').select('user_id, display_name, email, role').eq('role', 'client').ilike('email', '%@test.com').order('created_at', { ascending: false }).limit(10),
+    supabase.from('profiles').select('user_id, display_name, email, role').eq('role', 'printer_owner').ilike('email', '%@test.com').order('created_at', { ascending: false }).limit(10),
     (supabase as any).from('jobs')
       .select('*, quotes!inner(price, printer_id, profiles:printer_id(display_name, email))')
       .eq('status', 'delivered')
