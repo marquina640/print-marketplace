@@ -96,6 +96,20 @@ export async function middleware(request: NextRequest) {
 
     // /dashboard → role-specific dashboard
     if (pathname === '/dashboard') {
+      // Admin in preview mode routes to the previewed role's dashboard
+      if (isAdminPreviewing) {
+        const previewRole = request.cookies.get('admin_preview_as')?.value
+        const previewMap: Record<string, string> = {
+          client: '/dashboard/client',
+          printer_owner: '/dashboard/printer',
+        }
+        const target = previewMap[previewRole ?? '']
+        if (target) {
+          const url = request.nextUrl.clone()
+          url.pathname = target
+          return NextResponse.redirect(url)
+        }
+      }
       const roleMap: Record<string, string> = {
         client: '/dashboard/client',
         printer_owner: '/dashboard/printer',

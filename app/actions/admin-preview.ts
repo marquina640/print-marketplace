@@ -28,3 +28,26 @@ export async function setAdminPreview(role: 'client' | 'printer_owner' | null, u
     redirect('/dashboard/admin')
   }
 }
+
+// Used by the role-switcher when admin is in preview mode
+export async function switchPreviewToClient() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return
+  const { data: profile } = await supabase.from('profiles').select('role').eq('user_id', user.id).single()
+  if (profile?.role !== 'admin') return
+  const cookieStore = await cookies()
+  cookieStore.set('admin_preview_as', 'client', { path: '/', maxAge: 3600, httpOnly: true })
+  redirect('/dashboard/client')
+}
+
+export async function switchPreviewToMaker() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return
+  const { data: profile } = await supabase.from('profiles').select('role').eq('user_id', user.id).single()
+  if (profile?.role !== 'admin') return
+  const cookieStore = await cookies()
+  cookieStore.set('admin_preview_as', 'printer_owner', { path: '/', maxAge: 3600, httpOnly: true })
+  redirect('/dashboard/printer')
+}

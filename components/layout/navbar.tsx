@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { markNotificationsRead } from '@/app/actions/notifications'
 import { switchToClient, switchToMaker } from '@/app/actions/switch-view'
+import { switchPreviewToClient, switchPreviewToMaker } from '@/app/actions/admin-preview'
 
 interface Notification {
   id: string
@@ -24,6 +25,7 @@ interface NavbarProps {
   userRole?: string | null
   unreadMessages?: number
   notifications?: Notification[]
+  isPreview?: boolean
 }
 
 const clientNav = [
@@ -54,7 +56,7 @@ const adminNav = [
   { href: '/dashboard/admin/settings',       label: 'Settings' },
 ]
 
-export function Navbar({ userEmail, userRole, unreadMessages = 0, notifications = [] }: NavbarProps) {
+export function Navbar({ userEmail, userRole, unreadMessages = 0, notifications = [], isPreview = false }: NavbarProps) {
   const router = useRouter()
   const pathname = usePathname()
   const [menuOpen, setMenuOpen] = useState(false)
@@ -186,10 +188,10 @@ export function Navbar({ userEmail, userRole, unreadMessages = 0, notifications 
                 )}
               </div>
 
-              {/* Role switcher — only for non-admins */}
-              {userRole !== 'admin' && (
+              {/* Role switcher — only for non-admins (or admin in preview) */}
+              {(userRole !== 'admin' || isPreview) && (
                 <div className="flex items-center rounded-full border border-warm-200 bg-warm-50 p-0.5 gap-0.5">
-                  <form action={switchToClient}>
+                  <form action={isPreview ? switchPreviewToClient : switchToClient}>
                     <button type="submit"
                       className={`px-3 py-1 text-xs font-semibold rounded-full transition-all ${
                         userRole === 'client'
@@ -199,7 +201,7 @@ export function Navbar({ userEmail, userRole, unreadMessages = 0, notifications 
                       Customer
                     </button>
                   </form>
-                  <form action={switchToMaker}>
+                  <form action={isPreview ? switchPreviewToMaker : switchToMaker}>
                     <button type="submit"
                       className={`px-3 py-1 text-xs font-semibold rounded-full transition-all ${
                         userRole === 'printer_owner'

@@ -56,7 +56,7 @@ export default async function ProtectedLayout({ children }: { children: React.Re
 
   return (
     <div className="min-h-screen bg-warm-50 flex flex-col">
-      <Navbar userEmail={user.email} userRole={effectiveRole} unreadMessages={unreadMessages ?? 0} notifications={notifications ?? []} />
+      <Navbar userEmail={user.email} userRole={effectiveRole} unreadMessages={unreadMessages ?? 0} notifications={notifications ?? []} isPreview={!!previewAs} />
       {previewAs && <PreviewBanner role={previewAs} userName={previewUserName} />}
       <div className="flex flex-1">
         <Sidebar role={effectiveRole} unreadMessages={unreadMessages ?? 0} />
