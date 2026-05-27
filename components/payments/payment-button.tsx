@@ -16,14 +16,19 @@ export function PaymentButton({ jobId, amount }: { jobId: string; amount: number
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ jobId }),
       })
-      const data = await res.json() as { url?: string; error?: string }
+      const text = await res.text()
+      let data: { url?: string; error?: string } = {}
+      try { data = JSON.parse(text) } catch {
+        setError(`Server error (${res.status}): ${text.slice(0, 200)}`)
+        return
+      }
       if (!res.ok || !data.url) {
         setError(data.error ?? 'Payment setup failed.')
         return
       }
       window.location.href = data.url
-    } catch {
-      setError('Something went wrong. Please try again.')
+    } catch (e) {
+      setError(`Network error: ${e instanceof Error ? e.message : String(e)}`)
     } finally {
       setLoading(false)
     }

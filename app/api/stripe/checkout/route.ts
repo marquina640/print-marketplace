@@ -10,8 +10,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Stripe not configured' }, { status: 503 })
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const stripe = new Stripe(key, { apiVersion: '2025-04-30.basil' as any })
+  const stripe = new Stripe(key)
   const supabase = await createClient()
 
   const { data: { user } } = await supabase.auth.getUser()
