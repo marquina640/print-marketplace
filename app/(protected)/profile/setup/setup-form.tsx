@@ -75,8 +75,12 @@ export function ProfileSetupForm({ effectiveUserId }: { effectiveUserId: string 
     async function loadExisting() {
       setLoading(true)
       const supabase = createClient()
-      const { data } = await supabase
-        .from('printer_profiles').select('*').eq('user_id', effectiveUserId).single()
+      const [{ data }, { data: clientProfile }] = await Promise.all([
+        supabase.from('printer_profiles').select('*').eq('user_id', effectiveUserId).single(),
+        supabase.from('profiles').select('display_name, city, address, latitude, longitude, avatar_url').eq('user_id', effectiveUserId).single(),
+      ])
+
+      if (clientProfile?.avatar_url) setAvatarPreview(clientProfile.avatar_url)
 
       if (data) {
         setFormState({
@@ -94,10 +98,16 @@ export function ProfileSetupForm({ effectiveUserId }: { effectiveUserId: string 
           lat: data.latitude ?? null,
           lng: data.longitude ?? null,
         })
-        // Load existing avatar from profiles table
-        const supabase2 = createClient()
-        const { data: prof } = await supabase2.from('profiles').select('avatar_url').eq('user_id', effectiveUserId).single()
-        if (prof?.avatar_url) setAvatarPreview(prof.avatar_url)
+      } else if (clientProfile) {
+        // Pre-fill from client profile if no maker profile yet
+        setFormState((prev) => ({
+          ...prev,
+          display_name: clientProfile.display_name ?? '',
+          city: clientProfile.city ?? '',
+          location: clientProfile.address ?? '',
+          lat: clientProfile.latitude ?? null,
+          lng: clientProfile.longitude ?? null,
+        }))
       }
       setLoading(false)
     }
@@ -163,8 +173,16 @@ export function ProfileSetupForm({ effectiveUserId }: { effectiveUserId: string 
 
     if (upsertError) { setError(upsertError.message); setSaving(false); return }
 
+    // Sync location and display name back to shared profiles table
     await supabase.from('profiles')
-      .update({ onboarding_complete: true, display_name: form.display_name.trim() })
+      .update({
+        onboarding_complete: true,
+        display_name: form.display_name.trim(),
+        city: form.city.trim() || null,
+        address: form.location.trim() || null,
+        latitude: form.lat,
+        longitude: form.lng,
+      })
       .eq('user_id', effectiveUserId)
 
     router.push('/dashboard/printer')

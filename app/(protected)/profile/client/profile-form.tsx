@@ -29,23 +29,25 @@ export function ClientProfileForm({ effectiveUserId }: ClientProfileFormProps) {
   useEffect(() => {
     async function load() {
       const supabase = createClient()
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('display_name, city, address, bio, latitude, longitude')
-        .eq('user_id', effectiveUserId)
-        .single()
+      const [{ data: profile }, { data: makerProfile }] = await Promise.all([
+        supabase.from('profiles').select('display_name, city, address, bio, latitude, longitude').eq('user_id', effectiveUserId).single(),
+        supabase.from('printer_profiles').select('city, location, latitude, longitude').eq('user_id', effectiveUserId).single(),
+      ])
 
       if (profile) {
-        const savedLocation = profile.address
-          ? `${profile.address}${profile.city ? ', ' + profile.city : ''}`
-          : profile.city ?? ''
+        // Fall back to maker profile address if client profile has none
+        const city    = profile.city     ?? makerProfile?.city     ?? ''
+        const address = profile.address  ?? makerProfile?.location ?? ''
+        const lat     = profile.latitude ?? makerProfile?.latitude ?? null
+        const lng     = profile.longitude ?? makerProfile?.longitude ?? null
+        const savedLocation = address ? `${address}${city ? ', ' + city : ''}` : city
         setForm({
           display_name: profile.display_name ?? '',
           bio: profile.bio ?? '',
           location: savedLocation,
-          city: profile.city ?? '',
-          lat: profile.latitude ?? null,
-          lng: profile.longitude ?? null,
+          city,
+          lat,
+          lng,
         })
       }
       setLoading(false)
@@ -84,6 +86,16 @@ export function ClientProfileForm({ effectiveUserId }: ClientProfileFormProps) {
       .eq('user_id', effectiveUserId)
 
     if (updateError) { setError(updateError.message); setSaving(false); return }
+
+    // Sync location to maker profile if one exists
+    if (form.city || form.lat) {
+      await supabase.from('printer_profiles').update({
+        city: form.city || null,
+        location: form.location || null,
+        latitude: form.lat,
+        longitude: form.lng,
+      }).eq('user_id', effectiveUserId)
+    }
 
     setSaved(true)
     setSaving(false)
