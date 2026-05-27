@@ -4,12 +4,14 @@ import { createClient } from '@/lib/supabase/server'
 import { cookies } from 'next/headers'
 
 export async function POST(req: NextRequest) {
+  try {
   const key = process.env.STRIPE_SECRET_KEY
   if (!key || key === 'sk_test_placeholder') {
     return NextResponse.json({ error: 'Stripe not configured' }, { status: 503 })
   }
 
-  const stripe = new Stripe(key)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const stripe = new Stripe(key, { apiVersion: '2025-04-30.basil' as any })
   const supabase = await createClient()
 
   const { data: { user } } = await supabase.auth.getUser()
@@ -65,4 +67,8 @@ export async function POST(req: NextRequest) {
   await (supabase as any).from('jobs').update({ stripe_session_id: session.id }).eq('id', jobId)
 
   return NextResponse.json({ url: session.url })
+  } catch (err) {
+    console.error('Stripe checkout error:', err)
+    return NextResponse.json({ error: 'Payment setup failed. Please try again.' }, { status: 500 })
+  }
 }
