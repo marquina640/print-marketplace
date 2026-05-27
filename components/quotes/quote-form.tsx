@@ -74,6 +74,14 @@ export function QuoteForm({ jobId, printerId: printerIdProp, existingQuote }: Qu
 
     const effectivePrinterId = printerIdProp ?? user.id
 
+    // Prevent quoting your own job
+    const { data: jobCheck } = await supabase.from('jobs').select('client_id').eq('id', jobId).single()
+    if (jobCheck?.client_id === effectivePrinterId) {
+      setError('You cannot quote your own request.')
+      setLoading(false)
+      return
+    }
+
     let image_url = existingQuote?.image_url ?? null
 
     // Upload new image if provided

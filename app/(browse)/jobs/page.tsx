@@ -17,11 +17,15 @@ export default async function JobsFeedPage({ searchParams }: PageProps) {
   const { data: { user } } = await supabase.auth.getUser()
 
   // Logged-in clients go to their dashboard instead
+  let effectiveUserId: string | null = null
   if (user) {
     const { data: profile } = await supabase.from('profiles').select('role').eq('user_id', user.id).single()
     const cookieStore = await cookies()
-    const viewMode = cookieStore.get('view_mode')?.value
-    const effectiveRole = viewMode === 'client' ? 'client' : viewMode === 'maker' ? 'printer_owner' : profile?.role
+    const previewAs     = profile?.role === 'admin' ? cookieStore.get('admin_preview_as')?.value : undefined
+    const previewUserId = profile?.role === 'admin' ? cookieStore.get('admin_preview_user_id')?.value : undefined
+    const viewMode      = profile?.role !== 'admin' ? cookieStore.get('view_mode')?.value : undefined
+    const effectiveRole = previewAs ?? (viewMode === 'client' ? 'client' : viewMode === 'maker' ? 'printer_owner' : profile?.role)
+    effectiveUserId = previewUserId ?? user.id
     if (effectiveRole === 'client') redirect('/dashboard/client')
   }
 
@@ -47,7 +51,8 @@ export default async function JobsFeedPage({ searchParams }: PageProps) {
 
   let query = supabase.from('jobs').select('*').eq('status', 'open').order(col, { ascending: asc })
   if (testUserIds.length > 0) query = query.not('client_id', 'in', `(${testUserIds.join(',')})`)
-  if (user) query = query.neq('client_id', user.id)
+  // Never show a maker their own requests (use effectiveUserId to handle preview mode correctly)
+  if (effectiveUserId) query = query.neq('client_id', effectiveUserId)
   if (material) query = query.eq('material', material)
   if (q) query = query.ilike('title', `%${q}%`)
   if (shipping === '1') query = query.eq('shipping_required', true)

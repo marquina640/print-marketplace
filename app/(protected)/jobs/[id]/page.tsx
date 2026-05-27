@@ -88,7 +88,7 @@ export default async function JobDetailPage({ params }: PageProps) {
     return `Expires in ${m}m`
   }
 
-  const canSubmitQuote    = isPrinter && job.status === 'open'
+  const canSubmitQuote    = isPrinter && !isOwner && job.status === 'open'
   const canAcceptQuote    = isOwner && job.status === 'open'
   const canMarkShipped    = isPrinter && effectiveUserId === acceptedPrinter && (job as any).status === 'paid'
   const canConfirmReceipt = isOwner && (job as any).status === 'shipped'
