@@ -222,7 +222,15 @@ export default async function JobDetailPage({ params }: PageProps) {
                     </div>
                     <StatusBadge status={isExpired(q) ? 'expired' : q.status} />
                   </div>
-                  {q.message && <p className="text-sm text-warm-600 mb-3">{q.message}</p>}
+                  {q.message && (
+                    <p className="text-sm text-warm-600 mb-2">{q.message}</p>
+                  )}
+                  {q.price_justification && (
+                    <div className="rounded-lg bg-warm-50 border border-warm-200 px-3 py-2.5 mb-3">
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-warm-400 mb-1">Price breakdown</p>
+                      <p className="text-sm text-warm-700 leading-relaxed">{q.price_justification}</p>
+                    </div>
+                  )}
                   <div className="flex items-center gap-3">
                     <p className="text-xs text-warm-400">{formatDate(q.created_at)}</p>
                     {q.status === 'pending' && (
