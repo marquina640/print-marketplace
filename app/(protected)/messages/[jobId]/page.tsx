@@ -1,4 +1,5 @@
 import { redirect, notFound } from 'next/navigation'
+import { cookies } from 'next/headers'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { MessageThread } from '@/components/messages/message-thread'
@@ -12,6 +13,16 @@ export default async function MessageThreadPage({ params }: PageProps) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
+
+  // Resolve effective user ID (handles admin preview and role switching)
+  const { data: profile } = await supabase.from('profiles').select('role').eq('user_id', user.id).single()
+  const cookieStore = await cookies()
+  const previewUserId = profile?.role === 'admin' ? cookieStore.get('admin_preview_user_id')?.value : undefined
+  const viewMode = profile?.role !== 'admin' ? cookieStore.get('view_mode')?.value : undefined
+  const effectiveUserId = previewUserId ?? user.id
+  const effectiveRole = previewUserId
+    ? cookieStore.get('admin_preview_as')?.value
+    : viewMode === 'maker' ? 'printer_owner' : viewMode === 'client' ? 'client' : profile?.role
 
   const { data: job } = await supabase
     .from('jobs')
@@ -33,21 +44,22 @@ export default async function MessageThreadPage({ params }: PageProps) {
     return (
       <div className="max-w-2xl mx-auto">
         <div className="card p-8 text-center">
-          <p className="text-gray-500">Messaging is only available after a quote has been accepted.</p>
-          <Link href={`/jobs/${jobId}`} className="mt-4 inline-block text-sm text-indigo-600 hover:text-indigo-700">
-            View job →
+          <p className="text-warm-500">Messaging is only available after a quote has been accepted.</p>
+          <Link href={`/jobs/${jobId}`} className="mt-4 inline-block text-sm text-ink-600 hover:text-ink-800">
+            View job
           </Link>
         </div>
       </div>
     )
   }
 
-  const isClient = job.client_id === user.id
-  const isPrinter = acceptedQuote.printer_id === user.id
+  const isClient  = job.client_id === effectiveUserId
+  const isPrinter = acceptedQuote.printer_id === effectiveUserId
+  const isAdmin   = profile?.role === 'admin' && !previewUserId
 
-  if (!isClient && !isPrinter) redirect('/messages')
+  if (!isClient && !isPrinter && !isAdmin) redirect('/messages')
 
-  const receiverId = isClient ? acceptedQuote.printer_id : job.client_id
+  const receiverId = isClient ? acceptedQuote.printer_id : isAdmin ? acceptedQuote.printer_id : job.client_id
 
   const { data: printerProfile } = await supabase
     .from('profiles')
@@ -84,7 +96,7 @@ export default async function MessageThreadPage({ params }: PageProps) {
 
       <MessageThread
         jobId={jobId}
-        currentUserId={user.id}
+        currentUserId={effectiveUserId}
         receiverId={receiverId}
         jobTitle={job.title}
         initialMessages={messages ?? []}
