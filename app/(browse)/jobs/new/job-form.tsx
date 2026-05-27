@@ -244,7 +244,23 @@ export function NewJobForm({ clientId, clientLocation, isGuest }: { clientId: st
 
         {/* Manufacturing process */}
         <div className="card p-6 space-y-3">
-          <h2 className="font-semibold text-ink-900">Manufacturing Process</h2>
+          <div className="flex items-center gap-2">
+            <h2 className="font-semibold text-ink-900">Manufacturing Process</h2>
+            <div className="relative group">
+              <button type="button" className="h-4 w-4 rounded-full bg-warm-200 text-warm-600 text-[10px] font-bold flex items-center justify-center hover:bg-warm-300 transition-colors flex-shrink-0">
+                ?
+              </button>
+              <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-72 bg-ink-950 text-white text-xs rounded-xl p-3 shadow-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50 space-y-2">
+                <p className="font-semibold text-gold-400 mb-1">Process guide</p>
+                {MANUFACTURING_PROCESSES.map((p) => (
+                  <div key={p.value}>
+                    <span className="font-medium text-white">{p.label}:</span>{' '}
+                    <span className="text-warm-300">{p.tooltip}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
           <div className="flex flex-wrap gap-2">
             {MANUFACTURING_PROCESSES.filter((p) => p.available).map((p) => {
               const active = form.process === p.value
@@ -253,12 +269,17 @@ export function NewJobForm({ clientId, clientLocation, isGuest }: { clientId: st
                   key={p.value}
                   type="button"
                   onClick={() => set('process', p.value)}
-                  className={`rounded-xl border px-3 py-2 text-sm font-medium transition-all ${
+                  className={`relative rounded-xl border px-3 py-2 text-sm font-medium transition-all text-left ${
                     active
                       ? 'bg-ink-900 text-white border-ink-900'
                       : 'bg-white text-warm-700 border-warm-300 hover:border-ink-400'
                   }`}
                 >
+                  {p.recommended && (
+                    <span className="absolute -top-2 -right-1 rounded-full bg-gold-400 text-ink-950 text-[9px] font-bold px-1.5 py-0.5 leading-none">
+                      Recommended
+                    </span>
+                  )}
                   {p.label}
                 </button>
               )

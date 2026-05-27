@@ -235,13 +235,62 @@ export function getJobType(value: string) {
 
 // ── Manufacturing processes ───────────────────────────────
 export const MANUFACTURING_PROCESSES = [
-  { value: 'fdm',          label: 'FDM Printing',       description: 'Fused filament — PLA, PETG, ABS, etc.',       available: true  },
-  { value: 'resin',        label: 'Resin (SLA/MSLA)',   description: 'High detail, smooth finish',                  available: true  },
-  { value: 'sls',          label: 'SLS (Powder)',        description: 'Nylon sintering — strong, no supports',       available: true  },
-  { value: 'cnc',          label: 'CNC Machining',       description: 'Subtractive machining — coming soon',         available: false },
-  { value: 'laser',        label: 'Laser Cutting',       description: 'Flat sheet cutting & engraving',              available: true  },
-  { value: 'sheet_metal',  label: 'Sheet Metal',         description: 'Bending, punching, forming — coming soon',    available: false },
-  { value: 'other',        label: 'Other',               description: 'Other process',                               available: true  },
+  {
+    value: 'fdm',
+    label: 'FDM Printing',
+    description: 'Fused filament — PLA, PETG, ABS, etc.',
+    tooltip: 'The most common and affordable 3D printing method. A plastic filament is melted and layered to build your part. Great for most figurines, functional parts, prototypes, and everyday objects. If you are not sure, pick this one.',
+    available: true,
+    recommended: true,
+  },
+  {
+    value: 'resin',
+    label: 'Resin (SLA/MSLA)',
+    description: 'High detail, smooth finish',
+    tooltip: 'Uses UV light to harden liquid resin layer by layer. Produces very smooth surfaces and fine details, ideal for miniatures, jewelry, and display models. Parts can be brittle and are not great for functional use.',
+    available: true,
+    recommended: false,
+  },
+  {
+    value: 'sls',
+    label: 'SLS (Powder)',
+    description: 'Nylon sintering — strong, no supports',
+    tooltip: 'Sinters nylon powder with a laser. Produces very strong, complex parts with no support marks. More expensive than FDM but excellent for engineering parts and complex geometries.',
+    available: true,
+    recommended: false,
+  },
+  {
+    value: 'cnc',
+    label: 'CNC Machining',
+    description: 'Subtractive machining — coming soon',
+    tooltip: 'Cuts material away from a solid block using rotating tools. Produces very precise metal or plastic parts. Coming soon.',
+    available: false,
+    recommended: false,
+  },
+  {
+    value: 'laser',
+    label: 'Laser Cutting',
+    description: 'Flat sheet cutting and engraving',
+    tooltip: 'Cuts or engraves flat sheets of wood, acrylic, metal, or fabric with a laser. Best for 2D shapes, enclosures, signs, and decorative pieces.',
+    available: true,
+    recommended: false,
+  },
+  {
+    value: 'sheet_metal',
+    label: 'Sheet Metal',
+    description: 'Bending, punching, forming — coming soon',
+    tooltip: 'Forms thin metal sheets into brackets, enclosures, and structural parts. Coming soon.',
+    available: false,
+    recommended: false,
+  },
+  {
+    value: 'other',
+    label: 'Other',
+    description: 'Other process',
+    tooltip: 'Not sure or using a different process? Select this and describe what you need in your request.',
+    available: true,
+    recommended: false,
+  },
 ] as const
 
 export type ManufacturingProcess = typeof MANUFACTURING_PROCESSES[number]['value']

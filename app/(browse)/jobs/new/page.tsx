@@ -37,8 +37,14 @@ export default async function NewJobPage() {
     clientId = previewUserId ?? user.id
 
     const { data: clientProfile } = await supabase
-      .from('profiles').select('address, city, latitude, longitude')
+      .from('profiles').select('display_name, address, city, latitude, longitude')
       .eq('user_id', clientId).single()
+
+    // Profile must be filled before posting a request
+    const profileIncomplete = !clientProfile?.display_name?.trim() || (!clientProfile?.city && !clientProfile?.address)
+    if (profileIncomplete) {
+      redirect('/profile/client?incomplete=1')
+    }
 
     clientLocation = {
       address: clientProfile?.address ?? clientProfile?.city ?? '',

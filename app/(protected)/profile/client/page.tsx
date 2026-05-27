@@ -3,7 +3,11 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { ClientProfileForm } from './profile-form'
 
-export default async function ClientProfilePage() {
+interface PageProps {
+  searchParams: Promise<{ incomplete?: string }>
+}
+
+export default async function ClientProfilePage({ searchParams }: PageProps) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
@@ -20,6 +24,16 @@ export default async function ClientProfilePage() {
     : undefined
 
   const effectiveUserId = previewUserId ?? user.id
+  const { incomplete } = await searchParams
 
-  return <ClientProfileForm effectiveUserId={effectiveUserId} />
+  return (
+    <>
+      {incomplete && (
+        <div className="max-w-xl mx-auto mb-4 rounded-xl bg-amber-50 border border-amber-300 px-4 py-3 text-sm text-amber-800 font-medium">
+          Please fill in your name and location before posting a request.
+        </div>
+      )}
+      <ClientProfileForm effectiveUserId={effectiveUserId} />
+    </>
+  )
 }
