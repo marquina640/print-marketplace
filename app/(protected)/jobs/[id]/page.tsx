@@ -428,6 +428,7 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
             <div className="card p-5">
               <ReviewForm
                 jobId={job.id}
+                reviewerId={effectiveUserId}
                 revieweeId={revieweeId}
                 revieweeLabel={revieweeLabel}
                 existingReview={myReview ?? null}

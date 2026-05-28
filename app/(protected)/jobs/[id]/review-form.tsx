@@ -8,12 +8,13 @@ import { Textarea } from '@/components/ui/textarea'
 
 interface ReviewFormProps {
   jobId: string
+  reviewerId: string
   revieweeId: string
   revieweeLabel: string
   existingReview: { id: string; rating: number; comment: string | null; is_public: boolean } | null
 }
 
-export function ReviewForm({ jobId, revieweeId, revieweeLabel, existingReview }: ReviewFormProps) {
+export function ReviewForm({ jobId, reviewerId, revieweeId, revieweeLabel, existingReview }: ReviewFormProps) {
   const router = useRouter()
   const [rating, setRating] = useState(existingReview?.rating ?? 0)
   const [comment, setComment] = useState(existingReview?.comment ?? '')
@@ -47,7 +48,7 @@ export function ReviewForm({ jobId, revieweeId, revieweeLabel, existingReview }:
 
     const { error: dbErr } = await supabase.from('reviews').insert({
       job_id: jobId,
-      reviewer_id: user.id,
+      reviewer_id: reviewerId,
       reviewee_id: revieweeId,
       rating,
       comment: comment.trim() || null,
