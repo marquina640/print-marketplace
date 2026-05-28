@@ -5,7 +5,14 @@ import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { createNotification } from './notifications'
 
-export async function markJobShipped(jobId: string) {
+export interface ShippingDetails {
+  inPerson: boolean
+  carrier?: string
+  trackingNumber?: string
+  shippedDate?: string // ISO date string YYYY-MM-DD
+}
+
+export async function markJobShipped(jobId: string, details: ShippingDetails) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Not authenticated')
@@ -25,13 +32,21 @@ export async function markJobShipped(jobId: string) {
   await supabase.from('jobs').update({
     status: 'shipped',
     shipped_at: new Date().toISOString(),
+    in_person_delivery: details.inPerson,
+    shipping_carrier:   details.inPerson ? null : (details.carrier ?? null),
+    tracking_number:    details.inPerson ? null : (details.trackingNumber ?? null),
+    shipped_date:       details.shippedDate ?? new Date().toISOString().slice(0, 10),
   } as any).eq('id', jobId)
+
+  const notifBody = details.inPerson
+    ? `"${job.title}" has been handed over in person.`
+    : `"${job.title}" is on its way${details.carrier ? ` via ${details.carrier}` : ''}${details.trackingNumber ? ` — tracking: ${details.trackingNumber}` : ''}. Confirm receipt when it arrives.`
 
   await createNotification({
     userId: job.client_id,
     type: 'job_shipped',
-    title: 'Your order has shipped!',
-    body: `"${job.title}" is on its way. Confirm receipt when it arrives.`,
+    title: details.inPerson ? 'Order handed over!' : 'Your order has shipped!',
+    body: notifBody,
     link: `/jobs/${jobId}`,
   })
 

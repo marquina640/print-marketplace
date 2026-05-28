@@ -303,7 +303,23 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
                       {/* Step 3: Shipped — client confirms receipt */}
                       {(job as any).status === 'shipped' && (
                         <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 space-y-2">
-                          <p className="text-sm font-semibold text-amber-900">Order shipped — awaiting delivery confirmation</p>
+                          <p className="text-sm font-semibold text-amber-900">
+                            {(job as any).in_person_delivery ? 'Order handed over in person' : 'Order shipped'} — awaiting confirmation
+                          </p>
+                          {/* Shipping details */}
+                          {!(job as any).in_person_delivery && ((job as any).shipping_carrier || (job as any).tracking_number) && (
+                            <div className="rounded-lg bg-white border border-amber-100 px-3 py-2 text-xs text-warm-700 space-y-1">
+                              {(job as any).shipping_carrier && (
+                                <p><span className="font-medium">Carrier:</span> {(job as any).shipping_carrier}</p>
+                              )}
+                              {(job as any).tracking_number && (
+                                <p><span className="font-medium">Tracking:</span> <span className="font-mono">{(job as any).tracking_number}</span></p>
+                              )}
+                              {(job as any).shipped_date && (
+                                <p><span className="font-medium">Shipped on:</span> {new Date((job as any).shipped_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                              )}
+                            </div>
+                          )}
                           {canConfirmReceipt && (
                             <>
                               <p className="text-xs text-amber-700">Once you've received your order, confirm receipt to release payment to the maker.</p>
