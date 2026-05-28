@@ -58,6 +58,13 @@ export default async function ClientDashboardPage({ searchParams }: PageProps) {
   const activeJobs    = jobs?.filter((j) => ['paid', 'shipped', 'delivered', 'in_progress'].includes(j.status)) ?? []
   const completedJobs = jobs?.filter((j) => j.status === 'completed') ?? []
 
+  // Fetch reviews already left by this user so we can flag missing ones
+  const reviewableJobIds = activeJobs.filter(j => j.status === 'delivered').map(j => j.id)
+  const { data: myReviews } = reviewableJobIds.length > 0
+    ? await supabase.from('reviews').select('job_id').eq('reviewer_id', effectiveUserId).in('job_id', reviewableJobIds)
+    : { data: [] }
+  const reviewedJobIds = new Set(myReviews?.map(r => r.job_id) ?? [])
+
   // Jobs accepted but not yet paid
   const unpaidJobs = jobs?.filter((j) => j.status === 'accepted' && !(j as any).paid_at) ?? []
   const acceptedQuoteByJob = Object.fromEntries(
@@ -186,21 +193,33 @@ export default async function ClientDashboardPage({ searchParams }: PageProps) {
             In Progress
           </h2>
           <div className="card divide-y divide-warm-100">
-            {activeJobs.map((job) => (
-              <div key={job.id} className="flex items-center justify-between p-4 hover:bg-warm-50 transition-colors">
-                <div className="min-w-0">
-                  <p className="font-semibold text-warm-900 truncate">{job.title}</p>
-                  <p className="text-xs text-warm-400 mt-0.5">{job.material} · Due {formatDate(job.deadline)}</p>
-                </div>
-                <div className="flex items-center gap-3 flex-shrink-0">
-                  <StatusBadge status={job.status} />
-                  <div className="flex gap-2">
-                    <Link href={`/messages/${job.id}`}><Button variant="outline" size="sm">Message</Button></Link>
-                    <Link href={`/jobs/${job.id}`}><Button size="sm">View</Button></Link>
+            {activeJobs.map((job) => {
+              const needsReview = job.status === 'delivered' && !reviewedJobIds.has(job.id)
+              return (
+                <div key={job.id} className="flex items-center justify-between p-4 hover:bg-warm-50 transition-colors">
+                  <div className="min-w-0">
+                    <p className="font-semibold text-warm-900 truncate">{job.title}</p>
+                    <p className="text-xs text-warm-400 mt-0.5">{job.material} · Due {formatDate(job.deadline)}</p>
+                  </div>
+                  <div className="flex items-center gap-3 flex-shrink-0">
+                    <StatusBadge status={job.status} />
+                    {needsReview && (
+                      <span className="rounded-full bg-amber-100 border border-amber-300 text-amber-800 text-xs font-semibold px-2.5 py-0.5">
+                        ⭐ Review missing
+                      </span>
+                    )}
+                    <div className="flex gap-2">
+                      <Link href={`/messages/${job.id}`}><Button variant="outline" size="sm">Message</Button></Link>
+                      <Link href={`/jobs/${job.id}`}>
+                        <Button variant={needsReview ? 'gold' : 'default'} size="sm">
+                          {needsReview ? 'Leave Review →' : 'View'}
+                        </Button>
+                      </Link>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         </section>
       )}
