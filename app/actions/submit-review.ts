@@ -46,7 +46,7 @@ export async function submitReview({
 
   if (error) throw new Error(error.message)
 
-  // If both parties have now reviewed, make both reviews public
+  // If both parties have now reviewed, make reviews public and complete the job
   const { data: allReviews } = await admin
     .from('reviews')
     .select('id')
@@ -57,6 +57,13 @@ export async function submitReview({
       .from('reviews')
       .update({ is_public: true })
       .eq('job_id', jobId)
+
+    // Auto-complete the job now both parties have reviewed
+    await admin
+      .from('jobs')
+      .update({ status: 'completed' } as any)
+      .eq('id', jobId)
+      .in('status', ['delivered', 'completed'])
   }
 
   revalidatePath(`/jobs/${jobId}`)

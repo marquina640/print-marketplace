@@ -97,7 +97,7 @@ export async function markPayoutSent(jobId: string) {
   if (profile?.role !== 'admin') throw new Error('Not admin')
 
   const { data: job } = await supabase.from('jobs').select('*').eq('id', jobId).single()
-  if (!job || (job as any).status !== 'delivered') throw new Error('Job not delivered')
+  if (!job || !['delivered', 'completed'].includes((job as any).status)) throw new Error('Job not delivered')
 
   await supabase.from('jobs').update({
     payout_at: new Date().toISOString(),

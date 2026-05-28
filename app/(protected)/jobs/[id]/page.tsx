@@ -97,7 +97,7 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
   const canAcceptQuote    = isOwner && job.status === 'open'
   const canMarkShipped    = isPrinter && effectiveUserId === acceptedPrinter && (job as any).status === 'paid'
   const canConfirmReceipt = isOwner && (job as any).status === 'shipped'
-  const needsPayout       = isAdmin && (job as any).status === 'delivered' && !(job as any).payout_at
+  const needsPayout       = isAdmin && ['delivered', 'completed'].includes((job as any).status) && !(job as any).payout_at
 
   // Reviews show after delivered or completed
   const isCompleted   = job.status === 'completed' || (job as any).status === 'delivered'
@@ -334,7 +334,7 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
                       )}
 
                       {/* Step 4: Delivered — admin pays out */}
-                      {(job as any).status === 'delivered' && !(job as any).payout_at && (
+                      {['delivered', 'completed'].includes((job as any).status) && !(job as any).payout_at && (
                         <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 space-y-2">
                           <p className="text-sm font-semibold text-emerald-900">Delivered — payout pending</p>
                           {isAdmin && (
