@@ -15,10 +15,12 @@ import { MarkPayoutButton } from './mark-payout-button'
 
 interface PageProps {
   params: Promise<{ id: string }>
+  searchParams: Promise<{ payment?: string }>
 }
 
-export default async function JobDetailPage({ params }: PageProps) {
+export default async function JobDetailPage({ params, searchParams }: PageProps) {
   const { id } = await params
+  const { payment } = await searchParams
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
@@ -118,6 +120,21 @@ export default async function JobDetailPage({ params }: PageProps) {
         className="inline-flex items-center gap-1 text-sm text-warm-400 hover:text-warm-900">
         ← Back
       </Link>
+
+      {payment === 'success' && (
+        <div className="rounded-xl bg-emerald-50 border border-emerald-200 px-5 py-4 flex items-center gap-3">
+          <span className="text-2xl">✓</span>
+          <div>
+            <p className="font-semibold text-emerald-900">Payment received!</p>
+            <p className="text-sm text-emerald-700">Your funds are held in escrow. The maker will now prepare and ship your order.</p>
+          </div>
+        </div>
+      )}
+      {payment === 'cancelled' && (
+        <div className="rounded-xl bg-amber-50 border border-amber-200 px-5 py-4">
+          <p className="text-sm font-medium text-amber-800">Payment was cancelled. You can try again whenever you're ready.</p>
+        </div>
+      )}
 
       {/* Header card */}
       <div className="card p-6">

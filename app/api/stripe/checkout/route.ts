@@ -59,7 +59,7 @@ export async function POST(req: NextRequest) {
       quantity: 1,
     }],
     metadata: { jobId: job.id },
-    success_url: `${appUrl}/jobs/${job.id}?payment=success`,
+    success_url: `${appUrl}/api/stripe/success?session_id={CHECKOUT_SESSION_ID}&jobId=${job.id}`,
     cancel_url:  `${appUrl}/jobs/${job.id}?payment=cancelled`,
   })
 
