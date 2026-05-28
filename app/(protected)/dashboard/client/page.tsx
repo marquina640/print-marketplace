@@ -10,7 +10,12 @@ import { formatCurrency, formatDate } from '@/lib/utils'
 
 export const metadata = { title: 'Customer Dashboard' }
 
-export default async function ClientDashboardPage() {
+interface PageProps {
+  searchParams: Promise<{ reviews?: string }>
+}
+
+export default async function ClientDashboardPage({ searchParams }: PageProps) {
+  const { reviews } = await searchParams
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
@@ -80,6 +85,18 @@ export default async function ClientDashboardPage() {
 
   return (
     <div className="max-w-5xl mx-auto space-y-8">
+      {reviews === 'pending' && (
+        <div className="rounded-xl bg-amber-50 border border-amber-300 px-5 py-4 flex items-start gap-3">
+          <span className="text-2xl mt-0.5">⭐</span>
+          <div>
+            <p className="font-semibold text-amber-900">You have pending reviews</p>
+            <p className="text-sm text-amber-700 mt-0.5">
+              You have 3 or more completed jobs without a review. Leave your reviews below before posting a new request.
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>

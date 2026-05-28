@@ -7,6 +7,7 @@ import { StatusBadge, MaterialBadge, CertificationBadge, JobTypeBadge } from '@/
 import { Button } from '@/components/ui/button'
 import { formatCurrency, formatDate, formatFileSize } from '@/lib/utils'
 import { AcceptQuoteButton } from './accept-quote-button'
+import { countUnreviewedJobs } from '@/app/actions/review-gate'
 import { ReviewForm } from './review-form'
 import { PaymentButton } from '@/components/payments/payment-button'
 import { MarkShippedButton } from './mark-shipped-button'
@@ -90,7 +91,9 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
     return `Expires in ${m}m`
   }
 
-  const canSubmitQuote    = isPrinter && !isOwner && job.status === 'open'
+  const printerUnreviewed = isPrinter ? await countUnreviewedJobs(effectiveUserId) : 0
+  const blockedByReviews  = printerUnreviewed >= 3
+  const canSubmitQuote    = isPrinter && !isOwner && job.status === 'open' && !blockedByReviews
   const canAcceptQuote    = isOwner && job.status === 'open'
   const canMarkShipped    = isPrinter && effectiveUserId === acceptedPrinter && (job as any).status === 'paid'
   const canConfirmReceipt = isOwner && (job as any).status === 'shipped'
@@ -364,11 +367,30 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
           )}
         </div>
 
-        {canSubmitQuote && (
+        {isPrinter && !isOwner && job.status === 'open' && (
           <div className="lg:col-span-2">
-            <div className="card p-5">
-              <QuoteForm jobId={job.id} printerId={effectiveUserId} existingQuote={myQuote} />
-            </div>
+            {blockedByReviews ? (
+              <div className="card p-5 space-y-3">
+                <div className="flex items-start gap-3">
+                  <span className="text-2xl">⭐</span>
+                  <div>
+                    <p className="font-semibold text-warm-900">You have pending reviews</p>
+                    <p className="text-sm text-warm-500 mt-1">
+                      You have 3 or more completed jobs without a review. Please take a moment to review those jobs before submitting new quotes.
+                    </p>
+                  </div>
+                </div>
+                <Link href="/dashboard/printer">
+                  <button className="w-full rounded-xl bg-gold-400 hover:bg-gold-500 text-ink-950 text-sm font-semibold py-2.5 transition-colors">
+                    Go leave your reviews →
+                  </button>
+                </Link>
+              </div>
+            ) : (
+              <div className="card p-5">
+                <QuoteForm jobId={job.id} printerId={effectiveUserId} existingQuote={myQuote} />
+              </div>
+            )}
           </div>
         )}
       </div>

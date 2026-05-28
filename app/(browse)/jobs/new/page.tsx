@@ -2,6 +2,7 @@ import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { NewJobForm } from './job-form'
+import { countUnreviewedJobs } from '@/app/actions/review-gate'
 
 export const metadata = { title: 'Post a Request' }
 
@@ -50,6 +51,12 @@ export default async function NewJobPage() {
       address: clientProfile?.address ?? clientProfile?.city ?? '',
       lat: clientProfile?.latitude ?? null,
       lng: clientProfile?.longitude ?? null,
+    }
+
+    // Review gate: block if 3+ unreviewed completed jobs
+    const unreviewedCount = await countUnreviewedJobs(clientId)
+    if (unreviewedCount >= 3) {
+      redirect('/dashboard/client?reviews=pending')
     }
   }
 
