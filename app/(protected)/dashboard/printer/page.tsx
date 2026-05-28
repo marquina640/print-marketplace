@@ -75,6 +75,17 @@ export default async function PrinterDashboardPage({ searchParams }: PageProps) 
   const acceptedQuotes = allMyQuotes?.filter((q) => q.status === 'accepted') ?? []
   const pendingQuotes  = allMyQuotes?.filter((q) => q.status === 'pending')  ?? []
 
+  // Check which active jobs need a review from this maker
+  const activeJobIds = acceptedQuotes.map(q => q.job_id)
+  const { data: activeJobStatuses } = activeJobIds.length > 0
+    ? await supabase.from('jobs').select('id, status').in('id', activeJobIds).in('status', ['delivered', 'completed'])
+    : { data: [] }
+  const deliveredJobIds = new Set(activeJobStatuses?.map(j => j.id) ?? [])
+  const { data: myReviews } = deliveredJobIds.size > 0
+    ? await supabase.from('reviews').select('job_id').eq('reviewer_id', effectiveUserId).in('job_id', [...deliveredJobIds])
+    : { data: [] }
+  const reviewedJobIds = new Set(myReviews?.map(r => r.job_id) ?? [])
+
   const certLevel        = makerProfile?.certification_level ?? 0
   const cert             = getCertificationLevel(certLevel)
   const nextCert         = certLevel < 3 ? CERTIFICATION_LEVELS[certLevel + 1] : null
@@ -206,6 +217,7 @@ export default async function PrinterDashboardPage({ searchParams }: PageProps) 
           <div className="card divide-y divide-warm-100">
             {acceptedQuotes.map((q) => {
               const job = quotedJobsById[q.job_id] ?? null
+              const needsReview = deliveredJobIds.has(q.job_id) && !reviewedJobIds.has(q.job_id)
               return (
                 <div key={q.id} className="flex items-center justify-between p-4 hover:bg-warm-50 transition-colors">
                   <div className="min-w-0">
@@ -217,6 +229,11 @@ export default async function PrinterDashboardPage({ searchParams }: PageProps) 
                   <div className="flex items-center gap-3 flex-shrink-0">
                     <span className="font-bold text-warm-900">{formatCurrency(q.price)}</span>
                     <StatusBadge status="accepted" />
+                    {needsReview && (
+                      <span className="rounded-full bg-amber-100 border border-amber-300 text-amber-800 text-xs font-semibold px-2.5 py-0.5">
+                        ⭐ Review missing
+                      </span>
+                    )}
                     <div className="flex gap-2">
                       {job?.id && (
                         <Link href={`/messages/${job.id}`}>
@@ -225,7 +242,9 @@ export default async function PrinterDashboardPage({ searchParams }: PageProps) 
                       )}
                       {job?.id && (
                         <Link href={`/jobs/${job.id}`}>
-                          <Button size="sm">View Job</Button>
+                          <Button variant={needsReview ? 'gold' : 'default'} size="sm">
+                            {needsReview ? 'Leave Review →' : 'View Job'}
+                          </Button>
                         </Link>
                       )}
                     </div>
@@ -237,30 +256,18 @@ export default async function PrinterDashboardPage({ searchParams }: PageProps) 
         )}
       </section>
 
-      {/* ── MY QUOTES ── */}
-      <section>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-warm-900 flex items-center gap-2">
-            <span className="h-2 w-2 rounded-full bg-amber-400 inline-block" />
-            My Quotes
-            {(allMyQuotes?.length ?? 0) > 0 && (
-              <span className="text-xs text-warm-400 font-normal">({allMyQuotes?.length} total)</span>
-            )}
-          </h2>
-        </div>
-
-        {!allMyQuotes || allMyQuotes.length === 0 ? (
-          <div className="card p-8 text-center">
-            <p className="text-3xl mb-2">📋</p>
-            <p className="font-semibold text-warm-900">No quotes sent yet</p>
-            <p className="text-sm text-warm-500 mt-1">Browse open requests and submit your first quote.</p>
-            <Link href="/jobs" className="inline-block mt-3">
-              <Button variant="gold" size="sm">Browse Requests</Button>
-            </Link>
+      {/* ── MY QUOTES (pending only) ── */}
+      {pendingQuotes.length > 0 && (
+        <section>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-warm-900 flex items-center gap-2">
+              <span className="h-2 w-2 rounded-full bg-amber-400 inline-block" />
+              Pending Quotes
+              <span className="text-xs text-warm-400 font-normal">({pendingQuotes.length})</span>
+            </h2>
           </div>
-        ) : (
           <div className="card divide-y divide-warm-100">
-            {allMyQuotes.map((q) => {
+            {pendingQuotes.map((q) => {
               const job = quotedJobsById[q.job_id] ?? null
               return (
                 <div key={q.id} className="flex items-center justify-between p-4 hover:bg-warm-50 transition-colors">
@@ -276,12 +283,10 @@ export default async function PrinterDashboardPage({ searchParams }: PageProps) 
                       <p className="font-bold text-warm-900">{formatCurrency(q.price)}</p>
                       <p className="text-xs text-warm-400">{q.lead_time_days}d lead</p>
                     </div>
-                    <StatusBadge status={q.status} />
+                    <StatusBadge status="pending" />
                     {job?.id && (
                       <Link href={`/jobs/${job.id}`}>
-                        <Button variant={q.status === 'accepted' ? 'gold' : 'outline'} size="sm">
-                          {q.status === 'accepted' ? 'Open Job' : 'View'}
-                        </Button>
+                        <Button variant="outline" size="sm">View</Button>
                       </Link>
                     )}
                   </div>
@@ -289,8 +294,8 @@ export default async function PrinterDashboardPage({ searchParams }: PageProps) 
               )
             })}
           </div>
-        )}
-      </section>
+        </section>
+      )}
 
       {/* ── RECENT OPEN JOBS ── */}
       <section>
