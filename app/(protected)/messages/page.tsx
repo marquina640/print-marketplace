@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import { cookies } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 import { EmptyState } from '@/components/ui/empty-state'
 import { formatRelativeTime } from '@/lib/utils'
@@ -11,17 +12,22 @@ export default async function MessagesPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  // Get all jobs where the user is either the client or the accepted printer
+  const { data: profile } = await supabase.from('profiles').select('role').eq('user_id', user.id).single()
+  const cookieStore = await cookies()
+  const previewUserId = profile?.role === 'admin' ? cookieStore.get('admin_preview_user_id')?.value : undefined
+  const effectiveUserId = previewUserId ?? user.id
+
+  // Get all jobs where the effective user is either the client or the accepted printer
   const { data: clientJobs } = await supabase
     .from('jobs')
     .select('id, title, status, accepted_quote_id')
-    .eq('client_id', user.id)
+    .eq('client_id', effectiveUserId)
     .not('accepted_quote_id', 'is', null)
 
   const { data: printerQuotes } = await supabase
     .from('quotes')
     .select('job_id, jobs(id, title, status, client_id)')
-    .eq('printer_id', user.id)
+    .eq('printer_id', effectiveUserId)
     .eq('status', 'accepted')
 
   const jobIds = [
@@ -98,7 +104,7 @@ export default async function MessagesPage() {
                 <p className="text-sm font-semibold text-gray-900 truncate">{t.title}</p>
                 {t.lastMessage ? (
                   <p className="text-xs text-gray-500 truncate mt-0.5">
-                    {t.lastMessage.sender_id === user.id ? 'You: ' : ''}
+                    {t.lastMessage.sender_id === effectiveUserId ? 'You: ' : ''}
                     {t.lastMessage.content}
                   </p>
                 ) : (
