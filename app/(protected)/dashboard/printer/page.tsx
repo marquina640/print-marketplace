@@ -75,16 +75,23 @@ export default async function PrinterDashboardPage({ searchParams }: PageProps) 
   const acceptedQuotes = allMyQuotes?.filter((q) => q.status === 'accepted') ?? []
   const pendingQuotes  = allMyQuotes?.filter((q) => q.status === 'pending')  ?? []
 
-  // Check which active jobs need a review from this maker
+  // Check review state for delivered active jobs
   const activeJobIds = acceptedQuotes.map(q => q.job_id)
   const { data: activeJobStatuses } = activeJobIds.length > 0
     ? await supabase.from('jobs').select('id, status').in('id', activeJobIds).in('status', ['delivered', 'completed'])
     : { data: [] }
   const deliveredJobIds = new Set(activeJobStatuses?.map(j => j.id) ?? [])
-  const { data: myReviews } = deliveredJobIds.size > 0
-    ? await supabase.from('reviews').select('job_id').eq('reviewer_id', effectiveUserId).in('job_id', [...deliveredJobIds])
+  const { data: allJobReviews } = deliveredJobIds.size > 0
+    ? await supabase.from('reviews').select('job_id, reviewer_id').in('job_id', [...deliveredJobIds])
     : { data: [] }
-  const reviewedJobIds = new Set(myReviews?.map(r => r.job_id) ?? [])
+
+  const reviewStateByJob = new Map<string, { makerReviewed: boolean; otherReviewed: boolean }>()
+  for (const jobId of deliveredJobIds) {
+    const jobReviews = allJobReviews?.filter(r => r.job_id === jobId) ?? []
+    const makerReviewed = jobReviews.some(r => r.reviewer_id === effectiveUserId)
+    const otherReviewed = jobReviews.some(r => r.reviewer_id !== effectiveUserId)
+    reviewStateByJob.set(jobId, { makerReviewed, otherReviewed })
+  }
 
   const certLevel        = makerProfile?.certification_level ?? 0
   const cert             = getCertificationLevel(certLevel)
@@ -217,7 +224,9 @@ export default async function PrinterDashboardPage({ searchParams }: PageProps) 
           <div className="card divide-y divide-warm-100">
             {acceptedQuotes.map((q) => {
               const job = quotedJobsById[q.job_id] ?? null
-              const needsReview = deliveredJobIds.has(q.job_id) && !reviewedJobIds.has(q.job_id)
+              const reviewState      = reviewStateByJob.get(q.job_id)
+              const needsMyReview    = deliveredJobIds.has(q.job_id) && reviewState && !reviewState.makerReviewed
+              const waitingForClient = deliveredJobIds.has(q.job_id) && reviewState && reviewState.makerReviewed && !reviewState.otherReviewed
               return (
                 <div key={q.id} className="flex items-center justify-between p-4 hover:bg-warm-50 transition-colors">
                   <div className="min-w-0">
@@ -229,9 +238,14 @@ export default async function PrinterDashboardPage({ searchParams }: PageProps) 
                   <div className="flex items-center gap-3 flex-shrink-0">
                     <span className="font-bold text-warm-900">{formatCurrency(q.price)}</span>
                     <StatusBadge status="accepted" />
-                    {needsReview && (
+                    {needsMyReview && (
                       <span className="rounded-full bg-amber-100 border border-amber-300 text-amber-800 text-xs font-semibold px-2.5 py-0.5">
                         ⭐ Review missing
+                      </span>
+                    )}
+                    {waitingForClient && (
+                      <span className="rounded-full bg-warm-100 border border-warm-200 text-warm-600 text-xs font-medium px-2.5 py-0.5">
+                        Waiting for client review
                       </span>
                     )}
                     <div className="flex gap-2">
@@ -242,8 +256,8 @@ export default async function PrinterDashboardPage({ searchParams }: PageProps) 
                       )}
                       {job?.id && (
                         <Link href={`/jobs/${job.id}`}>
-                          <Button variant={needsReview ? 'gold' : 'default'} size="sm">
-                            {needsReview ? 'Leave Review →' : 'View Job'}
+                          <Button variant={needsMyReview ? 'gold' : 'outline'} size="sm">
+                            {needsMyReview ? 'Leave Review →' : 'View Job'}
                           </Button>
                         </Link>
                       )}
