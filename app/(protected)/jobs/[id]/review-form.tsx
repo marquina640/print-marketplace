@@ -2,9 +2,9 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
+import { submitReview } from '@/app/actions/submit-review'
 
 interface ReviewFormProps {
   jobId: string
@@ -42,20 +42,19 @@ export function ReviewForm({ jobId, reviewerId, revieweeId, revieweeLabel, exist
     setError(null)
     setLoading(true)
 
-    const supabase = createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) { setError('Not logged in.'); setLoading(false); return }
-
-    const { error: dbErr } = await supabase.from('reviews').insert({
-      job_id: jobId,
-      reviewer_id: reviewerId,
-      reviewee_id: revieweeId,
-      rating,
-      comment: comment.trim() || null,
-    })
-
-    if (dbErr) { setError(dbErr.message) }
-    else { setSubmitted(true); router.refresh() }
+    try {
+      await submitReview({
+        jobId,
+        reviewerId,
+        revieweeId,
+        rating,
+        comment: comment.trim() || null,
+      })
+      setSubmitted(true)
+      router.refresh()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Something went wrong.')
+    }
 
     setLoading(false)
   }
