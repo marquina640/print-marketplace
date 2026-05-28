@@ -205,54 +205,46 @@ export default async function ClientDashboardPage({ searchParams }: PageProps) {
         </section>
       )}
 
-      {/* ── ALL QUOTES RECEIVED ── */}
-      <section>
-        <h2 className="text-lg font-semibold text-warm-900 mb-4 flex items-center gap-2">
-          <span className="h-2 w-2 rounded-full bg-amber-400 inline-block" />
-          All Quotes Received
-          {(allQuotes?.length ?? 0) > 0 && (
-            <span className="ml-1 text-xs text-warm-400 font-normal">({allQuotes?.length})</span>
-          )}
-        </h2>
-
-        {!allQuotes || allQuotes.length === 0 ? (
-          <div className="card p-8 text-center">
-            <p className="text-3xl mb-2">📬</p>
-            <p className="font-semibold text-warm-900">No quotes yet</p>
-            <p className="text-sm text-warm-500 mt-1">Makers will submit quotes on your open requests. Check back soon.</p>
-          </div>
-        ) : (
-          <div className="card divide-y divide-warm-100">
-            {allQuotes.map((q) => {
-              const printer = q.profiles as { display_name: string | null; email: string } | null
-              const job = jobs?.find((j) => j.id === q.job_id)
-              return (
-                <div key={q.id} className="flex items-center justify-between p-4 hover:bg-warm-50 transition-colors">
-                  <div className="min-w-0">
-                    <p className="text-sm font-semibold text-warm-900 truncate">{job?.title}</p>
-                    <p className="text-xs text-warm-400 mt-0.5">
-                      From <span className="text-ink-700 font-medium">{printer?.display_name ?? printer?.email}</span>
-                      {' · '}{formatDate(q.created_at)}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-3 flex-shrink-0">
-                    <div className="text-right">
-                      <p className="font-bold text-warm-900">{formatCurrency(q.price)}</p>
-                      <p className="text-xs text-warm-400">{q.lead_time_days}d lead time</p>
+      {/* ── PENDING QUOTES ── */}
+      {(() => {
+        const pendingQuotesList = allQuotes?.filter((q) => q.status === 'pending') ?? []
+        if (pendingQuotesList.length === 0) return null
+        return (
+          <section>
+            <h2 className="text-lg font-semibold text-warm-900 mb-4 flex items-center gap-2">
+              <span className="h-2 w-2 rounded-full bg-amber-400 inline-block" />
+              Quotes to Review
+              <span className="ml-1 text-xs text-warm-400 font-normal">({pendingQuotesList.length})</span>
+            </h2>
+            <div className="card divide-y divide-warm-100">
+              {pendingQuotesList.map((q) => {
+                const printer = q.profiles as { display_name: string | null; email: string } | null
+                const job = jobs?.find((j) => j.id === q.job_id)
+                return (
+                  <div key={q.id} className="flex items-center justify-between p-4 hover:bg-warm-50 transition-colors">
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold text-warm-900 truncate">{job?.title}</p>
+                      <p className="text-xs text-warm-400 mt-0.5">
+                        From <span className="text-ink-700 font-medium">{printer?.display_name ?? printer?.email}</span>
+                        {' · '}{formatDate(q.created_at)}
+                      </p>
                     </div>
-                    <StatusBadge status={q.status} />
-                    <Link href={`/jobs/${q.job_id}`}>
-                      <Button variant={q.status === 'pending' ? 'gold' : 'outline'} size="sm">
-                        {q.status === 'pending' ? 'Review →' : 'View'}
-                      </Button>
-                    </Link>
+                    <div className="flex items-center gap-3 flex-shrink-0">
+                      <div className="text-right">
+                        <p className="font-bold text-warm-900">{formatCurrency(q.price)}</p>
+                        <p className="text-xs text-warm-400">{q.lead_time_days}d lead time</p>
+                      </div>
+                      <Link href={`/jobs/${q.job_id}`}>
+                        <Button variant="gold" size="sm">Review →</Button>
+                      </Link>
+                    </div>
                   </div>
-                </div>
-              )
-            })}
-          </div>
-        )}
-      </section>
+                )
+              })}
+            </div>
+          </section>
+        )
+      })()}
 
       {/* ── FIND YOUR MODEL ── */}
       <section>
