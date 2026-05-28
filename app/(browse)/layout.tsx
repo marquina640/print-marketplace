@@ -59,6 +59,14 @@ export default async function BrowseLayout({ children }: { children: React.React
         )}
         <main className="flex-1 min-w-0 p-6">{children}</main>
       </div>
+
+      {/* Footer */}
+      <footer className="border-t border-warm-200 bg-warm-100 py-4 text-center text-xs text-warm-400">
+        <div className="flex items-center justify-center gap-4">
+          <span>© {new Date().getFullYear()} PrintMarketHub</span>
+          <Link href="/terms" className="hover:text-warm-700 hover:underline">Terms of Service</Link>
+        </div>
+      </footer>
     </div>
   )
 }
