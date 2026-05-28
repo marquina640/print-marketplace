@@ -41,7 +41,7 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
 
   const isOwner   = job.client_id === effectiveUserId
   const isPrinter = effectiveRole === 'printer_owner'
-  const isAdmin   = profile?.role === 'admin'
+  const isAdmin   = profile?.role === 'admin' && !previewUserId
 
   const { data: quotes } = await supabase
     .from('quotes')
