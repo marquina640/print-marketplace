@@ -69,7 +69,7 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
     ? (myQuote ? [myQuote] : [])
     : []
 
-  const canSeeFiles = isOwner || isAdmin || (isPrinter && user.id === acceptedPrinter)
+  const canSeeFiles = isOwner || isAdmin || (isPrinter && effectiveUserId === acceptedPrinter)
   const { data: files } = canSeeFiles
     ? await supabase.from('job_files').select('*').eq('job_id', id)
     : { data: [] }
@@ -101,10 +101,10 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
 
   // Reviews show after delivered or completed
   const isCompleted   = job.status === 'completed' || (job as any).status === 'delivered'
-  const isParticipant = isOwner || (isPrinter && user.id === acceptedPrinter)
+  const isParticipant = isOwner || (isPrinter && effectiveUserId === acceptedPrinter)
 
   const { data: myReview } = isCompleted && isParticipant
-    ? await supabase.from('reviews').select('*').eq('job_id', id).eq('reviewer_id', user.id).single()
+    ? await supabase.from('reviews').select('*').eq('job_id', id).eq('reviewer_id', effectiveUserId).single()
     : { data: null }
 
   const { data: publicReviews } = isCompleted
