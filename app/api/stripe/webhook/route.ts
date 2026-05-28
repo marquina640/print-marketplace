@@ -1,12 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { notifyQuoteAccepted } from '@/app/actions/notifications'
+
+export const dynamic = 'force-dynamic'
 
 export async function POST(req: NextRequest) {
   const secret = process.env.STRIPE_SECRET_KEY
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET
-  if (!secret || secret === 'sk_test_placeholder') {
+
+  if (!secret || !webhookSecret) {
     return NextResponse.json({ error: 'Stripe not configured' }, { status: 503 })
   }
 
@@ -16,43 +18,37 @@ export async function POST(req: NextRequest) {
 
   let event: Stripe.Event
   try {
-    event = stripe.webhooks.constructEvent(body, sig, webhookSecret ?? '')
-  } catch {
-    return NextResponse.json({ error: 'Invalid signature' }, { status: 400 })
+    event = stripe.webhooks.constructEvent(body, sig, webhookSecret)
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err)
+    console.error('Webhook signature error:', msg)
+    return NextResponse.json({ error: `Webhook Error: ${msg}` }, { status: 400 })
   }
 
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object as Stripe.Checkout.Session
     const jobId = session.metadata?.jobId
-    if (!jobId) return NextResponse.json({ ok: true })
+    if (!jobId) {
+      console.error('Webhook: no jobId in session metadata')
+      return NextResponse.json({ ok: true })
+    }
 
     const admin = createAdminClient()
-
-    const { data: job } = await admin
+    const { error } = await admin
       .from('jobs')
-      .select('id, title, accepted_quote_id, accepted_printer_id: quotes(printer_id, price, profiles:printer_id(email, display_name))')
-      .eq('id', jobId)
-      .single()
-
-    await (admin as any)
-      .from('jobs')
-      .update({ status: 'paid', paid_at: new Date().toISOString() })
+      .update({
+        status: 'paid',
+        paid_at: new Date().toISOString(),
+        stripe_session_id: session.id,
+      } as any)
       .eq('id', jobId)
 
-    // Notify the maker
-    if (job) {
-      const quoteData = (job as any).accepted_printer_id?.[0]
-      if (quoteData) {
-        const printer = quoteData.profiles
-        await notifyQuoteAccepted({
-          jobId,
-          jobTitle: (job as any).title,
-          printerId: quoteData.printer_id,
-          printerEmail: printer?.email ?? '',
-          price: quoteData.price,
-        })
-      }
+    if (error) {
+      console.error('Webhook DB update error:', error.message)
+      return NextResponse.json({ error: error.message }, { status: 500 })
     }
+
+    console.log(`Job ${jobId} marked as paid`)
   }
 
   return NextResponse.json({ ok: true })
