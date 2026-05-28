@@ -8,10 +8,16 @@ import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/ui/empty-state'
 import { formatCurrency, formatDate, getCertificationLevel, CERTIFICATION_LEVELS } from '@/lib/utils'
 import { CertificationBadge } from '@/components/ui/badge'
+import { StripeConnectButton } from '@/components/payments/stripe-connect-button'
 
 export const metadata = { title: 'Printer Dashboard' }
 
-export default async function PrinterDashboardPage() {
+interface PageProps {
+  searchParams: Promise<{ stripe?: string }>
+}
+
+export default async function PrinterDashboardPage({ searchParams }: PageProps) {
+  const { stripe: stripeParam } = await searchParams
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
@@ -52,7 +58,7 @@ export default async function PrinterDashboardPage() {
       : recentJobsQuery,
     supabase
       .from('printer_profiles')
-      .select('certification_level, display_name')
+      .select('certification_level, display_name, stripe_account_id, stripe_onboarding_complete')
       .eq('user_id', effectiveUserId)
       .single(),
   ])
@@ -69,9 +75,11 @@ export default async function PrinterDashboardPage() {
   const acceptedQuotes = allMyQuotes?.filter((q) => q.status === 'accepted') ?? []
   const pendingQuotes  = allMyQuotes?.filter((q) => q.status === 'pending')  ?? []
 
-  const certLevel = makerProfile?.certification_level ?? 0
-  const cert = getCertificationLevel(certLevel)
-  const nextCert = certLevel < 3 ? CERTIFICATION_LEVELS[certLevel + 1] : null
+  const certLevel        = makerProfile?.certification_level ?? 0
+  const cert             = getCertificationLevel(certLevel)
+  const nextCert         = certLevel < 3 ? CERTIFICATION_LEVELS[certLevel + 1] : null
+  const stripeConnected  = (makerProfile as any)?.stripe_onboarding_complete === true
+  const isAdminPreview   = !!previewUserId
 
   const stats = [
     { label: 'Active Jobs',   value: acceptedQuotes.length, color: 'text-emerald-600' },
@@ -92,6 +100,45 @@ export default async function PrinterDashboardPage() {
         </div>
         <Link href="/jobs"><Button variant="gold">Browse Requests</Button></Link>
       </div>
+
+      {/* Stripe Connect panel */}
+      {!isAdminPreview && (
+        stripeConnected ? (
+          stripeParam === 'connected' ? (
+            <div className="rounded-xl bg-emerald-50 border border-emerald-200 px-5 py-4 flex items-center gap-3">
+              <span className="text-xl">✓</span>
+              <div>
+                <p className="font-semibold text-emerald-900">Stripe account connected!</p>
+                <p className="text-sm text-emerald-700">Payments from clients will be sent directly to your Stripe account, minus the 12% platform fee.</p>
+              </div>
+            </div>
+          ) : (
+            <div className="rounded-xl bg-emerald-50 border border-emerald-200 px-5 py-4 flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
+                <div>
+                  <p className="font-semibold text-emerald-900 text-sm">Stripe payments connected</p>
+                  <p className="text-xs text-emerald-700">You receive 88% of each payment automatically. Platform fee: 12%.</p>
+                </div>
+              </div>
+              <StripeConnectButton label="Manage account" />
+            </div>
+          )
+        ) : (
+          <div className="rounded-xl bg-amber-50 border border-amber-300 px-5 py-4">
+            <div className="flex items-start gap-3 mb-3">
+              <span className="text-2xl">💳</span>
+              <div>
+                <p className="font-semibold text-amber-900">Connect your Stripe account to get paid</p>
+                <p className="text-sm text-amber-700 mt-0.5">
+                  You need a Stripe account to receive payments. It only takes a few minutes. Once connected, clients can pay and you receive 88% automatically — the platform keeps 12%.
+                </p>
+              </div>
+            </div>
+            <StripeConnectButton label="Set up payments →" />
+          </div>
+        )
+      )}
 
       {/* Certification panel */}
       <div className="rounded-2xl border border-warm-200 bg-white overflow-hidden">
