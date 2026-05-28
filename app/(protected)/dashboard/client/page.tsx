@@ -58,12 +58,20 @@ export default async function ClientDashboardPage({ searchParams }: PageProps) {
   const activeJobs    = jobs?.filter((j) => ['paid', 'shipped', 'delivered', 'in_progress'].includes(j.status)) ?? []
   const completedJobs = jobs?.filter((j) => j.status === 'completed') ?? []
 
-  // Fetch reviews already left by this user so we can flag missing ones
+  // Fetch all reviews for delivered jobs to determine review state
   const reviewableJobIds = activeJobs.filter(j => j.status === 'delivered').map(j => j.id)
-  const { data: myReviews } = reviewableJobIds.length > 0
-    ? await supabase.from('reviews').select('job_id').eq('reviewer_id', effectiveUserId).in('job_id', reviewableJobIds)
+  const { data: allJobReviews } = reviewableJobIds.length > 0
+    ? await supabase.from('reviews').select('job_id, reviewer_id').in('job_id', reviewableJobIds)
     : { data: [] }
-  const reviewedJobIds = new Set(myReviews?.map(r => r.job_id) ?? [])
+
+  // Per job: has client reviewed? has other party reviewed?
+  const reviewStateByJob = new Map<string, { clientReviewed: boolean; otherReviewed: boolean }>()
+  for (const jobId of reviewableJobIds) {
+    const jobReviews = allJobReviews?.filter(r => r.job_id === jobId) ?? []
+    const clientReviewed = jobReviews.some(r => r.reviewer_id === effectiveUserId)
+    const otherReviewed  = jobReviews.some(r => r.reviewer_id !== effectiveUserId)
+    reviewStateByJob.set(jobId, { clientReviewed, otherReviewed })
+  }
 
   // Jobs accepted but not yet paid
   const unpaidJobs = jobs?.filter((j) => j.status === 'accepted' && !(j as any).paid_at) ?? []
@@ -194,7 +202,9 @@ export default async function ClientDashboardPage({ searchParams }: PageProps) {
           </h2>
           <div className="card divide-y divide-warm-100">
             {activeJobs.map((job) => {
-              const needsReview = job.status === 'delivered' && !reviewedJobIds.has(job.id)
+              const reviewState = reviewStateByJob.get(job.id)
+              const needsMyReview     = job.status === 'delivered' && reviewState && !reviewState.clientReviewed
+              const waitingForMaker   = job.status === 'delivered' && reviewState && reviewState.clientReviewed && !reviewState.otherReviewed
               return (
                 <div key={job.id} className="flex items-center justify-between p-4 hover:bg-warm-50 transition-colors">
                   <div className="min-w-0">
@@ -203,16 +213,21 @@ export default async function ClientDashboardPage({ searchParams }: PageProps) {
                   </div>
                   <div className="flex items-center gap-3 flex-shrink-0">
                     <StatusBadge status={job.status} />
-                    {needsReview && (
+                    {needsMyReview && (
                       <span className="rounded-full bg-amber-100 border border-amber-300 text-amber-800 text-xs font-semibold px-2.5 py-0.5">
                         ⭐ Review missing
+                      </span>
+                    )}
+                    {waitingForMaker && (
+                      <span className="rounded-full bg-warm-100 border border-warm-200 text-warm-600 text-xs font-medium px-2.5 py-0.5">
+                        Waiting for maker review
                       </span>
                     )}
                     <div className="flex gap-2">
                       <Link href={`/messages/${job.id}`}><Button variant="outline" size="sm">Message</Button></Link>
                       <Link href={`/jobs/${job.id}`}>
-                        <Button variant={needsReview ? 'gold' : 'default'} size="sm">
-                          {needsReview ? 'Leave Review →' : 'View'}
+                        <Button variant={needsMyReview ? 'gold' : 'outline'} size="sm">
+                          {needsMyReview ? 'Leave Review →' : 'View'}
                         </Button>
                       </Link>
                     </div>
