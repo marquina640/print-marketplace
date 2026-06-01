@@ -1,4 +1,4 @@
-import { redirect } from 'next/navigation'
+﻿import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { cookies } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
@@ -108,7 +108,7 @@ export default async function MessagesPage() {
                     {t.lastMessage.content}
                   </p>
                 ) : (
-                  <p className="text-xs text-gray-400 mt-0.5">No messages yet — start the conversation</p>
+                  <p className="text-xs text-gray-400 mt-0.5">No messages yet - start the conversation</p>
                 )}
               </div>
               {t.lastMessage && (

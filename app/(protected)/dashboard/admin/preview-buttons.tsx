@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useTransition } from 'react'
 import { setAdminPreview } from '@/app/actions/admin-preview'
@@ -28,7 +28,7 @@ export function AdminPreviewButtons({ clients, makers }: AdminPreviewButtonsProp
         <p className="text-xs font-bold uppercase tracking-widest text-ink-300 mb-1">Admin Tools</p>
         <h2 className="font-bold text-lg">Preview Mode</h2>
         <p className="text-sm text-ink-300 mt-1">
-          Preview as a specific user to see their exact data. A banner appears — click &quot;Exit Preview&quot; to return.
+          Preview as a specific user to see their exact data. A banner appears - click &quot;Exit Preview&quot; to return.
         </p>
       </div>
 

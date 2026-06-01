@@ -1,4 +1,4 @@
-import Link from 'next/link'
+﻿import Link from 'next/link'
 import { MaterialBadge, JobTypeBadge } from '@/components/ui/badge'
 import { formatCurrency } from '@/lib/utils'
 import type { Database } from '@/lib/types/database'
@@ -54,14 +54,14 @@ export function JobFeedCard({ job }: { job: Job }) {
           {/* Overlays */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
 
-          {/* Budget pill — bottom left */}
+          {/* Budget pill - bottom left */}
           <div className="absolute bottom-3 left-3">
             <span className="rounded-xl bg-white/95 backdrop-blur-sm px-3 py-1 text-sm font-bold text-warm-900 shadow-sm">
               {formatCurrency(job.budget)}
             </span>
           </div>
 
-          {/* NEW badge — top right */}
+          {/* NEW badge - top right */}
           {isNew(job.created_at) && (
             <div className="absolute top-3 right-3">
               <span className="rounded-lg bg-gold-500 px-2.5 py-1 text-xs font-bold text-white shadow-sm">

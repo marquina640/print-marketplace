@@ -1,4 +1,4 @@
-import { cookies } from 'next/headers'
+﻿import { cookies } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 import { MapClient } from '@/components/map/map-client'
 import { cityToCoords } from '@/lib/utils'
@@ -12,7 +12,7 @@ function scramble(id: string, lat: number, lng: number) {
   return { lat: lat + r1 * delta, lng: lng + r2 * delta }
 }
 
-export const metadata = { title: 'Map — PrintMarketHub' }
+export const metadata = { title: 'Map - PrintMarketHub' }
 
 export default async function MapPage() {
   const supabase = await createClient()

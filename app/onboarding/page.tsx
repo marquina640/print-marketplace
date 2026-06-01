@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
@@ -58,7 +58,7 @@ export default function OnboardingPage() {
       .from('profiles').select('role').eq('user_id', user.id).single()
 
     if (existing?.role && existing.role !== selectedRole) {
-      // Already has a role — just redirect to their dashboard
+      // Already has a role - just redirect to their dashboard
       const map: Record<string, string> = {
         admin: '/dashboard/admin',
         client: '/dashboard/client',
@@ -68,7 +68,7 @@ export default function OnboardingPage() {
       return
     }
 
-    // Only update if role is currently NULL — never overwrite an existing role
+    // Only update if role is currently NULL - never overwrite an existing role
     const { error: dbError } = await supabase
       .from('profiles')
       .update({

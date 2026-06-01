@@ -1,4 +1,4 @@
-'use server'
+﻿'use server'
 
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
@@ -41,7 +41,7 @@ export async function sendMessage({
   return { message: data, wasModified, removedTypes }
 }
 
-// Only email once per hour per thread — avoids spamming during active conversations
+// Only email once per hour per thread - avoids spamming during active conversations
 const EMAIL_COOLDOWN_MINUTES = 60
 
 async function notifyMessageForReceiver({
@@ -53,7 +53,7 @@ async function notifyMessageForReceiver({
     const admin = createAdminClient()
 
     // Count messages sent in this thread (same sender→receiver, same job) in the last hour.
-    // If more than 1 exists it means we already emailed recently — the current message
+    // If more than 1 exists it means we already emailed recently - the current message
     // was just inserted so a count of 1 means it's the first in the cooldown window.
     const since = new Date(Date.now() - EMAIL_COOLDOWN_MINUTES * 60 * 1000).toISOString()
     const { count: recentCount } = await admin
@@ -65,7 +65,7 @@ async function notifyMessageForReceiver({
       .gte('created_at', since)
 
     // recentCount includes the message we just inserted.
-    // If it's > 1, an email was already sent within the cooldown window — skip.
+    // If it's > 1, an email was already sent within the cooldown window - skip.
     if ((recentCount ?? 0) > 1) return
 
     const [{ data: job }, { data: senderProfile }, { data: receiverProfile }] = await Promise.all([

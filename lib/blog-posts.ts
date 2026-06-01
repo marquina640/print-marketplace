@@ -1,4 +1,4 @@
-export interface BlogPost {
+﻿export interface BlogPost {
   slug: string
   title: string
   excerpt: string
@@ -13,7 +13,7 @@ export const BLOG_POSTS: BlogPost[] = [
   {
     slug: 'how-to-get-a-custom-3d-print-in-switzerland',
     title: 'How to Get a Custom 3D Print in Switzerland (Without Owning a Printer)',
-    excerpt: 'You have a design — or you found one on Thingiverse — and you want it printed. Here are all your options in Switzerland and how to choose the right one.',
+    excerpt: 'You have a design - or you found one on Thingiverse - and you want it printed. Here are all your options in Switzerland and how to choose the right one.',
     date: '2025-05-20',
     readTime: '5 min read',
     category: 'Guide',
@@ -33,7 +33,7 @@ export const BLOG_POSTS: BlogPost[] = [
   {
     slug: 'thingiverse-makerworld-get-models-printed-switzerland',
     title: 'From Thingiverse to Your Door: Getting 3D Models Printed in Switzerland',
-    excerpt: 'Found the perfect model on Thingiverse or MakerWorld but don\'t have a printer? Here\'s how to go from download link to finished part — step by step.',
+    excerpt: 'Found the perfect model on Thingiverse or MakerWorld but don\'t have a printer? Here\'s how to go from download link to finished part - step by step.',
     date: '2025-06-01',
     readTime: '4 min read',
     category: 'Tutorial',

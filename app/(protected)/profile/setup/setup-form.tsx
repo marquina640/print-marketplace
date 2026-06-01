@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
@@ -222,7 +222,7 @@ export function ProfileSetupForm({ effectiveUserId }: { effectiveUserId: string 
               </button>
               <div className="text-sm text-warm-500">
                 <p>Upload a photo of yourself or your workspace.</p>
-                <p className="text-xs text-warm-400 mt-0.5">JPG, PNG, WEBP — max 5 MB</p>
+                <p className="text-xs text-warm-400 mt-0.5">JPG, PNG, WEBP - max 5 MB</p>
               </div>
               <input ref={avatarFileRef} type="file" accept="image/*" onChange={handleAvatarChange} className="hidden" />
             </div>
@@ -233,7 +233,7 @@ export function ProfileSetupForm({ effectiveUserId }: { effectiveUserId: string 
           <AddressAutocomplete
             label="Your location / area *"
             placeholder="Start typing your address or city…"
-            hint="Only your general area is shown publicly — exact address stays private"
+            hint="Only your general area is shown publicly - exact address stays private"
             defaultValue={form.location}
             onSelect={({ address, lat, lng, city }) => {
               setFormState((prev) => ({

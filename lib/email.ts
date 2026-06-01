@@ -1,4 +1,4 @@
-import { Resend } from 'resend'
+﻿import { Resend } from 'resend'
 
 const FROM = 'PrintMarketHub <noreply@printmarkethub.com>'
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://printmarkethub.com'
@@ -125,7 +125,7 @@ export function emailJobPaid({
 }: { to: string; jobTitle: string; price: number; jobUrl: string }) {
   return sendEmail({
     to,
-    subject: `Payment received — "${jobTitle}" is ready to print`,
+    subject: `Payment received - "${jobTitle}" is ready to print`,
     html: `
       <h2 style="margin:0 0 8px;font-size:20px;font-weight:800;color:#1a1625;">Payment confirmed &#x1F4B3;</h2>
       <p style="margin:0 0 20px;color:#6b6760;font-size:14px;line-height:1.6;">
@@ -177,7 +177,7 @@ export function emailDeliveryConfirmed({
 }: { to: string; jobTitle: string; jobUrl: string }) {
   return sendEmail({
     to,
-    subject: `Delivery confirmed — payment for "${jobTitle}" is being processed`,
+    subject: `Delivery confirmed - payment for "${jobTitle}" is being processed`,
     html: `
       <h2 style="margin:0 0 8px;font-size:20px;font-weight:800;color:#1a1625;">Delivery confirmed &#x2705;</h2>
       <p style="margin:0 0 20px;color:#6b6760;font-size:14px;line-height:1.6;">
@@ -198,7 +198,7 @@ export function emailNewMessage({
   const safePreview = preview.length > 200 ? preview.slice(0, 200) + '&hellip;' : preview
   return sendEmail({
     to,
-    subject: `New message from ${senderName} — "${jobTitle}"`,
+    subject: `New message from ${senderName} - "${jobTitle}"`,
     html: `
       <h2 style="margin:0 0 8px;font-size:20px;font-weight:800;color:#1a1625;">New message &#x1F4AC;</h2>
       <p style="margin:0 0 16px;color:#6b6760;font-size:14px;">

@@ -1,4 +1,4 @@
-import { Metadata } from 'next'
+﻿import { Metadata } from 'next'
 
 export const metadata: Metadata = { title: 'Terms of Service | PrintMarketHub' }
 
@@ -14,7 +14,7 @@ export default function TermsPage() {
         <p>These Terms apply to all users including clients who post jobs ("Clients") and makers who fulfil orders ("Makers"). Additional terms apply to Makers and are set out in the Maker / Seller Terms.</p>
       </Section>
 
-      <Section n="2" title="Platform Role — Marketplace Intermediary">
+      <Section n="2" title="Platform Role - Marketplace Intermediary">
         <p>PrintMarketHub operates exclusively as a <strong>marketplace intermediary</strong>. We connect Clients seeking 3D printing services with independent Makers. We do not manufacture, inspect, ship, or take possession of any physical goods.</p>
         <p>PrintMarketHub is not a party to any contract formed between a Client and a Maker. We do not guarantee the quality, safety, legality, or timely delivery of any goods or services transacted through the Platform.</p>
       </Section>

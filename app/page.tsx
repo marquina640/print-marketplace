@@ -1,4 +1,4 @@
-import Link from 'next/link'
+﻿import Link from 'next/link'
 import { cookies } from 'next/headers'
 import { Button } from '@/components/ui/button'
 import { createClient } from '@/lib/supabase/server'
@@ -310,7 +310,7 @@ export default async function LandingPage() {
               {
                 icon: '💳',
                 title: 'Pay your way',
-                desc: 'Card and bank transfer supported. Powered by Stripe — secure, reliable, and trusted by millions.',
+                desc: 'Card and bank transfer supported. Powered by Stripe - secure, reliable, and trusted by millions.',
               },
               {
                 icon: '🏅',

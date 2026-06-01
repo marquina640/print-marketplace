@@ -1,4 +1,4 @@
-import { clsx, type ClassValue } from 'clsx'
+﻿import { clsx, type ClassValue } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 
 export function cn(...inputs: ClassValue[]) {
@@ -201,7 +201,7 @@ export const JOB_TYPES = [
   {
     value: 'functional',
     label: 'Functional',
-    description: 'Parts that need to work — enclosures, mounts, brackets. Moderate precision.',
+    description: 'Parts that need to work - enclosures, mounts, brackets. Moderate precision.',
     hint: 'Housings · Brackets · Clips · Mounts',
     minCertLevel: 0,
     color: 'ink' as const,
@@ -238,7 +238,7 @@ export const MANUFACTURING_PROCESSES = [
   {
     value: 'fdm',
     label: 'FDM Printing',
-    description: 'Fused filament — PLA, PETG, ABS, etc.',
+    description: 'Fused filament - PLA, PETG, ABS, etc.',
     tooltip: 'The most common and affordable 3D printing method. A plastic filament is melted and layered to build your part. Great for most figurines, functional parts, prototypes, and everyday objects. If you are not sure, pick this one.',
     available: true,
     recommended: true,
@@ -254,7 +254,7 @@ export const MANUFACTURING_PROCESSES = [
   {
     value: 'sls',
     label: 'SLS (Powder)',
-    description: 'Nylon sintering — strong, no supports',
+    description: 'Nylon sintering - strong, no supports',
     tooltip: 'Sinters nylon powder with a laser. Produces very strong, complex parts with no support marks. More expensive than FDM but excellent for engineering parts and complex geometries.',
     available: true,
     recommended: false,
@@ -262,7 +262,7 @@ export const MANUFACTURING_PROCESSES = [
   {
     value: 'cnc',
     label: 'CNC Machining',
-    description: 'Subtractive machining — coming soon',
+    description: 'Subtractive machining - coming soon',
     tooltip: 'Cuts material away from a solid block using rotating tools. Produces very precise metal or plastic parts. Coming soon.',
     available: false,
     recommended: false,
@@ -278,7 +278,7 @@ export const MANUFACTURING_PROCESSES = [
   {
     value: 'sheet_metal',
     label: 'Sheet Metal',
-    description: 'Bending, punching, forming — coming soon',
+    description: 'Bending, punching, forming - coming soon',
     tooltip: 'Forms thin metal sheets into brackets, enclosures, and structural parts. Coming soon.',
     available: false,
     recommended: false,
@@ -302,7 +302,7 @@ export const BENCHMARK_REQUIREMENTS: Record<number, {
   extras: string[]
 }> = {
   1: {
-    title: 'Verified Quality — Level 1',
+    title: 'Verified Quality - Level 1',
     parts: [
       {
         name: 'Calibration Cube (20×20×20 mm)',
@@ -327,12 +327,12 @@ export const BENCHMARK_REQUIREMENTS: Record<number, {
     ],
     extras: [
       'Print all parts in PLA or your primary material',
-      'Use your normal print settings — do not tune just for testing',
+      'Use your normal print settings - do not tune just for testing',
       'Photograph each part from multiple angles with a ruler or coin for scale',
     ],
   },
   2: {
-    title: 'Engineering Certified — Level 2',
+    title: 'Engineering Certified - Level 2',
     parts: [
       {
         name: 'All Level 1 parts (re-print in engineering material)',
@@ -368,7 +368,7 @@ export const BENCHMARK_REQUIREMENTS: Record<number, {
     ],
   },
   3: {
-    title: 'Production Partner — Level 3',
+    title: 'Production Partner - Level 3',
     parts: [
       {
         name: 'Batch of 10 identical Calibration Cubes',

@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
@@ -188,7 +188,7 @@ export function Navbar({ userEmail, userRole, unreadMessages = 0, notifications 
                 )}
               </div>
 
-              {/* Role switcher — only for non-admins (or admin in preview) */}
+              {/* Role switcher - only for non-admins (or admin in preview) */}
               {(userRole !== 'admin' || isPreview) && (
                 <div className="flex items-center rounded-full border border-warm-200 bg-warm-50 p-0.5 gap-0.5">
                   <form action={isPreview ? switchPreviewToClient : switchToClient}>
@@ -278,7 +278,7 @@ export function Navbar({ userEmail, userRole, unreadMessages = 0, notifications 
         </div>
       </div>
 
-      {/* Mobile menu — full role-based nav */}
+      {/* Mobile menu - full role-based nav */}
       {menuOpen && (
         <div className="lg:hidden border-t border-warm-200 bg-warm-100 px-4 py-3 space-y-0.5 max-h-[80vh] overflow-y-auto">
           {userEmail ? (

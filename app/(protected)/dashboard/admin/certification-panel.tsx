@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useTransition } from 'react'
 import { setMakerCertification } from '@/app/actions/certify-maker'
@@ -76,7 +76,7 @@ export function CertificationPanel({ makers }: { makers: Maker[] }) {
                   className="rounded-xl border border-warm-300 bg-warm-50 px-2 py-1.5 text-xs focus:outline-none focus:border-ink-500"
                 >
                   {CERTIFICATION_LEVELS.map((c) => (
-                    <option key={c.level} value={c.level}>L{c.level} — {c.name}</option>
+                    <option key={c.level} value={c.level}>L{c.level} - {c.name}</option>
                   ))}
                 </select>
 

@@ -1,4 +1,4 @@
-import { forwardRef } from 'react'
+﻿import { forwardRef } from 'react'
 import { cn } from '@/lib/utils'
 
 type Variant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger' | 'gold'
@@ -11,13 +11,13 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variantClasses: Record<Variant, string> = {
-  // Ochre — main CTA
+  // Ochre - main CTA
   gold:
     'bg-gold-500 text-ink-950 font-semibold hover:bg-gold-600 focus-visible:ring-gold-400 disabled:bg-gold-300',
-  // Deep purple — primary action
+  // Deep purple - primary action
   primary:
     'bg-ink-800 text-white hover:bg-ink-900 focus-visible:ring-gold-500/50 disabled:opacity-50',
-  // Surface — secondary
+  // Surface - secondary
   secondary:
     'bg-warm-200 text-warm-900 hover:bg-warm-300 focus-visible:ring-warm-400',
   // Outlined

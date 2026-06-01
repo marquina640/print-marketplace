@@ -1,4 +1,4 @@
-import { Metadata } from 'next'
+﻿import { Metadata } from 'next'
 
 export const metadata: Metadata = { title: 'Cookie Policy | PrintMarketHub' }
 
@@ -65,8 +65,8 @@ export default function CookiesPage() {
       <Section n="5" title="Third-Party Cookies">
         <p>The following third parties may set cookies when you use their integrated features:</p>
         <ul>
-          <li><strong>Stripe, Inc.</strong> — payment processing. Stripe's privacy policy is available at stripe.com/privacy.</li>
-          <li><strong>Google LLC</strong> — Maps and Places API for address autocomplete and map display. Google's privacy policy is available at policies.google.com/privacy.</li>
+          <li><strong>Stripe, Inc.</strong> - payment processing. Stripe's privacy policy is available at stripe.com/privacy.</li>
+          <li><strong>Google LLC</strong> - Maps and Places API for address autocomplete and map display. Google's privacy policy is available at policies.google.com/privacy.</li>
         </ul>
         <p>We do not control the cookies set by these third parties. Please refer to their respective privacy policies for details.</p>
       </Section>

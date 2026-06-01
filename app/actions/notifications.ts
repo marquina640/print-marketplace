@@ -1,4 +1,4 @@
-'use server'
+﻿'use server'
 
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
@@ -35,7 +35,7 @@ export async function createNotification({
       link:    link ?? null,
     })
   } catch {
-    // notifications are non-critical — never throw
+    // notifications are non-critical - never throw
   }
 }
 
@@ -68,7 +68,7 @@ export async function notifyQuoteAccepted({
     userId: printerId,
     type:   'quote_accepted',
     title:  'Your quote was accepted!',
-    body:   `CHF ${price.toFixed(2)} — ${jobTitle}`,
+    body:   `CHF ${price.toFixed(2)} - ${jobTitle}`,
     link:   `/jobs/${jobId}`,
   })
   await emailQuoteAccepted({ to: printerEmail, jobTitle, price, jobUrl: `/jobs/${jobId}` })
@@ -84,7 +84,7 @@ export async function notifyJobPaid({
   await createNotification({
     userId: printerId,
     type:   'job_paid',
-    title:  'Payment received — start printing!',
+    title:  'Payment received - start printing!',
     body:   `CHF ${price.toFixed(2)} is held in escrow for "${jobTitle}"`,
     link:   `/jobs/${jobId}`,
   })
@@ -101,7 +101,7 @@ export async function notifyJobShipped({
 }) {
   const body = inPerson
     ? `"${jobTitle}" has been handed over in person.`
-    : `"${jobTitle}" is on its way${carrier ? ` via ${carrier}` : ''}${trackingNumber ? ` — tracking: ${trackingNumber}` : ''}`
+    : `"${jobTitle}" is on its way${carrier ? ` via ${carrier}` : ''}${trackingNumber ? ` - tracking: ${trackingNumber}` : ''}`
 
   await createNotification({
     userId: clientId,

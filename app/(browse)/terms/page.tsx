@@ -1,4 +1,4 @@
-export const metadata = { title: 'Terms of Service — PrintMarketHub' }
+﻿export const metadata = { title: 'Terms of Service - PrintMarketHub' }
 
 export default function TermsPage() {
   return (
@@ -12,7 +12,7 @@ export default function TermsPage() {
         <p>
           PrintMarketHub ("the Platform", "we", "us") is an online marketplace that connects customers
           ("Clients") with independent 3D printing professionals ("Makers"). We are not a party to any
-          transaction between Clients and Makers — we provide the tools, escrow, and trust infrastructure
+          transaction between Clients and Makers - we provide the tools, escrow, and trust infrastructure
           that make those transactions possible.
         </p>
       </Section>
@@ -30,8 +30,8 @@ export default function TermsPage() {
           This is one of our most important rules.
         </p>
         <p>
-          Users who are introduced through PrintMarketHub — whether through a job request, quote, or
-          any other interaction — are strictly prohibited from conducting transactions outside the
+          Users who are introduced through PrintMarketHub - whether through a job request, quote, or
+          any other interaction - are strictly prohibited from conducting transactions outside the
           Platform for any job originating from that introduction.
         </p>
         <ul className="list-disc pl-5 mt-3 space-y-1">

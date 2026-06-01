@@ -1,4 +1,4 @@
-'use server'
+﻿'use server'
 
 import { revalidatePath } from 'next/cache'
 import { cookies } from 'next/headers'
@@ -29,7 +29,7 @@ export async function cancelJob(jobId: string) {
 
   // Only open or quoted jobs can be cancelled (not paid/shipped/etc.)
   if (!['open', 'quoted'].includes((job as any).status)) {
-    throw new Error('This job cannot be cancelled — it is already in progress.')
+    throw new Error('This job cannot be cancelled - it is already in progress.')
   }
 
   // Only the job owner (or an admin) can cancel
@@ -75,7 +75,7 @@ async function notifyQuoters({ job, jobId }: { job: any; jobId: string }) {
     (printers ?? []).map((p: any) =>
       sendEmail({
         to: p.email,
-        subject: `Job cancelled — "${(job as any).title}"`,
+        subject: `Job cancelled - "${(job as any).title}"`,
         html: `
           <h2 style="margin:0 0 8px;font-size:20px;font-weight:800;color:#1a1625;">Job cancelled</h2>
           <p style="margin:0 0 20px;color:#6b6760;font-size:14px;line-height:1.6;">

@@ -1,10 +1,10 @@
-import { redirect } from 'next/navigation'
+﻿import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { formatDate } from '@/lib/utils'
 import { StatusBadge } from '@/components/ui/badge'
 import { CreateUserForm } from './create-user-form'
 
-export const metadata = { title: 'Users — Admin' }
+export const metadata = { title: 'Users - Admin' }
 
 export default async function AdminUsersPage() {
   const supabase = await createClient()
@@ -45,7 +45,7 @@ export default async function AdminUsersPage() {
         <div>
           <h1 className="section-heading">Users</h1>
           <p className="text-warm-500 text-sm mt-0.5">
-            {users?.length ?? 0} total — {clients.length} customers · {makers.length} makers · {notOnboarded.length} not onboarded
+            {users?.length ?? 0} total - {clients.length} customers · {makers.length} makers · {notOnboarded.length} not onboarded
           </p>
         </div>
       </div>

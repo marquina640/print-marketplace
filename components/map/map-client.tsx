@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 import dynamic from 'next/dynamic'
@@ -25,7 +25,7 @@ export function MapClient({ jobs, printers, defaultMode }: Props) {
 
   return (
     <div className="space-y-3">
-      {/* Toggle — only for admin */}
+      {/* Toggle - only for admin */}
       {defaultMode === 'both' && (
         <div className="flex gap-2">
           {(['both', 'jobs', 'printers'] as const).map((m) => (
@@ -59,7 +59,7 @@ export function MapClient({ jobs, printers, defaultMode }: Props) {
           </span>
         )}
         {jobs.length === 0 && printers.length === 0 && (
-          <span>No pins yet — addresses will appear once requests and makers add their location.</span>
+          <span>No pins yet - addresses will appear once requests and makers add their location.</span>
         )}
       </div>
 

@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -58,7 +58,7 @@ export default function ResetPasswordPage() {
       <div className="card p-8">
         <div className="mb-6 text-center">
           <h1 className="text-2xl font-bold text-ink-900">Choose a new password</h1>
-          <p className="mt-1 text-sm text-warm-500">Make it strong — at least 8 characters.</p>
+          <p className="mt-1 text-sm text-warm-500">Make it strong - at least 8 characters.</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">

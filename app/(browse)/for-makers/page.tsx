@@ -1,23 +1,23 @@
-import type { Metadata } from 'next'
+﻿import type { Metadata } from 'next'
 import Link from 'next/link'
 import { EarningsCalculator } from './earnings-calculator'
 
 export const metadata: Metadata = {
-  title: 'Earn Money with Your 3D Printer — PrintMarketHub for Makers',
+  title: 'Earn Money with Your 3D Printer - PrintMarketHub for Makers',
   description: 'Turn your 3D printer into a revenue stream. Join PrintMarketHub to receive job requests from clients across Switzerland. Free to join. You set your own prices.',
 }
 
 const benefits = [
-  { icon: '🆓', title: 'Free to join', desc: 'No subscription, no listing fee. We only take 12% when you complete a job — otherwise it costs you nothing.' },
-  { icon: '💸', title: 'You set your prices', desc: 'Quote whatever you think is fair. There\'s no floor or ceiling — the market finds the right price.' },
+  { icon: '🆓', title: 'Free to join', desc: 'No subscription, no listing fee. We only take 12% when you complete a job - otherwise it costs you nothing.' },
+  { icon: '💸', title: 'You set your prices', desc: 'Quote whatever you think is fair. There\'s no floor or ceiling - the market finds the right price.' },
   { icon: '🔒', title: 'Always get paid', desc: 'Payment is held in escrow before you start. Once the client confirms delivery, the money is automatically released to your account.' },
   { icon: '📅', title: 'Work your schedule', desc: 'Only quote on jobs you want to take. Busy this week? Simply don\'t quote. No penalties, no minimums.' },
   { icon: '⭐', title: 'Build a reputation', desc: 'Every completed job adds a verified review to your profile. A strong rating unlocks higher-value engineering jobs.' },
-  { icon: '🇨🇭', title: 'Local clients first', desc: 'Your profile is shown to clients near you first — faster shipping, easier pickups, and clients who appreciate local quality.' },
+  { icon: '🇨🇭', title: 'Local clients first', desc: 'Your profile is shown to clients near you first - faster shipping, easier pickups, and clients who appreciate local quality.' },
 ]
 
 const requirements = [
-  { icon: '🖨️', text: 'A working 3D printer (any type — FDM, resin, SLS)' },
+  { icon: '🖨️', text: 'A working 3D printer (any type - FDM, resin, SLS)' },
   { icon: '📦', text: 'Ability to ship within Switzerland (or offer local pickup)' },
   { icon: '💳', text: 'A Stripe account for receiving payouts (free to create)' },
   { icon: '📸', text: 'A completed profile with photos of your setup and past work' },
@@ -27,7 +27,7 @@ const steps = [
   { n: '1', title: 'Create your free account', desc: 'Sign up and choose the "Maker" role. Takes under 2 minutes.' },
   { n: '2', title: 'Set up your profile', desc: 'Add your machines, materials, and a short bio. The more complete your profile, the more quotes you win.' },
   { n: '3', title: 'Browse open requests', desc: 'See job requests from clients near you. Filter by material, process, or job type.' },
-  { n: '4', title: 'Send quotes and earn', desc: 'Quote on jobs you want. When accepted, print and ship — and get paid automatically on delivery.' },
+  { n: '4', title: 'Send quotes and earn', desc: 'Quote on jobs you want. When accepted, print and ship - and get paid automatically on delivery.' },
 ]
 
 export default function ForMakersPage() {
@@ -44,7 +44,7 @@ export default function ForMakersPage() {
           <span className="text-[#D4A017]">You just need the jobs.</span>
         </h1>
         <p className="text-warm-500 text-base max-w-xl mx-auto leading-relaxed">
-          PrintMarketHub connects you with people across Switzerland who need things printed — and can&apos;t do it themselves. No ads, no bidding wars. Just real jobs from real clients.
+          PrintMarketHub connects you with people across Switzerland who need things printed - and can&apos;t do it themselves. No ads, no bidding wars. Just real jobs from real clients.
         </p>
         <div className="flex gap-3 justify-center flex-wrap">
           <Link href="/signup"
@@ -80,7 +80,7 @@ export default function ForMakersPage() {
             It depends on your printer, the jobs in your area, and how many hours you want to put in. Many makers treat it as a side income alongside their day job. A few have turned it into their main gig.
           </p>
           <p className="text-warm-500 text-sm leading-relaxed">
-            A standard FDM job — a bracket, a housing, a custom part — typically runs <strong>CHF 20–80</strong>. Complex engineering parts or resin prints go higher. Jobs that arrive as Thingiverse links can take as little as 30 minutes to print and pack.
+            A standard FDM job - a bracket, a housing, a custom part - typically runs <strong>CHF 20–80</strong>. Complex engineering parts or resin prints go higher. Jobs that arrive as Thingiverse links can take as little as 30 minutes to print and pack.
           </p>
           <p className="text-warm-500 text-sm leading-relaxed">
             Use the calculator to get a rough sense of what your setup could earn.
@@ -119,7 +119,7 @@ export default function ForMakersPage() {
           ))}
         </ul>
         <p className="text-xs text-warm-400 pt-2 border-t border-warm-200">
-          That&apos;s it. No certifications required to start — though completing our optional certification process unlocks access to higher-value engineering jobs.
+          That&apos;s it. No certifications required to start - though completing our optional certification process unlocks access to higher-value engineering jobs.
         </p>
       </div>
 

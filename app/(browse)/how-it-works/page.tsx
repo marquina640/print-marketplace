@@ -1,8 +1,8 @@
-import type { Metadata } from 'next'
+﻿import type { Metadata } from 'next'
 import Link from 'next/link'
 
 export const metadata: Metadata = {
-  title: 'How it Works — PrintMarketHub',
+  title: 'How it Works - PrintMarketHub',
   description: 'PrintMarketHub connects people who need 3D prints with local makers who have printers. Learn how the process works for clients and makers.',
 }
 
@@ -11,7 +11,7 @@ const clientSteps = [
     number: '01',
     icon: '📋',
     title: 'Post your request',
-    desc: 'Describe your part — material, quantity, deadline, and budget. Upload your STL/3MF/STEP file, or just paste a link from Thingiverse or MakerWorld. Takes about 2 minutes.',
+    desc: 'Describe your part - material, quantity, deadline, and budget. Upload your STL/3MF/STEP file, or just paste a link from Thingiverse or MakerWorld. Takes about 2 minutes.',
     color: 'border-blue-200 bg-blue-50',
     numColor: 'text-blue-400',
   },
@@ -27,7 +27,7 @@ const clientSteps = [
     number: '03',
     icon: '💬',
     title: 'Compare, chat, and choose',
-    desc: 'Review maker profiles, star ratings, completed jobs, and machines. Message any maker directly with questions before you decide — no commitment required.',
+    desc: 'Review maker profiles, star ratings, completed jobs, and machines. Message any maker directly with questions before you decide - no commitment required.',
     color: 'border-purple-200 bg-purple-50',
     numColor: 'text-purple-400',
   },
@@ -42,7 +42,7 @@ const clientSteps = [
   {
     number: '05',
     icon: '🔒',
-    title: 'Pay securely — funds held in escrow',
+    title: 'Pay securely - funds held in escrow',
     desc: 'Your payment is processed by Stripe and held safely. The maker only receives funds once you confirm delivery. You\'re never charged for a result you haven\'t approved.',
     color: 'border-indigo-200 bg-indigo-50',
     numColor: 'text-indigo-400',
@@ -62,7 +62,7 @@ const makerSteps = [
     number: '01',
     icon: '🛠️',
     title: 'Set up your profile',
-    desc: 'Add your machines, materials, certifications, and a short bio. A complete profile gets significantly more quotes accepted — clients trust makers they can see.',
+    desc: 'Add your machines, materials, certifications, and a short bio. A complete profile gets significantly more quotes accepted - clients trust makers they can see.',
     color: 'border-blue-200 bg-blue-50',
     numColor: 'text-blue-400',
   },
@@ -121,7 +121,7 @@ export default function HowItWorksPage() {
           How PrintMarketHub works
         </h1>
         <p className="text-warm-500 text-base max-w-xl mx-auto leading-relaxed">
-          We connect people who need 3D prints with local makers who have the printers and skills to produce them — quickly, affordably, and securely.
+          We connect people who need 3D prints with local makers who have the printers and skills to produce them - quickly, affordably, and securely.
         </p>
       </div>
 
@@ -191,7 +191,7 @@ export default function HowItWorksPage() {
             { icon: '🔒', title: 'Escrow payments', desc: 'Your money is protected until you confirm delivery' },
             { icon: '⭐', title: 'Verified reviews', desc: 'Ratings from real completed jobs only' },
             { icon: '💬', title: 'On-platform chat', desc: 'All communication in one place, no phone numbers needed' },
-            { icon: '🛡️', title: 'Dispute protection', desc: 'Fair mediation if anything goes wrong — you\'re never left without recourse' },
+            { icon: '🛡️', title: 'Dispute protection', desc: 'Fair mediation if anything goes wrong - you\'re never left without recourse' },
           ].map((item) => (
             <div key={item.title} className="space-y-1.5">
               <div className="text-2xl">{item.icon}</div>

@@ -1,4 +1,4 @@
-import type { Config } from 'tailwindcss'
+﻿import type { Config } from 'tailwindcss'
 
 const config: Config = {
   content: [
@@ -9,7 +9,7 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Surface hierarchy — light theme (50 = page bg, 900 = main text)
+        // Surface hierarchy - light theme (50 = page bg, 900 = main text)
         warm: {
           50:  '#FAFAFA',   // page background (near white)
           100: '#F4F3F8',   // card / sidebar surface
@@ -22,7 +22,7 @@ const config: Config = {
           800: '#2B1B47',   // dark text (brand purple)
           900: '#1A1028',   // darkest text
         },
-        // Deep purple — brand primary (buttons, active states)
+        // Deep purple - brand primary (buttons, active states)
         ink: {
           50:   '#F5F2FF',
           100:  '#EBE5FF',
@@ -35,7 +35,7 @@ const config: Config = {
           900:  '#2B1B47',  // primary button hover / brand deep purple
           950:  '#1A1028',  // darkest
         },
-        // Ochre — CTA accent
+        // Ochre - CTA accent
         gold: {
           300: '#F5D468',
           400: '#EAB82A',
@@ -43,7 +43,7 @@ const config: Config = {
           600: '#B88514',
           700: '#8F6510',
         },
-        // Violet — keep for compatibility
+        // Violet - keep for compatibility
         violet: {
           100: '#ede9fe',
           400: '#a78bfa',

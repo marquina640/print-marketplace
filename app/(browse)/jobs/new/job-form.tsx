@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
@@ -78,7 +78,7 @@ export function NewJobForm({ clientId, clientLocation, isGuest }: { clientId: st
     const selected = Array.from(e.target.files ?? [])
     const allowed = ['stl', 'step', 'stp', '3mf', 'zip', 'obj']
     // On mobile, iOS/Android may report no extension or application/octet-stream
-    // for STL files — accept those too rather than blocking valid uploads
+    // for STL files - accept those too rather than blocking valid uploads
     const valid = selected.filter((f) => {
       const ext = f.name.split('.').pop()?.toLowerCase() ?? ''
       if (allowed.includes(ext)) return true
@@ -399,9 +399,9 @@ export function NewJobForm({ clientId, clientLocation, isGuest }: { clientId: st
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-72 rounded-xl bg-ink-900 text-white text-xs p-3 shadow-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50 space-y-2">
-                  <p><span className="font-semibold text-gold-400">Smooth</span> — Ultra-fine layer lines for an excellent surface finish. Great for display pieces or parts where appearance matters. Takes longer and costs more.</p>
-                  <p><span className="font-semibold text-warm-300">Normal</span> — The standard for most 3D prints. A good balance of quality, strength, and cost. Works well for most functional and everyday parts.</p>
-                  <p><span className="font-semibold text-emerald-400">Strong</span> — Thicker layer lines that improve structural integrity, making the part more resistant to mechanical stress. Ideal for load-bearing parts. Slightly rougher surface.</p>
+                  <p><span className="font-semibold text-gold-400">Smooth</span> - Ultra-fine layer lines for an excellent surface finish. Great for display pieces or parts where appearance matters. Takes longer and costs more.</p>
+                  <p><span className="font-semibold text-warm-300">Normal</span> - The standard for most 3D prints. A good balance of quality, strength, and cost. Works well for most functional and everyday parts.</p>
+                  <p><span className="font-semibold text-emerald-400">Strong</span> - Thicker layer lines that improve structural integrity, making the part more resistant to mechanical stress. Ideal for load-bearing parts. Slightly rougher surface.</p>
                   <div className="absolute left-1/2 -translate-x-1/2 top-full border-4 border-transparent border-t-ink-900" />
                 </div>
               </div>
@@ -463,7 +463,7 @@ export function NewJobForm({ clientId, clientLocation, isGuest }: { clientId: st
                 className="h-4 w-4 rounded border-warm-300 text-ink-600 focus:ring-ink-500"
               />
               <span className="text-sm text-warm-700">
-                Shipping OK — makers can ship your order
+                Shipping OK - makers can ship your order
               </span>
             </label>
             <label className="flex items-center gap-3 cursor-pointer">
@@ -474,7 +474,7 @@ export function NewJobForm({ clientId, clientLocation, isGuest }: { clientId: st
                 className="h-4 w-4 rounded border-warm-300 text-ink-600 focus:ring-ink-500"
               />
               <span className="text-sm text-warm-700">
-                Pickup OK — I can also collect the print in person
+                Pickup OK - I can also collect the print in person
               </span>
             </label>
           </div>
@@ -612,7 +612,7 @@ export function NewJobForm({ clientId, clientLocation, isGuest }: { clientId: st
             </h2>
             <p className="text-sm text-warm-500 mt-0.5">
               {modelInputMode === 'link' && !imageFile
-                ? 'We\'ll try to auto-fill this from your link — or upload your own.'
+                ? 'We\'ll try to auto-fill this from your link - or upload your own.'
                 : 'Upload a photo or render so makers quickly understand the job.'}
             </p>
           </div>
@@ -673,7 +673,7 @@ export function NewJobForm({ clientId, clientLocation, isGuest }: { clientId: st
                       d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
                   <p className="text-sm text-warm-600 font-medium">Click to upload a reference photo</p>
-                  <p className="text-xs text-warm-400 mt-1">JPG · PNG · WEBP — max 10 MB</p>
+                  <p className="text-xs text-warm-400 mt-1">JPG · PNG · WEBP - max 10 MB</p>
                 </>
               )}
             </div>

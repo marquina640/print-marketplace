@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
@@ -153,13 +153,13 @@ export function PortfolioForm({ effectiveUserId }: { effectiveUserId: string }) 
             <div onClick={() => imageRef.current?.click()}
               className="border-2 border-dashed border-warm-300 rounded-xl p-8 text-center cursor-pointer hover:border-gold-400 hover:bg-gold-50/30 transition-colors">
               <p className="text-sm text-warm-500 font-medium">Click to upload a photo of your work</p>
-              <p className="text-xs text-warm-400 mt-1">JPG · PNG · WEBP — max 10 MB</p>
+              <p className="text-xs text-warm-400 mt-1">JPG · PNG · WEBP - max 10 MB</p>
             </div>
           )}
           <input ref={imageRef} type="file" accept=".jpg,.jpeg,.png,.webp" onChange={handleImageChange} className="hidden" />
 
           <Input label="Title *" required value={form.title}
-            onChange={(e) => set('title', e.target.value)} placeholder="e.g. Robotics bracket — PETG, ±0.15mm" />
+            onChange={(e) => set('title', e.target.value)} placeholder="e.g. Robotics bracket - PETG, ±0.15mm" />
 
           <Textarea label="Description" value={form.description}
             onChange={(e) => set('description', e.target.value)} rows={2}

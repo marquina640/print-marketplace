@@ -1,7 +1,7 @@
-import { redirect } from 'next/navigation'
+﻿import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 
-export const metadata = { title: 'Platform Settings — Admin' }
+export const metadata = { title: 'Platform Settings - Admin' }
 
 export default async function AdminSettingsPage() {
   const supabase = await createClient()

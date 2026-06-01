@@ -1,4 +1,4 @@
-import { createServerClient } from '@supabase/ssr'
+﻿import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
 const PUBLIC_PATHS = new Set(['/', '/login', '/signup'])
@@ -32,7 +32,7 @@ export async function middleware(request: NextRequest) {
     }
   )
 
-  // Refresh session — required by @supabase/ssr
+  // Refresh session - required by @supabase/ssr
   const { data: { user } } = await supabase.auth.getUser()
 
   const { pathname } = request.nextUrl
@@ -62,7 +62,7 @@ export async function middleware(request: NextRequest) {
       .eq('user_id', user.id)
       .single()
 
-    // Needs role selection — but never interrupt an admin
+    // Needs role selection - but never interrupt an admin
     if (!profile?.role && pathname !== '/onboarding') {
       const url = request.nextUrl.clone()
       url.pathname = '/onboarding'
@@ -70,7 +70,7 @@ export async function middleware(request: NextRequest) {
     }
 
     // Admin always goes straight to admin dashboard, never to onboarding/setup
-    // — unless they are in preview mode, in which case let them through
+    // - unless they are in preview mode, in which case let them through
     const isAdminPreviewing = profile?.role === 'admin' &&
       !!request.cookies.get('admin_preview_as')?.value
 

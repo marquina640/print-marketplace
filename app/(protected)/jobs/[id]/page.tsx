@@ -230,11 +230,11 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
       )}
 
       {/* Files */}
-      {canSeeFiles && files && files.length > 0 && (
+      {canSeeFiles && files && files.filter((f) => f.file_type !== 'pre_ship_photo').length > 0 && (
         <div className="card p-6">
           <h2 className="font-semibold text-warm-900 mb-4">Attached Files</h2>
           <ul className="space-y-2">
-            {files.map((f) => (
+            {files.filter((f) => f.file_type !== 'pre_ship_photo').map((f) => (
               <li key={f.id} className="flex items-center justify-between rounded-xl bg-warm-50 px-3 py-2">
                 <div className="flex items-center gap-2 min-w-0">
                   {f.file_type === 'link' ? (
@@ -258,6 +258,29 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
               </li>
             ))}
           </ul>
+        </div>
+      )}
+
+      {/* Pre-shipment photos */}
+      {canSeeFiles && files && files.filter((f) => f.file_type === 'pre_ship_photo').length > 0 && (
+        <div className="card p-6">
+          <div className="flex items-center gap-2 mb-1">
+            <h2 className="font-semibold text-warm-900">Photos of finished part</h2>
+            <span className="rounded-full bg-emerald-100 text-emerald-700 text-xs font-medium px-2 py-0.5">Verified before shipment</span>
+          </div>
+          <p className="text-xs text-warm-400 mb-4">Uploaded by the maker before dispatching the order.</p>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            {files.filter((f) => f.file_type === 'pre_ship_photo').map((f) => (
+              <a key={f.id} href={f.file_url} target="_blank" rel="noopener noreferrer"
+                className="group relative aspect-square rounded-xl overflow-hidden border border-warm-200 hover:border-ink-300 transition-colors">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={f.file_url} alt="Finished part" className="w-full h-full object-cover" />
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+                  <span className="opacity-0 group-hover:opacity-100 text-white text-xs font-medium transition-opacity">View full size ↗</span>
+                </div>
+              </a>
+            ))}
+          </div>
         </div>
       )}
 

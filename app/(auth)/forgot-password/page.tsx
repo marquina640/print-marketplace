@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 import Link from 'next/link'
@@ -22,7 +22,7 @@ export default function ForgotPasswordPage() {
       redirectTo: `${window.location.origin}/auth/callback?next=/reset-password`,
     })
 
-    // Always show the success state — don't reveal whether an account exists
+    // Always show the success state - don't reveal whether an account exists
     if (authError) console.error('[forgot-password]', authError.message)
     setSent(true)
     setLoading(false)

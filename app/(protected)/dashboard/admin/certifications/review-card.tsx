@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useTransition } from 'react'
 import { CertificationBadge } from '@/components/ui/badge'
@@ -39,7 +39,7 @@ export function ReviewCard({ req }: { req: Request }) {
 
   if (done) return (
     <div className="card p-5 opacity-60">
-      <p className="text-sm text-warm-500 text-center">✓ Reviewed — refresh to see updated queue</p>
+      <p className="text-sm text-warm-500 text-center">✓ Reviewed - refresh to see updated queue</p>
     </div>
   )
 

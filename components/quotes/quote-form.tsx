@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
@@ -133,7 +133,7 @@ export function QuoteForm({ jobId, printerId: printerIdProp, shippingRequired, e
   if (success) {
     return (
       <div className="rounded-xl bg-emerald-50 border border-emerald-200 p-4 text-sm text-emerald-800">
-        Quote {existingQuote ? 'updated' : 'submitted'} — the client will be notified.
+        Quote {existingQuote ? 'updated' : 'submitted'} - the client will be notified.
       </div>
     )
   }
@@ -144,7 +144,7 @@ export function QuoteForm({ jobId, printerId: printerIdProp, shippingRequired, e
         {existingQuote ? 'Update your quote' : 'Submit a quote'}
       </h3>
 
-      {/* Model image — required */}
+      {/* Model image - required */}
       <div>
         <p className="form-label">
           Model photo <span className="text-red-500">*</span>
@@ -171,7 +171,7 @@ export function QuoteForm({ jobId, printerId: printerIdProp, shippingRequired, e
                   d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
               <p className="text-sm text-warm-500">Upload a photo of the model or your slicer preview</p>
-              <p className="text-xs text-warm-400 mt-1">PNG, JPG, WEBP — max 10 MB</p>
+              <p className="text-xs text-warm-400 mt-1">PNG, JPG, WEBP - max 10 MB</p>
             </div>
           )}
           <input ref={fileRef} type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
@@ -184,7 +184,7 @@ export function QuoteForm({ jobId, printerId: printerIdProp, shippingRequired, e
           <div>
             <p className="text-sm font-semibold text-amber-800">Include shipping in your price</p>
             <p className="text-xs text-amber-700 mt-0.5 leading-relaxed">
-              This client requires shipping. Add the estimated shipping cost to your total price — there is no separate shipping field.
+              This client requires shipping. Add the estimated shipping cost to your total price - there is no separate shipping field.
             </p>
           </div>
         </div>

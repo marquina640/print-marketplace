@@ -1,4 +1,4 @@
-'use server'
+﻿'use server'
 
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
@@ -33,7 +33,7 @@ export async function deleteAccount(): Promise<{ error?: string }> {
     return { error: 'You have active jobs in progress as a maker. Please wait until they are completed before deleting your account.' }
   }
 
-  // Delete the Supabase auth user — cascades to profiles via DB foreign key
+  // Delete the Supabase auth user - cascades to profiles via DB foreign key
   const { error } = await admin.auth.admin.deleteUser(user.id)
   if (error) return { error: error.message }
 

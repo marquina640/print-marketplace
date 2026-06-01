@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
@@ -151,7 +151,7 @@ export function CertificationForm({ effectiveUserId }: { effectiveUserId: string
                 <div key={r.id} className={`rounded-xl border p-4 ${cfg.color}`}>
                   <div className="flex items-center justify-between flex-wrap gap-2">
                     <div>
-                      <span className="font-semibold text-sm">Level {r.requested_level} — {CERTIFICATION_LEVELS[r.requested_level]?.name}</span>
+                      <span className="font-semibold text-sm">Level {r.requested_level} - {CERTIFICATION_LEVELS[r.requested_level]?.name}</span>
                       <span className="ml-3 rounded-full bg-white/60 px-2 py-0.5 text-xs font-medium border border-current/20">{cfg.label}</span>
                     </div>
                     <span className="text-xs opacity-70">{formatDate(r.created_at)}</span>
@@ -171,7 +171,7 @@ export function CertificationForm({ effectiveUserId }: { effectiveUserId: string
       {certLevel === 3 && (
         <div className="card p-6 text-center">
           <p className="text-2xl mb-2">★</p>
-          <p className="font-bold text-ink-900">Production Partner — Maximum Level</p>
+          <p className="font-bold text-ink-900">Production Partner - Maximum Level</p>
           <p className="text-sm text-warm-500 mt-1">You have achieved the highest PrintMarketHub certification.</p>
         </div>
       )}
@@ -180,7 +180,7 @@ export function CertificationForm({ effectiveUserId }: { effectiveUserId: string
         <section>
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-base font-bold text-ink-900">
-              Path to Level {nextLevel} — {CERTIFICATION_LEVELS[nextLevel].name}
+              Path to Level {nextLevel} - {CERTIFICATION_LEVELS[nextLevel].name}
             </h2>
             <button
               onClick={() => setOpenLevel(openLevel === nextLevel ? null : nextLevel)}
@@ -273,7 +273,7 @@ export function CertificationForm({ effectiveUserId }: { effectiveUserId: string
                 onChange={(e) => setNotes(e.target.value)}
                 rows={3}
                 className="w-full rounded-xl border border-warm-300 bg-warm-50 px-3 py-2 text-sm focus:border-ink-500 focus:outline-none focus:ring-2 focus:ring-ink-500/20 resize-none"
-                placeholder="Tell us about your setup — material brand, slicer settings, any special considerations…"
+                placeholder="Tell us about your setup - material brand, slicer settings, any special considerations…"
               />
             </div>
 

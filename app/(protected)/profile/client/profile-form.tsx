@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
@@ -141,7 +141,7 @@ export function ClientProfileForm({ effectiveUserId }: ClientProfileFormProps) {
             placeholder="Start typing your city or address…"
             defaultValue={form.location}
             onSelect={handleAddressSelect}
-            hint="Only your general area is shown publicly — exact address stays private"
+            hint="Only your general area is shown publicly - exact address stays private"
           />
         </div>
 

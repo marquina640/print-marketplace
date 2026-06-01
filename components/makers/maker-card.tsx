@@ -1,4 +1,4 @@
-import Link from 'next/link'
+﻿import Link from 'next/link'
 import { CertificationBadge } from '@/components/ui/badge'
 
 const PROCESS_LABELS: Record<string, string> = {
@@ -86,12 +86,12 @@ export function MakerCard({ maker }: MakerCardProps) {
           {/* Dark overlay at bottom */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
 
-          {/* Cert badge — bottom left */}
+          {/* Cert badge - bottom left */}
           <div className="absolute bottom-3 left-3">
             <CertificationBadge level={certLevel} size="sm" />
           </div>
 
-          {/* Rating — bottom right */}
+          {/* Rating - bottom right */}
           {ratingCount > 0 && (
             <div className="absolute bottom-3 right-3">
               <span className="rounded-lg bg-white/95 backdrop-blur-sm px-2 py-0.5 text-xs font-bold text-warm-900 flex items-center gap-1 shadow-sm">

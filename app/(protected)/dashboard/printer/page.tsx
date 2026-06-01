@@ -1,4 +1,4 @@
-import { redirect } from 'next/navigation'
+﻿import { redirect } from 'next/navigation'
 import { cookies } from 'next/headers'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
@@ -149,7 +149,7 @@ export default async function PrinterDashboardPage({ searchParams }: PageProps) 
               <div>
                 <p className="font-semibold text-amber-900">Connect your Stripe account to get paid</p>
                 <p className="text-sm text-amber-700 mt-0.5">
-                  You need a Stripe account to receive payments. It only takes a few minutes. Once connected, clients can pay and you receive 88% automatically — the platform keeps 12%.
+                  You need a Stripe account to receive payments. It only takes a few minutes. Once connected, clients can pay and you receive 88% automatically - the platform keeps 12%.
                 </p>
               </div>
             </div>
@@ -177,7 +177,7 @@ export default async function PrinterDashboardPage({ searchParams }: PageProps) 
         {nextCert && (
           <div className="px-6 py-3 bg-warm-50 flex items-center justify-between">
             <p className="text-xs text-warm-500">
-              Next: <span className="font-semibold text-ink-800">{nextCert.name}</span> — {nextCert.description}
+              Next: <span className="font-semibold text-ink-800">{nextCert.name}</span> - {nextCert.description}
             </p>
             <Link href="/profile/certification">
               <Button variant="gold" size="sm">Apply for Level {certLevel + 1}</Button>

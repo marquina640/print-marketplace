@@ -1,9 +1,9 @@
-import type { Metadata } from 'next'
+﻿import type { Metadata } from 'next'
 import Link from 'next/link'
 import { BLOG_POSTS } from '@/lib/blog-posts'
 
 export const metadata: Metadata = {
-  title: 'Blog — PrintMarketHub',
+  title: 'Blog - PrintMarketHub',
   description: 'Guides, tutorials, and pricing breakdowns for 3D printing in Switzerland.',
 }
 

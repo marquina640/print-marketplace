@@ -1,4 +1,4 @@
-import { Metadata } from 'next'
+﻿import { Metadata } from 'next'
 
 export const metadata: Metadata = { title: 'Refund & Dispute Policy | PrintMarketHub' }
 
@@ -10,7 +10,7 @@ export default function RefundsPage() {
       <LegalHeader title="Refund & Dispute Policy" updated={LAST_UPDATED} />
 
       <p className="text-sm text-warm-600 mb-8 leading-relaxed">
-        This policy explains how PrintMarketHub handles escrow payments, delivery confirmation, refunds, and disputes between Clients and Makers. PrintMarketHub acts as a neutral facilitator — not an arbitrator — in any dispute.
+        This policy explains how PrintMarketHub handles escrow payments, delivery confirmation, refunds, and disputes between Clients and Makers. PrintMarketHub acts as a neutral facilitator - not an arbitrator - in any dispute.
       </p>
 
       <Section n="1" title="Escrow Mechanism">

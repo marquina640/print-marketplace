@@ -1,10 +1,10 @@
-import { redirect } from 'next/navigation'
+﻿import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { StatusBadge } from '@/components/ui/badge'
 import { formatDate, formatCurrency } from '@/lib/utils'
 import Link from 'next/link'
 
-export const metadata = { title: 'All Requests — Admin' }
+export const metadata = { title: 'All Requests - Admin' }
 
 export default async function AdminJobsPage() {
   const supabase = await createClient()

@@ -1,4 +1,4 @@
-import { Metadata } from 'next'
+﻿import { Metadata } from 'next'
 
 export const metadata: Metadata = { title: 'Acceptable Use Policy | PrintMarketHub' }
 
@@ -10,7 +10,7 @@ export default function AcceptableUsePage() {
       <LegalHeader title="Acceptable Use Policy" updated={LAST_UPDATED} />
 
       <p className="text-sm text-warm-600 mb-8 leading-relaxed">
-        This Acceptable Use Policy ("AUP") defines conduct and content that is prohibited on the PrintMarketHub platform. All users — Clients, Makers, and visitors — must comply with this policy. Violations may result in immediate account suspension or termination.
+        This Acceptable Use Policy ("AUP") defines conduct and content that is prohibited on the PrintMarketHub platform. All users - Clients, Makers, and visitors - must comply with this policy. Violations may result in immediate account suspension or termination.
       </p>
 
       <Section n="1" title="Prohibited Items and Services">
@@ -68,7 +68,7 @@ export default function AcceptableUsePage() {
       </Section>
 
       <Section n="3" title="User-Generated Content">
-        <p>All content posted on the Platform — including job descriptions, profile bios, images, messages, and reviews — must be accurate, lawful, and respectful. You must not post:</p>
+        <p>All content posted on the Platform - including job descriptions, profile bios, images, messages, and reviews - must be accurate, lawful, and respectful. You must not post:</p>
         <ul>
           <li>Content that is defamatory, discriminatory, or promotes hatred based on race, gender, religion, nationality, sexual orientation, or disability</li>
           <li>Sexually explicit content</li>

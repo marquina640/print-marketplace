@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
@@ -58,7 +58,7 @@ export function CreateUserForm() {
       <div className="flex items-center justify-between px-6 py-4 border-b border-warm-100">
         <div>
           <h2 className="font-semibold text-ink-900">Create User Profile</h2>
-          <p className="text-xs text-warm-400 mt-0.5">Create a customer or maker account directly — no email confirmation required</p>
+          <p className="text-xs text-warm-400 mt-0.5">Create a customer or maker account directly - no email confirmation required</p>
         </div>
         <Button variant="gold" size="sm" onClick={() => { setOpen((v) => !v); setError(null); setSuccess(null) }}>
           {open ? 'Cancel' : '+ Create User'}
