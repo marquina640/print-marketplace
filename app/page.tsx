@@ -37,6 +37,11 @@ export default async function LandingPage() {
               </Link>
             ) : (
               <>
+                <div className="hidden md:flex items-center gap-1 mr-2">
+                  <Link href="/how-it-works" className="px-3 py-1.5 text-sm font-medium text-warm-600 hover:text-warm-900 hover:bg-warm-100 rounded-lg transition-colors">How it works</Link>
+                  <Link href="/for-makers" className="px-3 py-1.5 text-sm font-medium text-warm-600 hover:text-warm-900 hover:bg-warm-100 rounded-lg transition-colors">For makers</Link>
+                  <Link href="/blog" className="px-3 py-1.5 text-sm font-medium text-warm-600 hover:text-warm-900 hover:bg-warm-100 rounded-lg transition-colors">Blog</Link>
+                </div>
                 <Link href="/login"><Button variant="ghost" size="sm">Log in</Button></Link>
                 <Link href="/signup"><Button variant="gold" size="sm">Get started free</Button></Link>
               </>
@@ -68,7 +73,7 @@ export default async function LandingPage() {
                 <span className="text-gold-400">printed today.</span>
               </h1>
               <p className="text-lg text-[#CEC8E4] max-w-lg mb-8 leading-relaxed">
-                Post a request, collect quotes from verified local makers, pay securely, and track your order every step of the way.
+                Post a request, collect quotes from verified makers near you, pay securely, and track your order every step of the way.
               </p>
               <div className="flex flex-col sm:flex-row gap-3 mb-6">
                 <Link href="/jobs/new">
@@ -148,7 +153,7 @@ export default async function LandingPage() {
             {[
               '🔒 Secure payments',
               '🏅 Certified makers',
-              '📦 Fast local delivery',
+              '📦 Ship or pickup locally',
               '💳 Card & bank transfer',
               '⭐ Mutual review system',
             ].map(item => <span key={item}>{item}</span>)}
@@ -324,8 +329,8 @@ export default async function LandingPage() {
               },
               {
                 icon: '🗺️',
-                title: 'Local-first',
-                desc: 'See makers near you on an interactive map. Pickup in person or local delivery, your choice.',
+                title: 'Community-first',
+                desc: 'Find makers near you on an interactive map. Get your part printed and delivered by someone in your community.',
               },
               {
                 icon: '📎',
@@ -402,11 +407,20 @@ export default async function LandingPage() {
 
       {/* Footer */}
       <footer className="border-t border-warm-200 bg-[#2B1B47] py-10">
-        <div className="page-container">
+        <div className="page-container space-y-6">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <img src="/logo-full.png" alt="PrintMarketHub" className="h-8 w-auto" />
-            <p className="text-xs text-warm-400 uppercase tracking-wider">2026 PrintMarketHub</p>
-            <div className="flex gap-5 text-xs text-warm-500">
+            <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm text-[#9d97c4]">
+              <Link href="/how-it-works" className="hover:text-white transition-colors">How it works</Link>
+              <Link href="/for-makers" className="hover:text-white transition-colors">For makers</Link>
+              <Link href="/blog" className="hover:text-white transition-colors">Blog</Link>
+              <Link href="/faq" className="hover:text-white transition-colors">FAQ</Link>
+              <Link href="/makers" className="hover:text-white transition-colors">Browse makers</Link>
+            </div>
+          </div>
+          <div className="border-t border-white/10 pt-5 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <p className="text-xs text-[#6b6580]">© {new Date().getFullYear()} PrintMarketHub</p>
+            <div className="flex gap-5 text-xs text-[#6b6580]">
               <a href="/legal/privacy" className="hover:text-white transition-colors">Privacy</a>
               <a href="/legal/terms" className="hover:text-white transition-colors">Terms</a>
               <a href="/legal/impressum" className="hover:text-white transition-colors">Impressum</a>
