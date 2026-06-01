@@ -11,6 +11,7 @@ import { notifyClientOfNewQuote } from '@/app/actions/submit-quote'
 interface QuoteFormProps {
   jobId: string
   printerId?: string
+  shippingRequired?: boolean
   existingQuote?: {
     id: string
     price: number
@@ -20,7 +21,7 @@ interface QuoteFormProps {
   } | null
 }
 
-export function QuoteForm({ jobId, printerId: printerIdProp, existingQuote }: QuoteFormProps) {
+export function QuoteForm({ jobId, printerId: printerIdProp, shippingRequired, existingQuote }: QuoteFormProps) {
   const router = useRouter()
   const fileRef = useRef<HTMLInputElement>(null)
   const [loading, setLoading] = useState(false)
@@ -177,9 +178,24 @@ export function QuoteForm({ jobId, printerId: printerIdProp, existingQuote }: Qu
         </div>
       </div>
 
+      {shippingRequired && (
+        <div className="flex items-start gap-2.5 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
+          <span className="text-lg flex-shrink-0">📦</span>
+          <div>
+            <p className="text-sm font-semibold text-amber-800">Include shipping in your price</p>
+            <p className="text-xs text-amber-700 mt-0.5 leading-relaxed">
+              This client requires shipping. Add the estimated shipping cost to your total price — there is no separate shipping field.
+            </p>
+          </div>
+        </div>
+      )}
+
       <div className="grid grid-cols-2 gap-4">
-        <Input label="Your price (CHF)" type="number" min="0" step="0.01" required
-          value={price} onChange={(e) => setPrice(e.target.value)} placeholder="49.00" />
+        <Input
+          label={shippingRequired ? 'Your price incl. shipping (CHF)' : 'Your price (CHF)'}
+          type="number" min="0" step="0.01" required
+          value={price} onChange={(e) => setPrice(e.target.value)} placeholder="49.00"
+        />
         <Input label="Lead time (days)" type="number" min="1" required
           value={leadTime} onChange={(e) => setLeadTime(e.target.value)} placeholder="7" />
       </div>

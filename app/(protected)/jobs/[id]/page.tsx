@@ -467,7 +467,7 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
               </div>
             ) : (
               <div className="card p-5">
-                <QuoteForm jobId={job.id} printerId={effectiveUserId} existingQuote={myQuote} />
+                <QuoteForm jobId={job.id} printerId={effectiveUserId} existingQuote={myQuote} shippingRequired={!!(job as any).shipping_required} />
               </div>
             )}
           </div>

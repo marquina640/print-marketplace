@@ -191,7 +191,7 @@ export default function HowItWorksPage() {
             { icon: '🔒', title: 'Escrow payments', desc: 'Your money is protected until you confirm delivery' },
             { icon: '⭐', title: 'Verified reviews', desc: 'Ratings from real completed jobs only' },
             { icon: '💬', title: 'On-platform chat', desc: 'All communication in one place, no phone numbers needed' },
-            { icon: '🇨🇭', title: 'Swiss-based', desc: 'Local makers, faster delivery, no customs' },
+            { icon: '🛡️', title: 'Dispute protection', desc: 'Fair mediation if anything goes wrong — you\'re never left without recourse' },
           ].map((item) => (
             <div key={item.title} className="space-y-1.5">
               <div className="text-2xl">{item.icon}</div>
