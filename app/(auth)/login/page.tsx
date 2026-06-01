@@ -91,15 +91,22 @@ export default function LoginPage() {
             onChange={(e) => setEmail(e.target.value)}
             placeholder="you@example.com"
           />
-          <Input
-            label="Password"
-            type="password"
-            required
-            autoComplete="current-password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="••••••••"
-          />
+          <div>
+            <Input
+              label="Password"
+              type="password"
+              required
+              autoComplete="current-password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+            />
+            <div className="mt-1 text-right">
+              <Link href="/forgot-password" className="text-xs text-warm-400 hover:text-ink-700">
+                Forgot password?
+              </Link>
+            </div>
+          </div>
 
           {error && (
             <div className="rounded-lg bg-red-50 border border-red-200 p-3 text-sm text-red-700">

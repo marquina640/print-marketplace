@@ -3,7 +3,8 @@
 import { cookies } from 'next/headers'
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
-import { createNotification } from './notifications'
+import { createAdminClient } from '@/lib/supabase/admin'
+import { createNotification, notifyJobShipped, notifyDeliveryConfirmed } from './notifications'
 
 export interface ShippingDetails {
   inPerson: boolean
@@ -38,16 +39,19 @@ export async function markJobShipped(jobId: string, details: ShippingDetails) {
     shipped_date:       details.shippedDate ?? new Date().toISOString().slice(0, 10),
   } as any).eq('id', jobId)
 
-  const notifBody = details.inPerson
-    ? `"${job.title}" has been handed over in person.`
-    : `"${job.title}" is on its way${details.carrier ? ` via ${details.carrier}` : ''}${details.trackingNumber ? ` — tracking: ${details.trackingNumber}` : ''}. Confirm receipt when it arrives.`
+  // Look up client email for the email notification
+  const admin = createAdminClient()
+  const { data: clientProfile } = await admin
+    .from('profiles').select('email').eq('user_id', job.client_id).single()
 
-  await createNotification({
-    userId: job.client_id,
-    type: 'job_shipped',
-    title: details.inPerson ? 'Order handed over!' : 'Your order has shipped!',
-    body: notifBody,
-    link: `/jobs/${jobId}`,
+  await notifyJobShipped({
+    jobId,
+    jobTitle:       job.title,
+    clientId:       job.client_id,
+    clientEmail:    clientProfile?.email ?? '',
+    inPerson:       details.inPerson,
+    carrier:        details.carrier,
+    trackingNumber: details.trackingNumber,
   })
 
   revalidatePath(`/jobs/${jobId}`)
@@ -76,12 +80,15 @@ export async function confirmJobDelivery(jobId: string) {
     .from('quotes').select('printer_id, price').eq('job_id', jobId).eq('status', 'accepted').single()
 
   if (acceptedQuote) {
-    await createNotification({
-      userId: acceptedQuote.printer_id,
-      type: 'job_delivered',
-      title: 'Delivery confirmed!',
-      body: `The client confirmed receipt of "${job.title}". Your payment is being processed.`,
-      link: `/jobs/${jobId}`,
+    const adminClient = createAdminClient()
+    const { data: printerProfile } = await adminClient
+      .from('profiles').select('email').eq('user_id', acceptedQuote.printer_id).single()
+
+    await notifyDeliveryConfirmed({
+      jobId,
+      jobTitle:     job.title,
+      printerId:    acceptedQuote.printer_id,
+      printerEmail: printerProfile?.email ?? '',
     })
   }
 
