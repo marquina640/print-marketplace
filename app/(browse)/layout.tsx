@@ -57,7 +57,7 @@ export default async function BrowseLayout({ children }: { children: React.React
         {user && effectiveRole && (
           <Sidebar role={effectiveRole} unreadMessages={unreadMessages} />
         )}
-        <main className="flex-1 min-w-0 p-6">{children}</main>
+        <main className="flex-1 min-w-0 p-4 sm:p-6">{children}</main>
       </div>
 
       {/* Footer */}

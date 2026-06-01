@@ -95,8 +95,20 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
 
   const printerUnreviewed = isPrinter ? await countUnreviewedJobs(effectiveUserId) : 0
   const blockedByReviews  = printerUnreviewed >= 3
+  const deadlinePassed    = isOwner && job.status === 'open' && job.deadline && new Date(job.deadline) < new Date()
   const canCancel         = isOwner && ['open', 'quoted'].includes((job as any).status)
-  const canSubmitQuote    = isPrinter && !isOwner && job.status === 'open' && !blockedByReviews
+
+  // Maker profile completeness: requires a printer_profile + at least one machine
+  let profileComplete = true
+  if (isPrinter && !isOwner && job.status === 'open') {
+    const [{ data: pp }, { count: machineCount }] = await Promise.all([
+      supabase.from('printer_profiles').select('description').eq('user_id', effectiveUserId).single(),
+      supabase.from('printer_machines').select('*', { count: 'exact', head: true }).eq('user_id', effectiveUserId),
+    ])
+    profileComplete = !!(pp && (machineCount ?? 0) > 0)
+  }
+
+  const canSubmitQuote    = isPrinter && !isOwner && job.status === 'open' && !blockedByReviews && profileComplete
   const canAcceptQuote    = isOwner && job.status === 'open'
   const canMarkShipped    = isPrinter && effectiveUserId === acceptedPrinter && (job as any).status === 'paid'
   const canConfirmReceipt = isOwner && (job as any).status === 'shipped'
@@ -139,6 +151,18 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
       {payment === 'cancelled' && (
         <div className="rounded-xl bg-amber-50 border border-amber-200 px-5 py-4">
           <p className="text-sm font-medium text-amber-800">Payment was cancelled. You can try again whenever you're ready.</p>
+        </div>
+      )}
+
+      {deadlinePassed && (
+        <div className="rounded-xl bg-amber-50 border border-amber-200 px-5 py-4 flex items-start gap-3">
+          <span className="text-xl mt-0.5">⏰</span>
+          <div>
+            <p className="font-semibold text-amber-900">Deadline has passed</p>
+            <p className="text-sm text-amber-700 mt-0.5">
+              This request is no longer visible to makers. You can close it or leave it open in case a maker reaches out directly.
+            </p>
+          </div>
         </div>
       )}
 
@@ -395,7 +419,31 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
 
         {isPrinter && !isOwner && job.status === 'open' && (
           <div className="lg:col-span-2">
-            {blockedByReviews ? (
+            {!profileComplete ? (
+              <div className="card p-5 space-y-3">
+                <div className="flex items-start gap-3">
+                  <span className="text-2xl">🖨️</span>
+                  <div>
+                    <p className="font-semibold text-warm-900">Complete your profile first</p>
+                    <p className="text-sm text-warm-500 mt-1">
+                      You need to set up your maker profile and add at least one machine before you can submit quotes.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex flex-col gap-2">
+                  <Link href="/profile/setup">
+                    <button className="w-full rounded-xl bg-gold-400 hover:bg-gold-500 text-ink-950 text-sm font-semibold py-2.5 transition-colors">
+                      Set up profile →
+                    </button>
+                  </Link>
+                  <Link href="/profile/machines">
+                    <button className="w-full rounded-xl border border-warm-300 text-warm-700 hover:bg-warm-100 text-sm font-medium py-2.5 transition-colors">
+                      Add a machine →
+                    </button>
+                  </Link>
+                </div>
+              </div>
+            ) : blockedByReviews ? (
               <div className="card p-5 space-y-3">
                 <div className="flex items-start gap-3">
                   <span className="text-2xl">⭐</span>

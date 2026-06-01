@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+
+# Block authenticated/private routes
+Disallow: /dashboard/
+Disallow: /profile/
+Disallow: /messages/
+Disallow: /jobs/new
+Disallow: /onboarding
+Disallow: /auth/
+
+Sitemap: https://printmarkethub.com/sitemap.xml

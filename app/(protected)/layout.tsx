@@ -60,7 +60,7 @@ export default async function ProtectedLayout({ children }: { children: React.Re
       {previewAs && <PreviewBanner role={previewAs} userName={previewUserName} />}
       <div className="flex flex-1">
         <Sidebar role={effectiveRole} unreadMessages={unreadMessages ?? 0} />
-        <main className="flex-1 min-w-0 p-6">{children}</main>
+        <main className="flex-1 min-w-0 p-4 sm:p-6">{children}</main>
       </div>
     </div>
   )

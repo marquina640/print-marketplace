@@ -149,7 +149,7 @@ export default async function LandingPage() {
               '🔒 Secure payments',
               '🏅 Certified makers',
               '📦 Fast local delivery',
-              '💳 Card · TWINT · Bank transfer',
+              '💳 Card & bank transfer',
               '⭐ Mutual review system',
             ].map(item => <span key={item}>{item}</span>)}
           </div>
@@ -310,7 +310,7 @@ export default async function LandingPage() {
               {
                 icon: '💳',
                 title: 'Pay your way',
-                desc: 'Card, TWINT, bank transfer and more. We support local and international payment methods through Stripe.',
+                desc: 'Card and bank transfer supported. Powered by Stripe — secure, reliable, and trusted by millions.',
               },
               {
                 icon: '🏅',

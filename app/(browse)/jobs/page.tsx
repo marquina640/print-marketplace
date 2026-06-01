@@ -49,10 +49,14 @@ export default async function JobsFeedPage({ searchParams }: PageProps) {
   const { data: testUsers } = await supabase.from('profiles').select('user_id').eq('is_test', true)
   const testUserIds = testUsers?.map((u) => u.user_id) ?? []
 
+  const today = new Date().toISOString().slice(0, 10) // YYYY-MM-DD
+
   let query = supabase.from('jobs').select('*').eq('status', 'open').order(col, { ascending: asc })
   if (testUserIds.length > 0) query = query.not('client_id', 'in', `(${testUserIds.join(',')})`)
   // Never show a maker their own requests (use effectiveUserId to handle preview mode correctly)
   if (effectiveUserId) query = query.neq('client_id', effectiveUserId)
+  // Hide jobs whose deadline has passed
+  query = query.or(`deadline.is.null,deadline.gte.${today}`)
   if (material) query = query.eq('material', material)
   if (q) query = query.ilike('title', `%${q}%`)
   if (shipping === '1') query = query.eq('shipping_required', true)
