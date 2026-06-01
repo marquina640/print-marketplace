@@ -209,8 +209,12 @@ export default async function AdminDashboardPage() {
               </thead>
               <tbody className="bg-white divide-y divide-gray-100">
                 {recentJobs?.map((j) => (
-                  <tr key={j.id} className="hover:bg-gray-50">
-                    <td className="px-4 py-3 text-sm font-medium text-gray-900 max-w-[200px] truncate">{j.title}</td>
+                  <tr key={j.id} className="hover:bg-indigo-50 cursor-pointer group">
+                    <td className="px-4 py-3 text-sm font-medium max-w-[200px] truncate">
+                      <Link href={`/jobs/${j.id}`} className="text-indigo-600 hover:underline group-hover:text-indigo-700">
+                        {j.title}
+                      </Link>
+                    </td>
                     <td className="px-4 py-3 text-sm text-gray-600">{j.material}</td>
                     <td className="px-4 py-3 text-sm text-gray-600">{formatCurrency(j.budget)}</td>
                     <td className="px-4 py-3"><StatusBadge status={j.status} /></td>
@@ -243,8 +247,12 @@ export default async function AdminDashboardPage() {
                   const job = q.jobs as { title: string } | null
                   const printer = q.profiles as { email: string } | null
                   return (
-                    <tr key={q.id} className="hover:bg-gray-50">
-                      <td className="px-4 py-3 text-sm text-gray-900 max-w-[180px] truncate">{job?.title}</td>
+                    <tr key={q.id} className="hover:bg-indigo-50 cursor-pointer group">
+                      <td className="px-4 py-3 text-sm font-medium max-w-[180px] truncate">
+                        <Link href={`/jobs/${q.job_id}`} className="text-indigo-600 hover:underline group-hover:text-indigo-700">
+                          {job?.title}
+                        </Link>
+                      </td>
                       <td className="px-4 py-3 text-sm text-gray-600 max-w-[160px] truncate">{printer?.email}</td>
                       <td className="px-4 py-3 text-sm font-medium text-gray-900">{formatCurrency(q.price)}</td>
                       <td className="px-4 py-3 text-sm text-gray-600">{q.lead_time_days}d</td>
