@@ -410,7 +410,7 @@ export default async function LandingPage() {
               <a href="/legal/privacy" className="hover:text-white transition-colors">Privacy</a>
               <a href="/legal/terms" className="hover:text-white transition-colors">Terms</a>
               <a href="/legal/impressum" className="hover:text-white transition-colors">Impressum</a>
-              <a href="mailto:admin@printmakerhub.com" className="hover:text-white transition-colors">Contact</a>
+              <a href="mailto:admin@printmarkethub.com" className="hover:text-white transition-colors">Contact</a>
             </div>
           </div>
         </div>

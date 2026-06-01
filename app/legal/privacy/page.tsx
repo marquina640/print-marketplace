@@ -16,9 +16,8 @@ export default function PrivacyPage() {
         <p>The data controller responsible for your personal data is:</p>
         <div className="rounded-xl bg-warm-100 border border-warm-200 px-5 py-4 font-mono text-xs text-ink-700 space-y-0.5">
           <p className="font-bold">PrintMarketHub</p>
-          <p>[Street Address]</p>
-          <p>[City, Postal Code], Switzerland</p>
-          <p>Email: <a href="mailto:admin@printmakerhub.com">admin@printmakerhub.com</a></p>
+          <p>Switzerland</p>
+          <p>Email: <a href="mailto:legal@printmarkethub.com">legal@printmarkethub.com</a></p>
         </div>
       </Section>
 
@@ -100,7 +99,7 @@ export default function PrivacyPage() {
           ['Objection', 'Object to processing based on legitimate interests'],
           ['Withdrawal of consent', 'Withdraw consent at any time where processing is consent-based'],
         ]} />
-        <p>To exercise your rights, email <a href="mailto:admin@printmakerhub.com">admin@printmakerhub.com</a>. We will respond within 30 days. You also have the right to lodge a complaint with the Swiss Federal Data Protection Commissioner (FDPIC) or your national data protection authority.</p>
+        <p>To exercise your rights, email <a href="mailto:legal@printmarkethub.com">legal@printmarkethub.com</a>. We will respond within 30 days. You also have the right to lodge a complaint with the Swiss Federal Data Protection Commissioner (FDPIC) or your national data protection authority.</p>
       </Section>
 
       <Section n="10" title="Security">
