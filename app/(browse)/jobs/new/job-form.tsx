@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
@@ -21,6 +21,8 @@ export function NewJobForm({ clientId, clientLocation, isGuest }: { clientId: st
   const [modelFiles, setModelFiles] = useState<File[]>([])
   const [modelInputMode, setModelInputMode] = useState<'file' | 'link'>('file')
   const [modelUrl, setModelUrl] = useState('')
+  const [ogImageUrl, setOgImageUrl] = useState<string | null>(null)
+  const [ogImageLoading, setOgImageLoading] = useState(false)
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
 
@@ -45,6 +47,32 @@ export function NewJobForm({ clientId, clientLocation, isGuest }: { clientId: st
   function set(field: string, value: string | boolean) {
     setForm((prev) => ({ ...prev, [field]: value }))
   }
+
+  // Auto-fetch og:image when a model link is pasted
+  useEffect(() => {
+    if (modelInputMode !== 'link' || !modelUrl.trim().startsWith('http')) {
+      setOgImageUrl(null)
+      if (!imageFile) setImagePreview(null)
+      return
+    }
+    const timer = setTimeout(async () => {
+      setOgImageLoading(true)
+      try {
+        const res = await fetch(`/api/og-image?url=${encodeURIComponent(modelUrl.trim())}`)
+        const { imageUrl } = await res.json()
+        if (imageUrl) {
+          setOgImageUrl(imageUrl)
+          if (!imageFile) setImagePreview(imageUrl)
+        } else {
+          setOgImageUrl(null)
+        }
+      } catch {
+        setOgImageUrl(null)
+      }
+      setOgImageLoading(false)
+    }, 900)
+    return () => clearTimeout(timer)
+  }, [modelUrl, modelInputMode]) // eslint-disable-line react-hooks/exhaustive-deps
 
   function handleModelFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const selected = Array.from(e.target.files ?? [])
@@ -94,7 +122,7 @@ export function NewJobForm({ clientId, clientLocation, isGuest }: { clientId: st
       const isValidUrl = validDomains.some((d) => modelUrl.includes(d)) || modelUrl.startsWith('http')
       if (!isValidUrl) { setError('Please enter a valid URL (e.g. a Thingiverse or MakerWorld link).'); return }
     }
-    if (!imageFile) { setError('Please upload a reference photo so makers can see what you need.'); return }
+    if (!imageFile && !ogImageUrl) { setError('Please upload a reference photo so makers can see what you need.'); return }
 
     setLoading(true)
     const supabase = createClient()
@@ -103,20 +131,40 @@ export function NewJobForm({ clientId, clientLocation, isGuest }: { clientId: st
 
     // lat/lng already set from address autocomplete selection
 
-    // Upload reference image first
+    // Upload reference image (from file upload or auto-fetched og:image)
     let imageUrl: string | null = null
-    const imagePath = `job-images/${clientId}/${Date.now()}-${imageFile.name}`
-    const { error: imgUploadError } = await supabase.storage
-      .from('job-files')
-      .upload(imagePath, imageFile, { contentType: imageFile.type })
 
-    if (imgUploadError) {
-      setError(`Image upload failed: ${imgUploadError.message}`)
-      setLoading(false)
-      return
+    if (imageFile) {
+      const imagePath = `job-images/${clientId}/${Date.now()}-${imageFile.name}`
+      const { error: imgUploadError } = await supabase.storage
+        .from('job-files')
+        .upload(imagePath, imageFile, { contentType: imageFile.type })
+      if (imgUploadError) {
+        setError(`Image upload failed: ${imgUploadError.message}`)
+        setLoading(false)
+        return
+      }
+      const { data: { publicUrl } } = supabase.storage.from('job-files').getPublicUrl(imagePath)
+      imageUrl = publicUrl
+    } else if (ogImageUrl) {
+      // Download the og:image and re-upload to our storage
+      try {
+        const imgRes = await fetch(ogImageUrl)
+        const blob = await imgRes.blob()
+        const rawExt = ogImageUrl.split('.').pop()?.split('?')[0]?.toLowerCase() ?? 'jpg'
+        const safeExt = ['jpg', 'jpeg', 'png', 'webp', 'gif'].includes(rawExt) ? rawExt : 'jpg'
+        const imagePath = `job-images/${clientId}/${Date.now()}-model-preview.${safeExt}`
+        const { error: imgUploadError } = await supabase.storage
+          .from('job-files')
+          .upload(imagePath, blob, { contentType: blob.type || 'image/jpeg' })
+        if (!imgUploadError) {
+          const { data: { publicUrl } } = supabase.storage.from('job-files').getPublicUrl(imagePath)
+          imageUrl = publicUrl
+        }
+      } catch {
+        // If og:image download fails, continue without a cover image
+      }
     }
-    const { data: { publicUrl } } = supabase.storage.from('job-files').getPublicUrl(imagePath)
-    imageUrl = publicUrl
 
     // Create job
     const { data: job, error: jobError } = await supabase
@@ -189,7 +237,7 @@ export function NewJobForm({ clientId, clientLocation, isGuest }: { clientId: st
       }
     }
 
-    router.push(`/jobs/${job.id}`)
+    router.push(`/jobs/${job.id}/submitted`)
   }
 
   return (
@@ -556,13 +604,40 @@ export function NewJobForm({ clientId, clientLocation, isGuest }: { clientId: st
         {/* Reference photo */}
         <div className="card p-6 space-y-4">
           <div>
-            <h2 className="font-semibold text-ink-900">Reference Photo <span className="text-red-500">*</span></h2>
+            <h2 className="font-semibold text-ink-900">
+              Reference Photo <span className="text-red-500">*</span>
+              {ogImageLoading && (
+                <span className="ml-2 text-xs font-normal text-warm-400 animate-pulse">Fetching preview…</span>
+              )}
+            </h2>
             <p className="text-sm text-warm-500 mt-0.5">
-              Upload a photo or render of what you need. This helps makers quickly understand the job when browsing.
+              {modelInputMode === 'link' && !imageFile
+                ? 'We\'ll try to auto-fill this from your link — or upload your own.'
+                : 'Upload a photo or render so makers quickly understand the job.'}
             </p>
           </div>
 
-          {imagePreview ? (
+          {/* Auto-filled from og:image */}
+          {!imageFile && ogImageUrl && imagePreview ? (
+            <div className="relative">
+              <img
+                src={imagePreview}
+                alt="Auto-filled preview"
+                className="w-full max-h-64 object-cover rounded-xl border border-green-200"
+              />
+              <div className="absolute top-2 left-2 flex items-center gap-1.5 rounded-full bg-green-500 px-2.5 py-1 text-[11px] font-semibold text-white shadow">
+                ✨ Auto-filled from your link
+              </div>
+              <button
+                type="button"
+                onClick={() => { setOgImageUrl(null); setImagePreview(null); imageFileRef.current?.click() }}
+                className="absolute top-2 right-2 rounded-full bg-ink-900/80 text-white h-7 w-7 flex items-center justify-center text-sm hover:bg-red-600 transition-colors"
+                title="Replace with your own photo"
+              >
+                ×
+              </button>
+            </div>
+          ) : imagePreview ? (
             <div className="relative">
               <img
                 src={imagePreview}
@@ -580,14 +655,27 @@ export function NewJobForm({ clientId, clientLocation, isGuest }: { clientId: st
           ) : (
             <div
               onClick={() => imageFileRef.current?.click()}
-              className="border-2 border-dashed border-warm-300 rounded-xl p-8 text-center cursor-pointer hover:border-gold-400 hover:bg-gold-50/30 transition-colors"
+              className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-colors ${
+                ogImageLoading
+                  ? 'border-warm-200 bg-warm-50 pointer-events-none'
+                  : 'border-warm-300 hover:border-gold-400 hover:bg-gold-50/30'
+              }`}
             >
-              <svg className="mx-auto h-10 w-10 text-warm-300 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-                  d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-              <p className="text-sm text-warm-600 font-medium">Click to upload a reference photo</p>
-              <p className="text-xs text-warm-400 mt-1">JPG · PNG · WEBP — max 10 MB</p>
+              {ogImageLoading ? (
+                <>
+                  <div className="mx-auto h-10 w-10 rounded-full border-2 border-warm-200 border-t-gold-400 animate-spin mb-3" />
+                  <p className="text-sm text-warm-500">Fetching preview from your link…</p>
+                </>
+              ) : (
+                <>
+                  <svg className="mx-auto h-10 w-10 text-warm-300 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  <p className="text-sm text-warm-600 font-medium">Click to upload a reference photo</p>
+                  <p className="text-xs text-warm-400 mt-1">JPG · PNG · WEBP — max 10 MB</p>
+                </>
+              )}
             </div>
           )}
           <input
