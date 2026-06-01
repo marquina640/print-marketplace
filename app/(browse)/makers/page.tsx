@@ -30,22 +30,29 @@ export default async function MakersBrowsePage({ searchParams }: PageProps) {
   const { data: makers, error } = await profileQuery
   const makerIds = makers?.map((m) => m.user_id) ?? []
 
-  const { data: portfolioItems } = makerIds.length > 0
+  // Only show makers who have at least one machine registered
+  const { data: machineRows } = makerIds.length > 0
+    ? await supabase.from('machines').select('maker_id').in('maker_id', makerIds)
+    : { data: [] }
+  const makerIdsWithMachines = new Set((machineRows ?? []).map((r) => r.maker_id))
+  const filteredMakerIds = makerIds.filter((id) => makerIdsWithMachines.has(id))
+
+  const { data: portfolioItems } = filteredMakerIds.length > 0
     ? await supabase.from('portfolio_items').select('maker_id, image_url, is_featured')
-        .in('maker_id', makerIds).order('is_featured', { ascending: false }).order('created_at', { ascending: false })
+        .in('maker_id', filteredMakerIds).order('is_featured', { ascending: false }).order('created_at', { ascending: false })
     : { data: [] }
 
-  const { data: baseProfiles } = makerIds.length > 0
-    ? await supabase.from('profiles').select('user_id, display_name, email, avatar_url').in('user_id', makerIds)
+  const { data: baseProfiles } = filteredMakerIds.length > 0
+    ? await supabase.from('profiles').select('user_id, display_name, email, avatar_url').in('user_id', filteredMakerIds)
     : { data: [] }
 
-  const { data: reviews } = makerIds.length > 0
-    ? await supabase.from('reviews').select('reviewee_id, rating').in('reviewee_id', makerIds).eq('is_public', true)
+  const { data: reviews } = filteredMakerIds.length > 0
+    ? await supabase.from('reviews').select('reviewee_id, rating').in('reviewee_id', filteredMakerIds).eq('is_public', true)
     : { data: [] }
 
-  const { data: completedQuotes } = makerIds.length > 0
+  const { data: completedQuotes } = filteredMakerIds.length > 0
     ? await supabase.from('quotes').select('printer_id, created_at, jobs!inner(created_at, status, material)')
-        .in('printer_id', makerIds).eq('status', 'accepted').in('jobs.status', ['completed', 'delivered'])
+        .in('printer_id', filteredMakerIds).eq('status', 'accepted').in('jobs.status', ['completed', 'delivered'])
     : { data: [] }
 
   interface MakerStats { completedCount: number; avgReplyHours: number | null; topMaterials: string[] }
@@ -75,7 +82,7 @@ export default async function MakersBrowsePage({ searchParams }: PageProps) {
     else { existing.count++; existing.avg = (existing.avg * (existing.count - 1) + r.rating) / existing.count }
   }
 
-  const enrichedMakers = (makers ?? []).map((m) => {
+  const enrichedMakers = (makers ?? []).filter((m) => makerIdsWithMachines.has(m.user_id)).map((m) => {
     const prof = profileByMaker[m.user_id]
     const rating = ratingByMaker[m.user_id]
     const stats = statsByMaker[m.user_id]
