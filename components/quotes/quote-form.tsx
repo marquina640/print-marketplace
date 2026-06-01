@@ -32,6 +32,7 @@ export function QuoteForm({ jobId, printerId: printerIdProp, shippingRequired, e
   const [leadTime, setLeadTime] = useState(existingQuote?.lead_time_days?.toString() ?? '')
   const [message, setMessage] = useState(existingQuote?.message ?? '')
   const [justification, setJustification] = useState((existingQuote as any)?.price_justification ?? '')
+  const [includesShipping, setIncludesShipping] = useState(!!(existingQuote as any)?.includes_shipping ?? false)
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState<string | null>(existingQuote?.image_url ?? null)
 
@@ -110,6 +111,7 @@ export function QuoteForm({ jobId, printerId: printerIdProp, shippingRequired, e
       lead_time_days: parseInt(leadTime),
       message: message.trim() || null,
       price_justification: justification.trim() || null,
+      includes_shipping: shippingRequired ? includesShipping : false,
       image_url,
       expires_at: expiresAt,
     }
@@ -179,14 +181,28 @@ export function QuoteForm({ jobId, printerId: printerIdProp, shippingRequired, e
       </div>
 
       {shippingRequired && (
-        <div className="flex items-start gap-2.5 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
-          <span className="text-lg flex-shrink-0">📦</span>
-          <div>
-            <p className="text-sm font-semibold text-amber-800">Include shipping in your price</p>
-            <p className="text-xs text-amber-700 mt-0.5 leading-relaxed">
-              This client requires shipping. Add the estimated shipping cost to your total price - there is no separate shipping field.
-            </p>
+        <div className="space-y-3">
+          <div className="flex items-start gap-2.5 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
+            <span className="text-lg flex-shrink-0">📦</span>
+            <div>
+              <p className="text-sm font-semibold text-amber-800">This client wants shipping</p>
+              <p className="text-xs text-amber-700 mt-0.5 leading-relaxed">
+                Add the estimated shipping cost to your total price - there is no separate shipping field.
+              </p>
+            </div>
           </div>
+          <label className="flex items-center gap-3 cursor-pointer rounded-xl border border-warm-200 px-4 py-3 hover:bg-warm-50 transition-colors">
+            <input
+              type="checkbox"
+              checked={includesShipping}
+              onChange={(e) => setIncludesShipping(e.target.checked)}
+              className="h-4 w-4 rounded border-warm-300 text-ink-600 focus:ring-ink-500 flex-shrink-0"
+            />
+            <div>
+              <p className="text-sm font-medium text-warm-900">My quote includes shipping</p>
+              <p className="text-xs text-warm-400 mt-0.5">The client will see this confirmed on your quote.</p>
+            </div>
+          </label>
         </div>
       )}
 

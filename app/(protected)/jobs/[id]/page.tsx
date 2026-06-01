@@ -5,7 +5,7 @@ import { createClient } from '@/lib/supabase/server'
 import { QuoteForm } from '@/components/quotes/quote-form'
 import { StatusBadge, MaterialBadge, CertificationBadge, JobTypeBadge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { formatCurrency, formatDate, formatFileSize } from '@/lib/utils'
+import { formatCurrency, formatDate, formatFileSize, CURRENCIES } from '@/lib/utils'
 import { AcceptQuoteButton } from './accept-quote-button'
 import { countUnreviewedJobs } from '@/app/actions/review-gate'
 import { ReviewForm } from './review-form'
@@ -198,7 +198,7 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4">
           <Stat label="Quantity"  value={job.quantity.toString()} />
-          <Stat label="Budget"    value={formatCurrency(job.budget)} />
+          <Stat label="Budget"    value={formatCurrency(job.budget, (job as any).currency ?? 'CHF')} />
           <Stat label="Deadline"  value={formatDate(job.deadline)} />
           <Stat label="Location"  value={job.location ?? '—'} />
         </div>
@@ -309,7 +309,14 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
                   )}
                   <div className="flex items-start justify-between gap-3 mb-3">
                     <div>
-                      <p className="font-bold text-warm-900 text-lg">{formatCurrency(q.price)}</p>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <p className="font-bold text-warm-900 text-lg">{formatCurrency(q.price, (job as any).currency ?? 'CHF')}</p>
+                        {(q as any).includes_shipping && (
+                          <span className="rounded-full bg-amber-100 text-amber-700 text-[10px] font-semibold px-2 py-0.5 border border-amber-200">
+                            📦 incl. shipping
+                          </span>
+                        )}
+                      </div>
                       <div className="flex items-center gap-2 mt-1 flex-wrap">
                         <Link href={`/makers/${q.printer_id}`} className="text-sm text-ink-600 hover:text-ink-800 font-medium hover:underline">
                           {printer?.display_name ?? printer?.email}

@@ -5,10 +5,27 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export function formatCurrency(amount: number | null | undefined): string {
+export function formatCurrency(amount: number | null | undefined, currency = 'CHF'): string {
   if (amount == null) return '—'
-  return new Intl.NumberFormat('de-CH', { style: 'currency', currency: 'CHF' }).format(amount)
+  try {
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency, maximumFractionDigits: 2 }).format(amount)
+  } catch {
+    return `${currency} ${amount.toFixed(2)}`
+  }
 }
+
+export const CURRENCIES = [
+  { code: 'CHF', label: 'CHF - Swiss Franc' },
+  { code: 'EUR', label: 'EUR - Euro' },
+  { code: 'USD', label: 'USD - US Dollar' },
+  { code: 'GBP', label: 'GBP - British Pound' },
+  { code: 'CAD', label: 'CAD - Canadian Dollar' },
+  { code: 'AUD', label: 'AUD - Australian Dollar' },
+  { code: 'SEK', label: 'SEK - Swedish Krona' },
+  { code: 'NOK', label: 'NOK - Norwegian Krone' },
+  { code: 'DKK', label: 'DKK - Danish Krone' },
+  { code: 'JPY', label: 'JPY - Japanese Yen' },
+] as const
 
 export function formatDate(dateStr: string | null | undefined): string {
   if (!dateStr) return '—'
@@ -43,9 +60,18 @@ export const DEFAULT_LAT = 47.3769
 export const DEFAULT_LNG = 8.5417
 
 // ── Materials & Colors ────────────────────────────────────
+// Decorative jobs: only simple plastics (no engineering or technical materials)
+export const MATERIALS_DECORATIVE = [
+  'Suggest the best one',
+  'PLA',
+  'PETG',
+  'TPU',
+]
+
+// All materials (functional, engineering, production jobs)
 export const MATERIALS = [
   'Suggest the best one',
-  'PLA', 'ABS', 'PETG', 'TPU', 'ASA', 'Nylon',
+  'PLA', 'ABS', 'PETG', 'TPU', 'ASA', 'Nylon', 'Polycarbonate',
   'Resin (Standard)', 'Resin (ABS-Like)',
   'Carbon Fiber PLA', 'Wood PLA', 'Metal PLA', 'Other',
 ]
@@ -254,9 +280,9 @@ export const MANUFACTURING_PROCESSES = [
   {
     value: 'sls',
     label: 'SLS (Powder)',
-    description: 'Nylon sintering - strong, no supports',
-    tooltip: 'Sinters nylon powder with a laser. Produces very strong, complex parts with no support marks. More expensive than FDM but excellent for engineering parts and complex geometries.',
-    available: true,
+    description: 'Nylon sintering - strong, no supports - coming soon',
+    tooltip: 'Sinters nylon powder with a laser. Produces very strong, complex parts with no support marks. More expensive than FDM but excellent for engineering parts and complex geometries. Coming soon.',
+    available: false,
     recommended: false,
   },
   {
@@ -270,9 +296,9 @@ export const MANUFACTURING_PROCESSES = [
   {
     value: 'laser',
     label: 'Laser Cutting',
-    description: 'Flat sheet cutting and engraving',
-    tooltip: 'Cuts or engraves flat sheets of wood, acrylic, metal, or fabric with a laser. Best for 2D shapes, enclosures, signs, and decorative pieces.',
-    available: true,
+    description: 'Flat sheet cutting and engraving - coming soon',
+    tooltip: 'Cuts or engraves flat sheets of wood, acrylic, metal, or fabric with a laser. Best for 2D shapes, enclosures, signs, and decorative pieces. Coming soon.',
+    available: false,
     recommended: false,
   },
   {

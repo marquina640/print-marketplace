@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Select } from '@/components/ui/select'
-import { MATERIALS, COLORS, formatFileSize, JOB_TYPES, MANUFACTURING_PROCESSES } from '@/lib/utils'
+import { MATERIALS, MATERIALS_DECORATIVE, COLORS, CURRENCIES, formatFileSize, JOB_TYPES, MANUFACTURING_PROCESSES } from '@/lib/utils'
 
 interface ClientLocation { address: string; lat: number | null; lng: number | null }
 
@@ -26,6 +26,7 @@ export function NewJobForm({ clientId, clientLocation, isGuest }: { clientId: st
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
 
+  const [currency, setCurrency] = useState('CHF')
   const [form, setForm] = useState({
     title: '',
     description: '',
@@ -37,7 +38,7 @@ export function NewJobForm({ clientId, clientLocation, isGuest }: { clientId: st
     location: clientLocation.address,
     lat: clientLocation.lat,
     lng: clientLocation.lng,
-    shipping_required: true,
+    shipping_required: false,
     pickup_ok: false,
     job_type: 'functional',
     process: 'fdm',
@@ -178,6 +179,7 @@ export function NewJobForm({ clientId, clientLocation, isGuest }: { clientId: st
         quantity: parseInt(form.quantity) || 1,
         deadline: form.deadline || null,
         budget: form.budget ? parseFloat(form.budget) : null,
+        currency: currency,
         location: form.location.trim(),
         shipping_required: form.shipping_required,
         pickup_ok: form.pickup_ok,
@@ -300,7 +302,16 @@ export function NewJobForm({ clientId, clientLocation, isGuest }: { clientId: st
                 <button
                   key={jt.value}
                   type="button"
-                  onClick={() => set('job_type', jt.value)}
+                  onClick={() => {
+                    set('job_type', jt.value)
+                    // Reset material if switching to decorative and current material isn't allowed
+                    if (jt.value === 'decorative') {
+                      const decorativeMats = ['Suggest the best one', 'PLA', 'PETG', 'TPU']
+                      if (!decorativeMats.includes(form.material)) set('material', '')
+                      // Reset process if not fdm/resin
+                      if (form.process !== 'fdm' && form.process !== 'resin') set('process', 'fdm')
+                    }
+                  }}
                   className={`text-left rounded-xl border-2 p-4 transition-all ${active ? `${colorMap[jt.color]} ring-2` : colorMap[jt.color]}`}
                 >
                   <div className="flex items-center gap-2 mb-1">
@@ -330,7 +341,7 @@ export function NewJobForm({ clientId, clientLocation, isGuest }: { clientId: st
               </button>
               <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-72 bg-ink-950 text-white text-xs rounded-xl p-3 shadow-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50 space-y-2">
                 <p className="font-semibold text-gold-400 mb-1">Process guide</p>
-                {MANUFACTURING_PROCESSES.map((p) => (
+                {MANUFACTURING_PROCESSES.filter((p) => p.available || p.value === 'fdm' || p.value === 'resin').map((p) => (
                   <div key={p.value}>
                     <span className="font-medium text-white">{p.label}:</span>{' '}
                     <span className="text-warm-300">{p.tooltip}</span>
@@ -339,8 +350,15 @@ export function NewJobForm({ clientId, clientLocation, isGuest }: { clientId: st
               </div>
             </div>
           </div>
+          {form.job_type === 'decorative' && (
+            <p className="text-xs text-warm-400">Decorative jobs support FDM and Resin printing only.</p>
+          )}
           <div className="flex flex-wrap gap-2">
-            {MANUFACTURING_PROCESSES.filter((p) => p.available).map((p) => {
+            {MANUFACTURING_PROCESSES.filter((p) => {
+              if (!p.available) return false
+              if (form.job_type === 'decorative') return p.value === 'fdm' || p.value === 'resin'
+              return true
+            }).map((p) => {
               const active = form.process === p.value
               return (
                 <button
@@ -362,7 +380,10 @@ export function NewJobForm({ clientId, clientLocation, isGuest }: { clientId: st
                 </button>
               )
             })}
-            {MANUFACTURING_PROCESSES.filter((p) => !p.available).map((p) => (
+            {MANUFACTURING_PROCESSES.filter((p) => {
+              if (form.job_type === 'decorative') return p.value !== 'fdm' && p.value !== 'resin'
+              return !p.available
+            }).map((p) => (
               <span key={p.value} className="rounded-xl border border-warm-200 px-3 py-2 text-sm text-warm-300 cursor-not-allowed">
                 {p.label} <span className="text-[10px]">soon</span>
               </span>
@@ -376,7 +397,7 @@ export function NewJobForm({ clientId, clientLocation, isGuest }: { clientId: st
           <div className="grid grid-cols-2 gap-4">
             <Select
               label="Material *"
-              options={MATERIALS.map((m) => ({ value: m, label: m }))}
+              options={(form.job_type === 'decorative' ? MATERIALS_DECORATIVE : MATERIALS).map((m) => ({ value: m, label: m }))}
               placeholder="Select material"
               value={form.material}
               onChange={(e) => set('material', e.target.value)}
@@ -444,28 +465,53 @@ export function NewJobForm({ clientId, clientLocation, isGuest }: { clientId: st
         {/* Budget & Delivery */}
         <div className="card p-6 space-y-4">
           <h2 className="font-semibold text-ink-900">Budget & Delivery</h2>
-          <Input
-            label="Budget (CHF)"
-            type="number"
-            min="0"
-            step="0.01"
-            value={form.budget}
-            onChange={(e) => set('budget', e.target.value)}
-            placeholder="50.00"
-            hint="Leave blank if flexible"
-          />
+
+          {/* Budget with currency selector */}
+          <div>
+            <label className="form-label">Budget <span className="font-normal text-warm-400">(leave blank if flexible)</span></label>
+            <div className="flex gap-2">
+              <select
+                value={currency}
+                onChange={(e) => setCurrency(e.target.value)}
+                className="rounded-xl border border-warm-200 bg-white px-3 py-2.5 text-sm text-warm-900 focus:outline-none focus:ring-2 focus:ring-ink-400 flex-shrink-0"
+              >
+                {CURRENCIES.map((c) => (
+                  <option key={c.code} value={c.code}>{c.code}</option>
+                ))}
+              </select>
+              <input
+                type="number"
+                min="0"
+                step="0.01"
+                value={form.budget}
+                onChange={(e) => set('budget', e.target.value)}
+                placeholder="50.00"
+                className="flex-1 rounded-xl border border-warm-200 px-3 py-2.5 text-sm text-warm-900 placeholder-warm-300 focus:outline-none focus:ring-2 focus:ring-ink-400"
+              />
+            </div>
+          </div>
+
+          {/* Delivery options */}
           <div className="space-y-2">
-            <label className="flex items-center gap-3 cursor-pointer">
+            <label className="flex items-start gap-3 cursor-pointer">
               <input
                 type="checkbox"
                 checked={form.shipping_required}
                 onChange={(e) => set('shipping_required', e.target.checked as unknown as boolean)}
-                className="h-4 w-4 rounded border-warm-300 text-ink-600 focus:ring-ink-500"
+                className="mt-0.5 h-4 w-4 rounded border-warm-300 text-ink-600 focus:ring-ink-500"
               />
               <span className="text-sm text-warm-700">
                 Shipping OK - makers can ship your order
               </span>
             </label>
+            {form.shipping_required && (
+              <div className="ml-7 flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2.5">
+                <span className="text-base flex-shrink-0">📦</span>
+                <p className="text-xs text-amber-800 leading-relaxed">
+                  <span className="font-semibold">Quote will include shipping.</span> Makers will add the shipping cost to their quote price - no separate shipping charge.
+                </p>
+              </div>
+            )}
             <label className="flex items-center gap-3 cursor-pointer">
               <input
                 type="checkbox"

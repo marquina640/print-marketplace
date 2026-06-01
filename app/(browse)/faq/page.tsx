@@ -43,7 +43,7 @@ const clientFAQ = [
   },
   {
     q: 'How long does it take to receive my print?',
-    a: <p>Most simple jobs receive their first quotes within a few hours. Once you accept a quote and pay, production typically takes 1–3 days depending on size and complexity. Shipping within Switzerland adds 1–2 days. For urgent jobs, mention your deadline in the request - makers can flag whether they can meet it.</p>,
+    a: <p>Most simple jobs receive their first quotes within a few hours. Once you accept a quote and pay, production typically takes 1-3 days depending on size and complexity. Shipping typically adds 1-4 days depending on your location. For urgent jobs, mention your deadline in the request - makers can flag whether they can meet it.</p>,
   },
   {
     q: 'Can I pick up my print in person instead of having it shipped?',
