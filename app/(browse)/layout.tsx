@@ -61,10 +61,22 @@ export default async function BrowseLayout({ children }: { children: React.React
       </div>
 
       {/* Footer */}
-      <footer className="border-t border-warm-200 bg-warm-100 py-4 text-center text-xs text-warm-400">
-        <div className="flex items-center justify-center gap-4">
-          <span>© {new Date().getFullYear()} PrintMarketHub</span>
-          <Link href="/terms" className="hover:text-warm-700 hover:underline">Terms of Service</Link>
+      <footer className="border-t border-warm-200 bg-warm-100 py-6 text-xs text-warm-400">
+        <div className="page-container space-y-4">
+          <div className="flex flex-wrap justify-center gap-x-6 gap-y-2">
+            <Link href="/how-it-works" className="hover:text-warm-700 hover:underline">How it works</Link>
+            <Link href="/for-makers"   className="hover:text-warm-700 hover:underline">For makers</Link>
+            <Link href="/blog"         className="hover:text-warm-700 hover:underline">Blog</Link>
+            <Link href="/faq"          className="hover:text-warm-700 hover:underline">FAQ</Link>
+            <Link href="/makers"       className="hover:text-warm-700 hover:underline">Browse makers</Link>
+            <Link href="/jobs"         className="hover:text-warm-700 hover:underline">Browse requests</Link>
+          </div>
+          <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 border-t border-warm-200 pt-4">
+            <span>© {new Date().getFullYear()} PrintMarketHub</span>
+            <Link href="/terms"          className="hover:text-warm-700 hover:underline">Terms of Service</Link>
+            <Link href="/legal/privacy"  className="hover:text-warm-700 hover:underline">Privacy Policy</Link>
+            <a href="mailto:admin@printmarkethub.com" className="hover:text-warm-700 hover:underline">Contact</a>
+          </div>
         </div>
       </footer>
     </div>
