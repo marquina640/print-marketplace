@@ -19,6 +19,8 @@ export function NewJobForm({ clientId, clientLocation, isGuest }: { clientId: st
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [modelFiles, setModelFiles] = useState<File[]>([])
+  const [modelInputMode, setModelInputMode] = useState<'file' | 'link'>('file')
+  const [modelUrl, setModelUrl] = useState('')
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
 
@@ -79,7 +81,13 @@ export function NewJobForm({ clientId, clientLocation, isGuest }: { clientId: st
     setError(null)
 
     if (!form.material) { setError('Please select a material.'); return }
-    if (modelFiles.length === 0) { setError('Please upload at least one 3D model file (STL, 3MF, etc.).'); return }
+    if (modelInputMode === 'file' && modelFiles.length === 0) { setError('Please upload at least one 3D model file (STL, 3MF, etc.).'); return }
+    if (modelInputMode === 'link' && !modelUrl.trim()) { setError('Please paste a link to your model on Thingiverse or MakerWorld.'); return }
+    if (modelInputMode === 'link') {
+      const validDomains = ['thingiverse.com', 'makerworld.com', 'printables.com', 'myminifactory.com', 'cults3d.com']
+      const isValidUrl = validDomains.some((d) => modelUrl.includes(d)) || modelUrl.startsWith('http')
+      if (!isValidUrl) { setError('Please enter a valid URL (e.g. a Thingiverse or MakerWorld link).'); return }
+    }
     if (!imageFile) { setError('Please upload a reference photo so makers can see what you need.'); return }
 
     setLoading(true)
@@ -135,28 +143,44 @@ export function NewJobForm({ clientId, clientLocation, isGuest }: { clientId: st
       return
     }
 
-    // Upload 3D model files
-    for (const file of modelFiles) {
-      const path = `${job.id}/${Date.now()}-${file.name}`
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('job-files')
-        .upload(path, file)
-
-      if (uploadError) {
-        console.error('File upload error:', uploadError.message)
-        continue
-      }
-
-      const { data: { publicUrl: filePublicUrl } } = supabase.storage.from('job-files').getPublicUrl(path)
-
+    // Upload 3D model files or save link
+    if (modelInputMode === 'link' && modelUrl.trim()) {
+      // Extract a display name from the URL
+      const urlObj = (() => { try { return new URL(modelUrl.trim()) } catch { return null } })()
+      const displayName = urlObj
+        ? urlObj.hostname.replace('www.', '') + urlObj.pathname
+        : modelUrl.trim()
       await supabase.from('job_files').insert({
         job_id: job.id,
         uploaded_by: user.id,
-        file_name: file.name,
-        file_url: uploadData?.path ? filePublicUrl : '',
-        file_size: file.size,
-        file_type: file.name.split('.').pop()?.toLowerCase(),
+        file_name: displayName,
+        file_url: modelUrl.trim(),
+        file_size: 0,
+        file_type: 'link',
       })
+    } else {
+      for (const file of modelFiles) {
+        const path = `${job.id}/${Date.now()}-${file.name}`
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('job-files')
+          .upload(path, file)
+
+        if (uploadError) {
+          console.error('File upload error:', uploadError.message)
+          continue
+        }
+
+        const { data: { publicUrl: filePublicUrl } } = supabase.storage.from('job-files').getPublicUrl(path)
+
+        await supabase.from('job_files').insert({
+          job_id: job.id,
+          uploaded_by: user.id,
+          file_name: file.name,
+          file_url: uploadData?.path ? filePublicUrl : '',
+          file_size: file.size,
+          file_type: file.name.split('.').pop()?.toLowerCase(),
+        })
+      }
     }
 
     router.push(`/jobs/${job.id}`)
@@ -405,52 +429,121 @@ export function NewJobForm({ clientId, clientLocation, isGuest }: { clientId: st
         {/* 3D Model files */}
         <div className="card p-6 space-y-4">
           <div>
-            <h2 className="font-semibold text-ink-900">3D Model Files <span className="text-red-500">*</span></h2>
-            <p className="text-sm text-warm-500 mt-0.5">Upload your STL, STEP, 3MF, or ZIP files. Max 50 MB each.</p>
+            <h2 className="font-semibold text-ink-900">3D Model <span className="text-red-500">*</span></h2>
+            <p className="text-sm text-warm-500 mt-0.5">Upload your model file, or paste a link from Thingiverse, MakerWorld, or Printables.</p>
           </div>
 
-          <div
-            onClick={() => modelFileRef.current?.click()}
-            className="border-2 border-dashed border-warm-300 rounded-xl p-8 text-center cursor-pointer hover:border-ink-400 hover:bg-warm-50 transition-colors"
-          >
-            <svg className="mx-auto h-10 w-10 text-warm-300 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-            </svg>
-            <p className="text-sm text-warm-600 font-medium">Click to upload 3D files</p>
-            <p className="text-xs text-warm-400 mt-1">STL · STEP · 3MF · OBJ · ZIP</p>
-            <input
-              ref={modelFileRef}
-              type="file"
-              multiple
-              accept=".stl,.step,.stp,.3mf,.zip,.obj"
-              onChange={handleModelFileChange}
-              className="hidden"
-            />
+          {/* Toggle tabs */}
+          <div className="flex rounded-xl border border-warm-200 overflow-hidden">
+            <button
+              type="button"
+              onClick={() => setModelInputMode('file')}
+              className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium transition-colors ${
+                modelInputMode === 'file'
+                  ? 'bg-ink-900 text-white'
+                  : 'bg-white text-warm-600 hover:bg-warm-50'
+              }`}
+            >
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                  d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+              </svg>
+              Upload file
+            </button>
+            <button
+              type="button"
+              onClick={() => setModelInputMode('link')}
+              className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium transition-colors border-l border-warm-200 ${
+                modelInputMode === 'link'
+                  ? 'bg-ink-900 text-white'
+                  : 'bg-white text-warm-600 hover:bg-warm-50'
+              }`}
+            >
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                  d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+              </svg>
+              Paste a link
+            </button>
           </div>
 
-          {modelFiles.length > 0 && (
-            <ul className="space-y-2">
-              {modelFiles.map((f, i) => (
-                <li key={i} className="flex items-center justify-between rounded-lg bg-warm-50 px-3 py-2">
-                  <div className="flex items-center gap-2 min-w-0">
-                    <svg className="h-4 w-4 text-ink-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                    <span className="text-sm text-ink-700 truncate">{f.name}</span>
-                    <span className="text-xs text-warm-400 flex-shrink-0">{formatFileSize(f.size)}</span>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setModelFiles((prev) => prev.filter((_, j) => j !== i))}
-                    className="text-warm-400 hover:text-red-500 ml-2 text-lg leading-none"
+          {modelInputMode === 'file' ? (
+            <>
+              <div
+                onClick={() => modelFileRef.current?.click()}
+                className="border-2 border-dashed border-warm-300 rounded-xl p-8 text-center cursor-pointer hover:border-ink-400 hover:bg-warm-50 transition-colors"
+              >
+                <svg className="mx-auto h-10 w-10 text-warm-300 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                </svg>
+                <p className="text-sm text-warm-600 font-medium">Click to upload 3D files</p>
+                <p className="text-xs text-warm-400 mt-1">STL · STEP · 3MF · OBJ · ZIP</p>
+                <input
+                  ref={modelFileRef}
+                  type="file"
+                  multiple
+                  accept=".stl,.step,.stp,.3mf,.zip,.obj"
+                  onChange={handleModelFileChange}
+                  className="hidden"
+                />
+              </div>
+
+              {modelFiles.length > 0 && (
+                <ul className="space-y-2">
+                  {modelFiles.map((f, i) => (
+                    <li key={i} className="flex items-center justify-between rounded-lg bg-warm-50 px-3 py-2">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <svg className="h-4 w-4 text-ink-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <span className="text-sm text-ink-700 truncate">{f.name}</span>
+                        <span className="text-xs text-warm-400 flex-shrink-0">{formatFileSize(f.size)}</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setModelFiles((prev) => prev.filter((_, j) => j !== i))}
+                        className="text-warm-400 hover:text-red-500 ml-2 text-lg leading-none"
+                      >
+                        ×
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </>
+          ) : (
+            <div className="space-y-3">
+              <input
+                type="url"
+                value={modelUrl}
+                onChange={(e) => setModelUrl(e.target.value)}
+                placeholder="https://www.thingiverse.com/thing:... or https://makerworld.com/..."
+                className="w-full rounded-xl border border-warm-300 bg-white px-4 py-3 text-sm text-ink-900 placeholder-warm-400 focus:border-ink-500 focus:outline-none focus:ring-2 focus:ring-ink-200 transition"
+              />
+              <div className="flex flex-wrap gap-2">
+                {[
+                  { label: 'Thingiverse', url: 'https://www.thingiverse.com/', color: 'bg-blue-50 text-blue-700 border-blue-200' },
+                  { label: 'MakerWorld', url: 'https://makerworld.com/', color: 'bg-green-50 text-green-700 border-green-200' },
+                  { label: 'Printables', url: 'https://www.printables.com/', color: 'bg-orange-50 text-orange-700 border-orange-200' },
+                  { label: 'MyMiniFactory', url: 'https://www.myminifactory.com/', color: 'bg-purple-50 text-purple-700 border-purple-200' },
+                ].map((site) => (
+                  <a
+                    key={site.label}
+                    href={site.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`rounded-full border px-3 py-1 text-xs font-medium transition-opacity hover:opacity-75 ${site.color}`}
                   >
-                    ×
-                  </button>
-                </li>
-              ))}
-            </ul>
+                    {site.label} ↗
+                  </a>
+                ))}
+              </div>
+              <p className="text-xs text-warm-400">
+                Find your model on one of these platforms, copy the page URL, and paste it above.
+              </p>
+            </div>
           )}
         </div>
 
