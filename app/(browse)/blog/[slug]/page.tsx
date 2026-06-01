@@ -35,7 +35,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
 
   if (!post || !Content) return notFound()
 
-  const dateStr = new Date(post.date).toLocaleDateString('en-CH', {
+  const dateStr = new Date(post.date).toLocaleDateString('en-US', {
     year: 'numeric', month: 'long', day: 'numeric',
   })
 
