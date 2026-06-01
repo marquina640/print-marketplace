@@ -41,6 +41,9 @@ export async function sendMessage({
   return { message: data, wasModified, removedTypes }
 }
 
+// Only email once per hour per thread — avoids spamming during active conversations
+const EMAIL_COOLDOWN_MINUTES = 60
+
 async function notifyMessageForReceiver({
   jobId, senderId, receiverId, content,
 }: {
@@ -48,6 +51,22 @@ async function notifyMessageForReceiver({
 }) {
   try {
     const admin = createAdminClient()
+
+    // Count messages sent in this thread (same sender→receiver, same job) in the last hour.
+    // If more than 1 exists it means we already emailed recently — the current message
+    // was just inserted so a count of 1 means it's the first in the cooldown window.
+    const since = new Date(Date.now() - EMAIL_COOLDOWN_MINUTES * 60 * 1000).toISOString()
+    const { count: recentCount } = await admin
+      .from('messages')
+      .select('*', { count: 'exact', head: true })
+      .eq('job_id', jobId)
+      .eq('sender_id', senderId)
+      .eq('receiver_id', receiverId)
+      .gte('created_at', since)
+
+    // recentCount includes the message we just inserted.
+    // If it's > 1, an email was already sent within the cooldown window — skip.
+    if ((recentCount ?? 0) > 1) return
 
     const [{ data: job }, { data: senderProfile }, { data: receiverProfile }] = await Promise.all([
       admin.from('jobs').select('title').eq('id', jobId).single(),
@@ -57,15 +76,15 @@ async function notifyMessageForReceiver({
 
     if (!job || !senderProfile || !receiverProfile?.email) return
 
-    const senderName = senderProfile.display_name ?? senderProfile.email?.split('@')[0] ?? 'Someone'
+    const senderName = (senderProfile as any).display_name ?? (senderProfile as any).email?.split('@')[0] ?? 'Someone'
 
     await notifyMessageReceived({
       jobId,
-      jobTitle:      job.title,
+      jobTitle:      (job as any).title,
       senderId,
       senderName,
       receiverId,
-      receiverEmail: receiverProfile.email,
+      receiverEmail: (receiverProfile as any).email,
       content,
     })
   } catch {
