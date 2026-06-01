@@ -49,9 +49,15 @@ export function NewJobForm({ clientId, clientLocation, isGuest }: { clientId: st
   function handleModelFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const selected = Array.from(e.target.files ?? [])
     const allowed = ['stl', 'step', 'stp', '3mf', 'zip', 'obj']
+    // On mobile, iOS/Android may report no extension or application/octet-stream
+    // for STL files — accept those too rather than blocking valid uploads
     const valid = selected.filter((f) => {
       const ext = f.name.split('.').pop()?.toLowerCase() ?? ''
-      return allowed.includes(ext)
+      if (allowed.includes(ext)) return true
+      // Allow files with no recognised extension but a binary/octet MIME type
+      // (common on iOS for STL, STEP etc.)
+      if (f.type === 'application/octet-stream' || f.type === '') return true
+      return false
     })
     if (valid.length !== selected.length) {
       setError('Some files were rejected. Allowed types: STL, STEP, 3MF, ZIP, OBJ.')
@@ -483,7 +489,7 @@ export function NewJobForm({ clientId, clientLocation, isGuest }: { clientId: st
                   ref={modelFileRef}
                   type="file"
                   multiple
-                  accept=".stl,.step,.stp,.3mf,.zip,.obj"
+                  accept=".stl,.step,.stp,.3mf,.zip,.obj,model/stl,model/x.stl-ascii,model/x.stl-binary,application/octet-stream"
                   onChange={handleModelFileChange}
                   className="hidden"
                 />
