@@ -26,12 +26,12 @@ export default async function LandingPage() {
       {/* Navbar */}
       <header className="sticky top-0 z-50 border-b border-warm-200 bg-white/95 backdrop-blur-md">
         <div className="page-container flex h-16 items-center justify-between">
-          <div className="flex items-center gap-3">
-            <img src="/logo-icon.png" alt="PrintMarketHub" className="h-12 w-auto" />
-            <span className="text-xl font-black tracking-tight text-warm-900">PrintMarket<span className="text-[#D4A017]">Hub</span></span>
+          <div className="flex items-center gap-2">
+            <img src="/logo-icon.png" alt="PrintMarketHub" className="h-10 w-auto" />
+            <span className="hidden sm:block text-xl font-black tracking-tight text-warm-900">PrintMarket<span className="text-[#D4A017]">Hub</span></span>
           </div>
-          <nav className="flex items-center gap-2">
-            <div className="hidden md:flex items-center gap-0.5 mr-2">
+          <nav className="flex items-center gap-1.5">
+            <div className="hidden md:flex items-center gap-0.5 mr-1">
               <Link href="/how-it-works" className="px-3 py-1.5 text-sm font-medium text-warm-600 hover:text-warm-900 hover:bg-warm-100 rounded-lg transition-colors">How it works</Link>
               <Link href="/for-makers"   className="px-3 py-1.5 text-sm font-medium text-warm-600 hover:text-warm-900 hover:bg-warm-100 rounded-lg transition-colors">For makers</Link>
               <Link href="/blog"         className="px-3 py-1.5 text-sm font-medium text-warm-600 hover:text-warm-900 hover:bg-warm-100 rounded-lg transition-colors">Blog</Link>
@@ -39,12 +39,12 @@ export default async function LandingPage() {
             </div>
             {user ? (
               <Link href={isMaker ? '/dashboard/printer' : '/dashboard/client'}>
-                <Button variant="gold" size="sm">Go to Dashboard</Button>
+                <Button variant="gold" size="sm">Dashboard</Button>
               </Link>
             ) : (
               <>
-                <Link href="/login"><Button variant="ghost" size="sm">Log in</Button></Link>
-                <Link href="/signup"><Button variant="gold" size="sm">Get started free</Button></Link>
+                <Link href="/login" className="hidden sm:block"><Button variant="ghost" size="sm">Log in</Button></Link>
+                <Link href="/signup"><Button variant="gold" size="sm"><span className="hidden sm:inline">Get started free</span><span className="sm:hidden">Get started</span></Button></Link>
               </>
             )}
           </nav>

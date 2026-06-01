@@ -5,8 +5,21 @@ const PUBLIC_PATHS = new Set(['/', '/login', '/signup'])
 
 // Paths guests can browse without an account
 function isBrowsePath(pathname: string): boolean {
+  // Marketplace browsing
   if (pathname === '/jobs' || pathname === '/map' || pathname === '/jobs/new') return true
   if (pathname === '/makers' || pathname.startsWith('/makers/')) return true
+  // Content & info pages (must be public for SEO and Stripe compliance review)
+  if (pathname.startsWith('/blog')) return true
+  if (pathname.startsWith('/faq')) return true
+  if (pathname.startsWith('/how-it-works')) return true
+  if (pathname.startsWith('/for-makers')) return true
+  // Legal pages — must always be publicly accessible
+  if (pathname.startsWith('/legal')) return true
+  if (pathname.startsWith('/terms')) return true
+  if (pathname.startsWith('/app/legal')) return true
+  // Auth flow
+  if (pathname.startsWith('/forgot-password')) return true
+  if (pathname.startsWith('/reset-password')) return true
   return false
 }
 
