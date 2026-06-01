@@ -13,6 +13,7 @@ import { PaymentButton } from '@/components/payments/payment-button'
 import { MarkShippedButton } from './mark-shipped-button'
 import { ConfirmReceiptButton } from './confirm-receipt-button'
 import { MarkPayoutButton } from './mark-payout-button'
+import { CancelJobButton } from './cancel-job-button'
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -93,6 +94,7 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
 
   const printerUnreviewed = isPrinter ? await countUnreviewedJobs(effectiveUserId) : 0
   const blockedByReviews  = printerUnreviewed >= 3
+  const canCancel         = isOwner && ['open', 'quoted'].includes((job as any).status)
   const canSubmitQuote    = isPrinter && !isOwner && job.status === 'open' && !blockedByReviews
   const canAcceptQuote    = isOwner && job.status === 'open'
   const canMarkShipped    = isPrinter && effectiveUserId === acceptedPrinter && (job as any).status === 'paid'
@@ -139,6 +141,16 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
         </div>
       )}
 
+      {(job as any).status === 'cancelled' && (
+        <div className="rounded-xl bg-warm-100 border border-warm-300 px-5 py-4 flex items-center gap-3">
+          <span className="text-xl">🚫</span>
+          <div>
+            <p className="font-semibold text-warm-800">This request was cancelled</p>
+            <p className="text-sm text-warm-500 mt-0.5">The client closed this request before a deal was made.</p>
+          </div>
+        </div>
+      )}
+
       {/* Header card */}
       <div className="card p-6">
         <div className="flex items-start justify-between gap-4 mb-4">
@@ -164,7 +176,15 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
           <Stat label="Deadline"  value={formatDate(job.deadline)} />
           <Stat label="Location"  value={job.location ?? '—'} />
         </div>
-        <p className="text-xs text-warm-400">Posted {formatDate(job.created_at)}</p>
+        <div className="flex items-center justify-between">
+          <p className="text-xs text-warm-400">Posted {formatDate(job.created_at)}</p>
+          {canCancel && (
+            <CancelJobButton
+              jobId={job.id}
+              quoteCount={quotes?.filter((q) => q.status === 'pending').length ?? 0}
+            />
+          )}
+        </div>
       </div>
 
       {/* File warning for makers */}

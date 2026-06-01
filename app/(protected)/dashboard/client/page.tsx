@@ -11,11 +11,11 @@ import { formatCurrency, formatDate } from '@/lib/utils'
 export const metadata = { title: 'Customer Dashboard' }
 
 interface PageProps {
-  searchParams: Promise<{ reviews?: string }>
+  searchParams: Promise<{ reviews?: string; cancelled?: string }>
 }
 
 export default async function ClientDashboardPage({ searchParams }: PageProps) {
-  const { reviews } = await searchParams
+  const { reviews, cancelled } = await searchParams
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
@@ -100,6 +100,13 @@ export default async function ClientDashboardPage({ searchParams }: PageProps) {
 
   return (
     <div className="max-w-5xl mx-auto space-y-8">
+      {cancelled === '1' && (
+        <div className="rounded-xl bg-warm-100 border border-warm-300 px-5 py-4 flex items-center gap-3">
+          <span className="text-xl">✓</span>
+          <p className="text-sm text-warm-700">Your request has been cancelled.</p>
+        </div>
+      )}
+
       {reviews === 'pending' && (
         <div className="rounded-xl bg-amber-50 border border-amber-300 px-5 py-4 flex items-start gap-3">
           <span className="text-2xl mt-0.5">⭐</span>
