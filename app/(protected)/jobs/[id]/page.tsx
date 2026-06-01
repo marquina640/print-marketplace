@@ -145,7 +145,7 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
           <span className="text-2xl">✓</span>
           <div>
             <p className="font-semibold text-emerald-900">Payment received!</p>
-            <p className="text-sm text-emerald-700">Your funds are held in escrow. The maker will now prepare and ship your order.</p>
+            <p className="text-sm text-emerald-700">Your payment is held securely. The maker will now prepare and ship your order.</p>
           </div>
         </div>
       )}
@@ -374,7 +374,7 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
                       {isOwner && !(job as any).paid_at && (
                         <div className="rounded-xl border border-gold-300 bg-gold-50 p-4">
                           <p className="text-sm font-semibold text-ink-900 mb-1">Confirm your order</p>
-                          <p className="text-xs text-warm-600 mb-3">Pay now to hold funds in escrow. The maker gets paid once you confirm delivery.</p>
+                          <p className="text-xs text-warm-600 mb-3">Pay now to secure your order. The maker gets paid once you confirm delivery.</p>
                           <PaymentButton jobId={job.id} amount={q.price} />
                         </div>
                       )}

@@ -1,4 +1,4 @@
-﻿import { Metadata } from 'next'
+import { Metadata } from 'next'
 
 export const metadata: Metadata = { title: 'Refund & Dispute Policy | PrintMarketHub' }
 
@@ -10,27 +10,27 @@ export default function RefundsPage() {
       <LegalHeader title="Refund & Dispute Policy" updated={LAST_UPDATED} />
 
       <p className="text-sm text-warm-600 mb-8 leading-relaxed">
-        This policy explains how PrintMarketHub handles escrow payments, delivery confirmation, refunds, and disputes between Clients and Makers. PrintMarketHub acts as a neutral facilitator - not an arbitrator - in any dispute.
+        This policy explains how PrintMarketHub handles payments, delivery confirmation, refunds, and disputes between Clients and Makers. PrintMarketHub acts as a neutral facilitator - not an arbitrator - in any dispute.
       </p>
 
-      <Section n="1" title="Escrow Mechanism">
-        <p>When a Client accepts a Maker's quote, payment is immediately collected by PrintMarketHub via Stripe and held in escrow. The Maker does not receive funds until one of the following occurs:</p>
+      <Section n="1" title="Payment Protection">
+        <p>When a Client accepts a Maker's quote, payment is immediately collected by PrintMarketHub via Stripe and held securely. The Maker does not receive funds until one of the following occurs:</p>
         <ul>
           <li>The Client confirms successful delivery of the order</li>
           <li>The automatic confirmation period expires without a dispute being raised</li>
           <li>A dispute is resolved in the Maker's favour</li>
         </ul>
-        <p>Escrow protects both parties: Clients are assured payment is only released upon satisfactory delivery; Makers are assured payment is secured before production begins.</p>
+        <p>This protects both parties: Clients are assured payment is only released upon satisfactory delivery; Makers are assured payment is secured before production begins.</p>
       </Section>
 
       <Section n="2" title="Order Lifecycle">
         <div className="rounded-xl border border-warm-200 overflow-hidden">
           {[
-            ['1', 'Accepted', 'Client accepts a quote. Stripe payment collected. Funds held in escrow.'],
-            ['2', 'In Production', 'Maker begins manufacturing. Escrow funds remain held.'],
+            ['1', 'Accepted', 'Client accepts a quote. Stripe payment collected. Funds held securely.'],
+            ['2', 'In Production', 'Maker begins manufacturing. Funds remain held securely.'],
             ['3', 'Shipped', 'Maker marks the order as shipped and provides tracking information.'],
             ['4', 'Delivered', 'Client confirms receipt of the order.'],
-            ['5', 'Completed', 'PrintMarketHub releases escrow funds to the Maker (less commission).'],
+            ['5', 'Completed', 'PrintMarketHub releases funds to the Maker (less commission).'],
           ].map(([step, status, desc]) => (
             <div key={step} className="flex gap-4 p-4 border-b border-warm-100 last:border-0 hover:bg-warm-50">
               <div className="h-7 w-7 rounded-full bg-gold-400 flex items-center justify-center text-[11px] font-black text-ink-950 flex-shrink-0">{step}</div>
@@ -44,7 +44,7 @@ export default function RefundsPage() {
       </Section>
 
       <Section n="3" title="Delivery Confirmation">
-        <p>Upon receiving their order, Clients must confirm delivery through the Platform. This releases the escrow funds to the Maker.</p>
+        <p>Upon receiving their order, Clients must confirm delivery through the Platform. This releases the secured funds to the Maker.</p>
         <p>If a Client does not confirm delivery within <strong>7 days</strong> of the Maker marking the order as delivered, and no dispute has been opened, PrintMarketHub reserves the right to release the funds to the Maker automatically.</p>
         <p>Clients should inspect their order promptly upon receipt and raise any concerns before confirming delivery.</p>
       </Section>
@@ -69,11 +69,11 @@ export default function RefundsPage() {
       <Section n="5" title="Dispute Resolution Process">
         <p>Once a dispute is opened:</p>
         <ul>
-          <li>The escrow funds are frozen pending resolution</li>
+          <li>The held funds are frozen pending resolution</li>
           <li>The Maker is notified and has <strong>5 business days</strong> to respond with their position and evidence</li>
           <li>PrintMarketHub reviews all evidence and communicates a recommended resolution within <strong>10 business days</strong></li>
           <li>Both parties are encouraged to accept the recommendation</li>
-          <li>If both parties accept, the escrow is distributed accordingly</li>
+          <li>If both parties accept, the funds are distributed accordingly</li>
           <li>If a party rejects the recommendation, they may escalate to formal mediation at their own cost</li>
         </ul>
         <p>PrintMarketHub's role is that of a neutral facilitator. Our recommended resolution is not legally binding but is made in good faith based on the evidence provided.</p>

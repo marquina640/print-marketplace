@@ -129,8 +129,8 @@ export function emailJobPaid({
     html: `
       <h2 style="margin:0 0 8px;font-size:20px;font-weight:800;color:#1a1625;">Payment confirmed &#x1F4B3;</h2>
       <p style="margin:0 0 20px;color:#6b6760;font-size:14px;line-height:1.6;">
-        <strong style="color:#1a1625;">CHF ${price.toFixed(2)}</strong> has been held in escrow
-        for <em>${jobTitle}</em>. You can start printing &mdash; funds will be released once the
+        <strong style="color:#1a1625;">${price.toFixed(2)}</strong> has been secured
+        for <em>${jobTitle}</em>. You can start printing - funds will be released once the
         client confirms delivery.
       </p>
       ${ctaButton('View Job &rarr;', `${APP_URL}${jobUrl}`)}

@@ -31,11 +31,11 @@ export default function TermsPage() {
         <p>Quotes expire after 24 hours unless otherwise agreed. PrintMarketHub does not guarantee response times or the number of quotes received.</p>
       </Section>
 
-      <Section n="5" title="Payments and Escrow">
+      <Section n="5" title="Payments">
         <p>All payments are processed through <strong>Stripe, Inc.</strong> pursuant to Stripe's own Terms of Service. By making or receiving payments on the Platform, you agree to be bound by Stripe's applicable policies.</p>
-        <p>Upon quote acceptance, the Client's payment is held in escrow by PrintMarketHub until the Client confirms delivery or the dispute resolution period expires. PrintMarketHub then releases funds to the Maker less the applicable Platform commission.</p>
+        <p>Upon quote acceptance, the Client's payment is collected by PrintMarketHub and held securely until the Client confirms delivery or the dispute resolution period expires. PrintMarketHub then releases funds to the Maker less the applicable Platform commission.</p>
         <p>PrintMarketHub charges a commission fee on each completed transaction. Current rates are published in the Maker / Seller Terms and may be updated with 30 days' notice.</p>
-        <p>Payments are made in Swiss Francs (CHF) by default. Supported payment methods include credit/debit card, TWINT, and bank transfer as made available by Stripe for your region.</p>
+        <p>Payments are processed in the currency selected by the Client. Supported payment methods include credit/debit card and bank transfer as made available by Stripe for your region.</p>
       </Section>
 
       <Section n="6" title="File Uploads and Intellectual Property">

@@ -85,7 +85,7 @@ export async function notifyJobPaid({
     userId: printerId,
     type:   'job_paid',
     title:  'Payment received - start printing!',
-    body:   `CHF ${price.toFixed(2)} is held in escrow for "${jobTitle}"`,
+    body:   `Payment of ${price.toFixed(2)} is secured for "${jobTitle}" - start printing!`,
     link:   `/jobs/${jobId}`,
   })
   await emailJobPaid({ to: printerEmail, jobTitle, price, jobUrl: `/jobs/${jobId}` })

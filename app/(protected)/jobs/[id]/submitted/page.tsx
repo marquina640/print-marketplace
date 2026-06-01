@@ -38,7 +38,7 @@ const STEPS = [
   {
     icon: '🔒',
     label: 'Step 5',
-    title: 'Pay securely — funds held in escrow',
+    title: 'Pay securely — funds held until delivery',
     desc: "Your payment is held safely until you confirm delivery. The maker only gets paid once you're happy with the result.",
     bg: 'bg-indigo-50 border-indigo-100',
     iconBg: 'bg-indigo-100 text-indigo-600',

@@ -12,7 +12,7 @@ export default function TermsPage() {
         <p>
           PrintMarketHub ("the Platform", "we", "us") is an online marketplace that connects customers
           ("Clients") with independent 3D printing professionals ("Makers"). We are not a party to any
-          transaction between Clients and Makers - we provide the tools, escrow, and trust infrastructure
+          transaction between Clients and Makers - we provide the tools, payment protection, and trust infrastructure
           that make those transactions possible.
         </p>
       </Section>
@@ -53,14 +53,14 @@ export default function TermsPage() {
           agreed amount.
         </p>
         <p className="mt-2">
-          This fee covers payment processing, escrow protection, dispute resolution infrastructure,
+          This fee covers payment processing, buyer protection, dispute resolution infrastructure,
           and platform maintenance.
         </p>
       </Section>
 
-      <Section title="5. Escrow and Payments">
+      <Section title="5. Payment Protection">
         <p>
-          All payments are processed via Stripe and held in escrow until the Client confirms delivery.
+          All payments are processed via Stripe and held securely until the Client confirms delivery.
           Funds are released to the Maker only after the Client confirms receipt of the order.
         </p>
         <ul className="list-disc pl-5 mt-3 space-y-1">

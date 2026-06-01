@@ -27,7 +27,7 @@ export default function MakerTermsPage() {
 
       <Section n="2" title="Platform Commission and Fees">
         <p>PrintMarketHub charges a commission on each successfully completed order. The current commission rate is displayed in your Maker dashboard settings and on our pricing page.</p>
-        <p>Commission is deducted automatically from the escrow payout at the time of release. You will receive the net amount (order value minus commission) to your registered payment account via Stripe.</p>
+        <p>Commission is deducted automatically from the payment at the time of release. You will receive the net amount (order value minus commission) to your registered payment account via Stripe.</p>
         <p>PrintMarketHub reserves the right to modify commission rates with 30 days' written notice. Continued use of the Platform after the notice period constitutes acceptance of the revised rates.</p>
         <p>No commission is charged on orders that are refunded in full. Partial refunds may result in proportionally reduced commissions at our discretion.</p>
       </Section>

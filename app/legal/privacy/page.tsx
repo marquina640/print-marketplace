@@ -58,7 +58,7 @@ export default function PrivacyPage() {
         <ul>
           <li>Create and manage your account</li>
           <li>Connect Clients with Makers and facilitate job transactions</li>
-          <li>Process payments and manage escrow via Stripe</li>
+          <li>Process payments and manage secure fund disbursement via Stripe</li>
           <li>Send transactional notifications (job updates, quotes, payment confirmations)</li>
           <li>Resolve disputes between Clients and Makers</li>
           <li>Detect and prevent fraud, abuse, and security incidents</li>
@@ -70,7 +70,7 @@ export default function PrivacyPage() {
       <Section n="6" title="Data Sharing and Sub-processors">
         <p>We share your data with the following third-party service providers solely to operate the Platform:</p>
         <Table rows={[
-          ['Stripe, Inc.', 'Payment processing and escrow management', 'United States (SCCs in place)'],
+          ['Stripe, Inc.', 'Payment processing and marketplace fund disbursement', 'United States (SCCs in place)'],
           ['Supabase, Inc.', 'Database hosting and authentication', 'European Union'],
           ['Resend, Inc.', 'Transactional email delivery', 'United States (SCCs in place)'],
           ['Google LLC', 'Maps JavaScript API and Places API for location features', 'United States (SCCs in place)'],

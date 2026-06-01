@@ -19,7 +19,7 @@ const clientFAQ = [
   },
   {
     q: 'Is it safe to pay through the platform?',
-    a: <p>Yes. Payments are processed by Stripe - the same technology used by Shopify, Amazon, and thousands of other platforms. Your money is held in escrow and only released to the maker once you confirm that your print has arrived and you&apos;re happy with it. If something goes wrong before delivery, you&apos;re covered.</p>,
+    a: <p>Yes. Payments are processed by Stripe - the same technology used by Shopify, Amazon, and thousands of other platforms. Your payment is held securely and only released to the maker once you confirm that your print has arrived and you&apos;re happy with it. If something goes wrong before delivery, you&apos;re covered.</p>,
   },
   {
     q: 'What file formats do you accept?',
@@ -88,7 +88,7 @@ const makerFAQ = [
   },
   {
     q: 'How and when do I get paid?',
-    a: <p>When a client accepts your quote and pays, funds are held in escrow. Once the client confirms delivery, the payment (minus the 12% platform fee) is automatically released to your connected Stripe account. Payouts typically arrive within 2 business days depending on your bank.</p>,
+    a: <p>When a client accepts your quote and pays, the funds are held securely on the platform. Once the client confirms delivery, the payment (minus the 12% platform fee) is automatically released to your connected Stripe account. Payouts typically arrive within 2 business days depending on your bank.</p>,
   },
   {
     q: 'Do I need to be a professional printer?',

@@ -42,7 +42,7 @@ const clientSteps = [
   {
     number: '05',
     icon: '🔒',
-    title: 'Pay securely - funds held in escrow',
+    title: 'Pay securely - funds held until delivery',
     desc: 'Your payment is processed by Stripe and held safely. The maker only receives funds once you confirm delivery. You\'re never charged for a result you haven\'t approved.',
     color: 'border-indigo-200 bg-indigo-50',
     numColor: 'text-indigo-400',
