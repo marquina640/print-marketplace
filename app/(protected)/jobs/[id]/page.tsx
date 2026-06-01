@@ -103,9 +103,9 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
   let profileComplete = true
   if (isPrinter && !isOwner && job.status === 'open') {
     const { count: machineCount } = await supabase
-      .from('printer_machines')
+      .from('machines')
       .select('*', { count: 'exact', head: true })
-      .eq('user_id', effectiveUserId)
+      .eq('maker_id', effectiveUserId)
     profileComplete = (machineCount ?? 0) > 0
   }
 
