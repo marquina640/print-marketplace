@@ -38,7 +38,7 @@ export default async function LandingPage() {
               <Link href="/faq"          className="px-3 py-1.5 text-sm font-medium text-warm-600 hover:text-warm-900 hover:bg-warm-100 rounded-lg transition-colors">FAQ</Link>
             </div>
             {user ? (
-              <Link href={isMaker ? '/dashboard/printer' : '/dashboard/client'}>
+              <Link href={userRole === 'admin' ? '/dashboard/admin' : isMaker ? '/dashboard/printer' : '/dashboard/client'}>
                 <Button variant="gold" size="sm">Dashboard</Button>
               </Link>
             ) : (

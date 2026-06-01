@@ -120,7 +120,7 @@ export default function OnboardingPage() {
             PrintMarketHub
           </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">How will you use PrintMarketHub?</h1>
-          <p className="text-gray-500">Choose your role. You can always contact support to change it.</p>
+          <p className="text-gray-500">Both are available to you - just pick where you want to start. You can always access the other side later.</p>
         </div>
 
         <div className="grid sm:grid-cols-2 gap-4 mb-6">
