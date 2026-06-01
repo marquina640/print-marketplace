@@ -31,17 +31,18 @@ export default async function LandingPage() {
             <span className="text-xl font-black tracking-tight text-warm-900">PrintMarket<span className="text-[#D4A017]">Hub</span></span>
           </div>
           <nav className="flex items-center gap-2">
+            <div className="hidden md:flex items-center gap-0.5 mr-2">
+              <Link href="/how-it-works" className="px-3 py-1.5 text-sm font-medium text-warm-600 hover:text-warm-900 hover:bg-warm-100 rounded-lg transition-colors">How it works</Link>
+              <Link href="/for-makers"   className="px-3 py-1.5 text-sm font-medium text-warm-600 hover:text-warm-900 hover:bg-warm-100 rounded-lg transition-colors">For makers</Link>
+              <Link href="/blog"         className="px-3 py-1.5 text-sm font-medium text-warm-600 hover:text-warm-900 hover:bg-warm-100 rounded-lg transition-colors">Blog</Link>
+              <Link href="/faq"          className="px-3 py-1.5 text-sm font-medium text-warm-600 hover:text-warm-900 hover:bg-warm-100 rounded-lg transition-colors">FAQ</Link>
+            </div>
             {user ? (
               <Link href={isMaker ? '/dashboard/printer' : '/dashboard/client'}>
                 <Button variant="gold" size="sm">Go to Dashboard</Button>
               </Link>
             ) : (
               <>
-                <div className="hidden md:flex items-center gap-1 mr-2">
-                  <Link href="/how-it-works" className="px-3 py-1.5 text-sm font-medium text-warm-600 hover:text-warm-900 hover:bg-warm-100 rounded-lg transition-colors">How it works</Link>
-                  <Link href="/for-makers" className="px-3 py-1.5 text-sm font-medium text-warm-600 hover:text-warm-900 hover:bg-warm-100 rounded-lg transition-colors">For makers</Link>
-                  <Link href="/blog" className="px-3 py-1.5 text-sm font-medium text-warm-600 hover:text-warm-900 hover:bg-warm-100 rounded-lg transition-colors">Blog</Link>
-                </div>
                 <Link href="/login"><Button variant="ghost" size="sm">Log in</Button></Link>
                 <Link href="/signup"><Button variant="gold" size="sm">Get started free</Button></Link>
               </>

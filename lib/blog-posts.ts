@@ -40,6 +40,16 @@ export const BLOG_POSTS: BlogPost[] = [
     coverIcon: '📦',
     coverBg: 'from-orange-500 to-amber-600',
   },
+  {
+    slug: 'have-a-printer-need-bigger-prints',
+    title: 'You Have a 3D Printer. But What If You Need a Bigger Print?',
+    excerpt: 'Your printer can\'t handle every job - and that\'s fine. Instead of buying a bigger machine, just find someone on PrintMarketHub who already has one.',
+    date: '2025-06-08',
+    readTime: '5 min read',
+    category: 'Guide',
+    coverIcon: '🔧',
+    coverBg: 'from-violet-600 to-purple-700',
+  },
 ]
 
 export function getPost(slug: string): BlogPost | undefined {

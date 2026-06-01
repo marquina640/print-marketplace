@@ -7,11 +7,13 @@ import { BLOG_POSTS, getPost } from '@/lib/blog-posts'
 import Post1 from './content/how-to-get-a-custom-3d-print-switzerland'
 import Post2 from './content/cost-of-3d-printing-switzerland'
 import Post3 from './content/thingiverse-makerworld-get-models-printed-switzerland'
+import Post4 from './content/have-a-printer-need-bigger-prints'
 
 const CONTENT: Record<string, React.ComponentType> = {
   'how-to-get-a-custom-3d-print-in-switzerland': Post1,
   'cost-of-3d-printing-switzerland': Post2,
   'thingiverse-makerworld-get-models-printed-switzerland': Post3,
+  'have-a-printer-need-bigger-prints': Post4,
 }
 
 export async function generateStaticParams() {
