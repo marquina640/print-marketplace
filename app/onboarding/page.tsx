@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
+import { Layers, Cpu, CheckCircle2, Box } from 'lucide-react'
 
 type Role = 'client' | 'printer_owner'
 
@@ -91,32 +92,31 @@ export default function OnboardingPage() {
     }
   }
 
-  const roles: { id: Role; title: string; description: string; icon: string; features: string[] }[] = [
+  const roles: { id: Role; title: string; description: string; Icon: React.ComponentType<{ className?: string }>; accent: string; features: string[] }[] = [
     {
       id: 'client',
       title: 'I need something printed',
-      description: "Post requests, receive quotes from skilled makers, and track your orders.",
-      icon: '📐',
+      description: 'Post requests, receive quotes from skilled makers, and track your orders.',
+      Icon: Layers,
+      accent: 'indigo',
       features: ['Post unlimited requests', 'Receive competitive quotes', 'Direct messaging', 'File uploads (STL, STEP, 3MF)'],
     },
     {
       id: 'printer_owner',
       title: 'I own a 3D printer',
       description: 'List your services, browse open requests, and submit quotes to grow your business.',
-      icon: '🖨️',
+      Icon: Cpu,
+      accent: 'violet',
       features: ['Browse open requests', 'Submit unlimited quotes', 'Customer messaging', 'Profile & portfolio'],
     },
   ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50 flex items-center justify-center p-4">
       <div className="w-full max-w-2xl">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-2 font-bold text-indigo-600 text-xl mb-4">
-            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round"
-                d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-            </svg>
+        <div className="text-center mb-10">
+          <div className="inline-flex items-center gap-2 font-bold text-indigo-600 text-xl mb-5">
+            <Box className="h-6 w-6" />
             PrintMarketHub
           </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">How will you use PrintMarketHub?</h1>
@@ -124,40 +124,47 @@ export default function OnboardingPage() {
         </div>
 
         <div className="grid sm:grid-cols-2 gap-4 mb-6">
-          {roles.map((role) => (
-            <button
-              key={role.id}
-              type="button"
-              onClick={() => setSelectedRole(role.id)}
-              className={`text-left rounded-2xl border-2 p-6 transition-all ${
-                selectedRole === role.id
-                  ? 'border-indigo-500 bg-indigo-50 shadow-md'
-                  : 'border-gray-200 bg-white hover:border-indigo-200 hover:shadow-sm'
-              }`}
-            >
-              <div className="text-4xl mb-3">{role.icon}</div>
-              <h2 className="text-lg font-semibold text-gray-900 mb-1">{role.title}</h2>
-              <p className="text-sm text-gray-500 mb-4">{role.description}</p>
-              <ul className="space-y-1">
-                {role.features.map((f) => (
-                  <li key={f} className="flex items-center gap-2 text-sm text-gray-600">
-                    <svg className="h-4 w-4 text-indigo-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                    {f}
-                  </li>
-                ))}
-              </ul>
-              {selectedRole === role.id && (
-                <div className="mt-4 inline-flex items-center gap-1 text-xs font-medium text-indigo-600">
-                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  Selected
+          {roles.map(({ id, title, description, Icon, features }) => {
+            const isSelected = selectedRole === id
+            return (
+              <button
+                key={id}
+                type="button"
+                onClick={() => setSelectedRole(id)}
+                className={`text-left rounded-2xl border-2 p-6 transition-all duration-150 ${
+                  isSelected
+                    ? 'border-indigo-500 bg-indigo-50 shadow-lg shadow-indigo-100'
+                    : 'border-gray-200 bg-white hover:border-indigo-200 hover:shadow-md'
+                }`}
+              >
+                {/* Icon badge */}
+                <div className={`inline-flex items-center justify-center w-12 h-12 rounded-xl mb-4 ${
+                  isSelected ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-600'
+                }`}>
+                  <Icon className="h-6 w-6" />
                 </div>
-              )}
-            </button>
-          ))}
+
+                <h2 className="text-lg font-semibold text-gray-900 mb-1">{title}</h2>
+                <p className="text-sm text-gray-500 mb-4">{description}</p>
+
+                <ul className="space-y-2">
+                  {features.map((f) => (
+                    <li key={f} className="flex items-center gap-2 text-sm text-gray-600">
+                      <CheckCircle2 className={`h-4 w-4 flex-shrink-0 ${isSelected ? 'text-indigo-500' : 'text-gray-400'}`} />
+                      {f}
+                    </li>
+                  ))}
+                </ul>
+
+                {isSelected && (
+                  <div className="mt-5 inline-flex items-center gap-1.5 text-xs font-semibold text-indigo-600 bg-indigo-100 px-2.5 py-1 rounded-full">
+                    <CheckCircle2 className="h-3.5 w-3.5" />
+                    Selected
+                  </div>
+                )}
+              </button>
+            )
+          })}
         </div>
 
         {error && (
