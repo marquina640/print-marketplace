@@ -29,12 +29,14 @@ export default async function JobsFeedPage({ searchParams }: PageProps) {
     if (effectiveRole === 'client') redirect('/dashboard/client')
   }
 
-  // Certification level for logged-in makers (affects locked job type pills)
+  // Certification level + design capability for logged-in makers
   let makerLevel = 0
+  let makerOffersDesign = false
   if (user) {
     const { data: makerProfile } = await supabase
-      .from('printer_profiles').select('certification_level').eq('user_id', user.id).single()
+      .from('printer_profiles').select('certification_level, design_services').eq('user_id', user.id).single()
     makerLevel = makerProfile?.certification_level ?? 0
+    makerOffersDesign = makerProfile?.design_services ?? false
   }
 
   const sortConfig: Record<string, { col: string; asc: boolean }> = {
@@ -61,6 +63,8 @@ export default async function JobsFeedPage({ searchParams }: PageProps) {
   if (q) query = query.ilike('title', `%${q}%`)
   if (shipping === '1') query = query.eq('shipping_required', true)
   if (job_type) query = query.eq('job_type', job_type)
+  // Hide design-only jobs from makers who don't offer design services
+  if (!makerOffersDesign) query = query.eq('needs_design', false)
 
   const { data: jobs } = await query
   const hasFilters = !!(material || q || shipping || job_type || sort)

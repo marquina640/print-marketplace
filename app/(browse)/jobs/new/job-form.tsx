@@ -40,6 +40,7 @@ export function NewJobForm({ clientId, clientLocation, isGuest }: { clientId: st
     lng: clientLocation.lng,
     shipping_required: false,
     pickup_ok: false,
+    needs_design: false,
     job_type: 'functional',
     process: 'fdm',
     print_quality: 'normal',
@@ -189,6 +190,7 @@ export function NewJobForm({ clientId, clientLocation, isGuest }: { clientId: st
         job_type: form.job_type,
         process: form.process,
         print_quality: form.print_quality,
+        needs_design: form.needs_design,
       })
       .select()
       .single()
@@ -524,6 +526,32 @@ export function NewJobForm({ clientId, clientLocation, isGuest }: { clientId: st
                 Pickup OK - I can also collect the print in person
               </span>
             </label>
+          </div>
+
+          {/* Design request */}
+          <div className="space-y-2 pt-1 border-t border-warm-100">
+            <label className="flex items-start gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={form.needs_design}
+                onChange={(e) => set('needs_design', e.target.checked as unknown as boolean)}
+                className="mt-0.5 h-4 w-4 rounded border-warm-300 text-indigo-600 focus:ring-indigo-500"
+              />
+              <div>
+                <span className="text-sm font-medium text-warm-900">I want the maker to design this</span>
+                <p className="text-xs text-warm-500 mt-0.5">I don't have a 3D model file yet - I need a maker who can design and print it</p>
+              </div>
+            </label>
+            {form.needs_design && (
+              <div className="ml-7 flex items-start gap-2 rounded-xl border border-indigo-200 bg-indigo-50 px-3 py-2.5">
+                <svg className="h-4 w-4 text-indigo-500 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <p className="text-xs text-indigo-800 leading-relaxed">
+                  <span className="font-semibold">Design services included.</span> Your request will only be shown to makers who offer 3D design and modelling services.
+                </p>
+              </div>
+            )}
           </div>
         </div>
 
