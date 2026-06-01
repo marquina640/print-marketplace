@@ -223,6 +223,19 @@ export function Navbar({ userEmail, userRole, unreadMessages = 0, notifications 
             </>
           ) : (
             <>
+              <Link href="/how-it-works"
+                className="px-3 py-1.5 text-sm font-medium text-warm-600 hover:text-warm-900 hover:bg-warm-100 rounded-lg transition-colors">
+                How it works
+              </Link>
+              <Link href="/for-makers"
+                className="px-3 py-1.5 text-sm font-medium text-warm-600 hover:text-warm-900 hover:bg-warm-100 rounded-lg transition-colors">
+                For makers
+              </Link>
+              <Link href="/blog"
+                className="px-3 py-1.5 text-sm font-medium text-warm-600 hover:text-warm-900 hover:bg-warm-100 rounded-lg transition-colors">
+                Blog
+              </Link>
+              <div className="w-px h-5 bg-warm-200 mx-1" />
               <Link href="/login">
                 <Button variant="ghost" size="sm">Log in</Button>
               </Link>
@@ -300,9 +313,22 @@ export function Navbar({ userEmail, userRole, unreadMessages = 0, notifications 
               </div>
             </>
           ) : (
-            <div className="space-y-2 pt-1">
-              <Link href="/login" className="block"><Button variant="outline" className="w-full" onClick={() => setMenuOpen(false)}>Log in</Button></Link>
-              <Link href="/signup" className="block"><Button variant="gold" className="w-full" onClick={() => setMenuOpen(false)}>Get started</Button></Link>
+            <div className="space-y-1 pt-1">
+              {[
+                { href: '/how-it-works', label: 'How it works' },
+                { href: '/for-makers',   label: 'For makers' },
+                { href: '/blog',         label: 'Blog' },
+                { href: '/faq',          label: 'FAQ' },
+              ].map((item) => (
+                <Link key={item.href} href={item.href} onClick={() => setMenuOpen(false)}
+                  className="block px-3 py-2.5 text-sm font-medium text-warm-700 hover:bg-warm-200 rounded-xl transition-colors">
+                  {item.label}
+                </Link>
+              ))}
+              <div className="pt-2 mt-1 border-t border-warm-200 space-y-2">
+                <Link href="/login" className="block"><Button variant="outline" className="w-full" onClick={() => setMenuOpen(false)}>Log in</Button></Link>
+                <Link href="/signup" className="block"><Button variant="gold" className="w-full" onClick={() => setMenuOpen(false)}>Get started</Button></Link>
+              </div>
             </div>
           )}
         </div>
