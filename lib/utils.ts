@@ -25,6 +25,7 @@ export const CURRENCIES = [
   { code: 'NOK', label: 'NOK - Norwegian Krone' },
   { code: 'DKK', label: 'DKK - Danish Krone' },
   { code: 'JPY', label: 'JPY - Japanese Yen' },
+  { code: 'MXN', label: 'MXN - Mexican Peso' },
 ] as const
 
 export function formatDate(dateStr: string | null | undefined): string {
