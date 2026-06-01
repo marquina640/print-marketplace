@@ -2,6 +2,7 @@
 import { cookies } from 'next/headers'
 import { Button } from '@/components/ui/button'
 import { createClient } from '@/lib/supabase/server'
+import { Shield, CreditCard, Award, Star, MapPin, Lock } from 'lucide-react'
 
 export default async function LandingPage() {
   const supabase = await createClient()
@@ -17,6 +18,17 @@ export default async function LandingPage() {
       : viewMode === 'client' ? 'client'
       : profile?.role ?? null
   }
+
+  // Platform stats for social proof
+  const [
+    { count: makerCount },
+    { count: jobCount },
+    { count: completedCount },
+  ] = await Promise.all([
+    supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'printer_owner'),
+    supabase.from('jobs').select('*', { count: 'exact', head: true }),
+    supabase.from('jobs').select('*', { count: 'exact', head: true }).eq('status', 'completed'),
+  ])
 
   const isMaker = userRole === 'printer_owner'
 
@@ -158,6 +170,26 @@ export default async function LandingPage() {
               '💳 Card & bank transfer',
               '⭐ Mutual review system',
             ].map(item => <span key={item}>{item}</span>)}
+          </div>
+        </div>
+      </section>
+
+      {/* Platform stats */}
+      <section className="py-12 bg-white border-b border-warm-200">
+        <div className="page-container">
+          <div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto text-center">
+            <div>
+              <p className="text-4xl font-black text-ink-950">{makerCount ?? 0}<span className="text-gold-500">+</span></p>
+              <p className="text-sm text-warm-500 mt-1 font-medium">Makers ready</p>
+            </div>
+            <div>
+              <p className="text-4xl font-black text-ink-950">{jobCount ?? 0}<span className="text-gold-500">+</span></p>
+              <p className="text-sm text-warm-500 mt-1 font-medium">Requests posted</p>
+            </div>
+            <div>
+              <p className="text-4xl font-black text-ink-950">{completedCount ?? 0}<span className="text-gold-500">+</span></p>
+              <p className="text-sm text-warm-500 mt-1 font-medium">Orders completed</p>
+            </div>
           </div>
         </div>
       </section>
@@ -307,40 +339,42 @@ export default async function LandingPage() {
           </div>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {[
+            {([
               {
-                icon: '🔒',
+                Icon: Shield,
                 title: 'Your money is protected',
                 desc: "Payment is held safely until you confirm delivery. Makers only get paid when you're happy.",
               },
               {
-                icon: '💳',
+                Icon: CreditCard,
                 title: 'Pay your way',
-                desc: 'Card and bank transfer supported. Powered by Stripe - secure, reliable, and trusted by millions.',
+                desc: 'Card and bank transfer supported. Secure, reliable, and trusted by millions worldwide.',
               },
               {
-                icon: '🏅',
+                Icon: Award,
                 title: 'Certified makers',
                 desc: "Makers earn certification levels by printing benchmark parts reviewed by our team. You always know what you're getting.",
               },
               {
-                icon: '⭐',
+                Icon: Star,
                 title: 'Verified reviews',
                 desc: 'Reviews only go public when both client and maker submit one. Honest, balanced, impossible to game.',
               },
               {
-                icon: '🗺️',
+                Icon: MapPin,
                 title: 'Community-first',
                 desc: 'Find makers near you on an interactive map. Get your part printed and delivered by someone in your community.',
               },
               {
-                icon: '📎',
+                Icon: Lock,
                 title: 'Your files, your control',
-                desc: 'You upload your file when posting a request. Makers who quote can view it to prepare an accurate price.',
+                desc: 'You upload your file when posting a request. Only the maker you choose can view it.',
               },
-            ].map((f) => (
+            ] as const).map((f) => (
               <div key={f.title} className="rounded-2xl border border-warm-200 bg-white p-6 hover:border-ink-200 hover:shadow-md transition-all">
-                <div className="text-3xl mb-4">{f.icon}</div>
+                <div className="inline-flex items-center justify-center h-10 w-10 rounded-xl bg-ink-50 border border-warm-200 mb-4">
+                  <f.Icon className="h-5 w-5 text-ink-700" />
+                </div>
                 <h3 className="font-bold text-warm-900 mb-2">{f.title}</h3>
                 <p className="text-sm text-warm-600 leading-relaxed">{f.desc}</p>
               </div>

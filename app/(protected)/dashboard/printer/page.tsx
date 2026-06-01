@@ -99,11 +99,32 @@ export default async function PrinterDashboardPage({ searchParams }: PageProps) 
   const stripeConnected  = (makerProfile as any)?.stripe_onboarding_complete === true
   const isAdminPreview   = !!previewUserId
 
+  // Earnings: sum of accepted quote prices for delivered/completed jobs
+  const totalEarned = acceptedQuotes
+    .filter((q) => deliveredJobIds.has(q.job_id))
+    .reduce((sum, q) => sum + (q.price ?? 0), 0)
+
+  // Acceptance rate: % of all quotes that were accepted
+  const totalQuotes = allMyQuotes?.length ?? 0
+  const acceptanceRate = totalQuotes > 0
+    ? Math.round((acceptedQuotes.length / totalQuotes) * 100)
+    : 0
+
+  // Jobs by pipeline status
+  const allAcceptedJobIds = acceptedQuotes.map((q) => q.job_id)
+  const { data: pipelineJobs } = allAcceptedJobIds.length > 0
+    ? await supabase.from('jobs').select('id, status').in('id', allAcceptedJobIds)
+    : { data: [] as { id: string; status: string }[] }
+  const pipelineCounts = (pipelineJobs ?? []).reduce<Record<string, number>>((acc, j) => {
+    acc[j.status] = (acc[j.status] ?? 0) + 1
+    return acc
+  }, {})
+
   const stats = [
-    { label: 'Active Jobs',   value: acceptedQuotes.length, color: 'text-emerald-600' },
-    { label: 'Pending Quotes', value: pendingQuotes.length,  color: 'text-amber-600'   },
-    { label: 'Total Quotes',  value: allMyQuotes?.length ?? 0, color: 'text-warm-900'  },
-    { label: 'Open on Feed',  value: recentJobs?.length ?? 0, color: 'text-ink-700'    },
+    { label: 'Active Jobs',      value: acceptedQuotes.length,                    color: 'text-emerald-600' },
+    { label: 'Pending Quotes',   value: pendingQuotes.length,                     color: 'text-amber-600'   },
+    { label: 'Total Earned',     value: `$${totalEarned.toFixed(0)}`,             color: 'text-ink-900', isText: true },
+    { label: 'Acceptance Rate',  value: `${acceptanceRate}%`,                     color: acceptanceRate >= 50 ? 'text-emerald-600' : 'text-warm-500', isText: true },
   ]
 
   return (
@@ -200,6 +221,34 @@ export default async function PrinterDashboardPage({ searchParams }: PageProps) 
           </div>
         ))}
       </div>
+
+      {/* Order pipeline */}
+      {totalQuotes > 0 && (
+        <section>
+          <h2 className="text-sm font-bold text-warm-500 uppercase tracking-widest mb-3">Order Pipeline</h2>
+          <div className="card p-5 grid grid-cols-3 sm:grid-cols-6 gap-4">
+            {[
+              { label: 'Pending', key: 'open',      color: 'bg-warm-200 text-warm-700' },
+              { label: 'Accepted', key: 'accepted',  color: 'bg-amber-100 text-amber-700' },
+              { label: 'Paid',     key: 'paid',      color: 'bg-blue-100 text-blue-700' },
+              { label: 'Shipped',  key: 'shipped',   color: 'bg-indigo-100 text-indigo-700' },
+              { label: 'Delivered',key: 'delivered', color: 'bg-emerald-100 text-emerald-700' },
+              { label: 'Complete', key: 'completed', color: 'bg-emerald-200 text-emerald-800' },
+            ].map((stage) => (
+              <div key={stage.key} className="text-center">
+                <div className={`inline-flex items-center justify-center h-10 w-10 rounded-full text-base font-bold mb-1 ${stage.color}`}>
+                  {pipelineCounts[stage.key] ?? 0}
+                </div>
+                <p className="text-[11px] text-warm-500 font-medium">{stage.label}</p>
+              </div>
+            ))}
+          </div>
+          <div className="flex items-center justify-between mt-2 px-1">
+            <p className="text-xs text-warm-400">{totalQuotes} total quotes submitted · {acceptedQuotes.length} accepted</p>
+            <p className="text-xs font-semibold text-emerald-700">${totalEarned.toFixed(0)} earned</p>
+          </div>
+        </section>
+      )}
 
       {/* ── ACTIVE JOBS (accepted quotes) ── */}
       <section>

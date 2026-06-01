@@ -89,6 +89,11 @@ export default async function ClientDashboardPage({ searchParams }: PageProps) {
     acc[q.job_id] = (acc[q.job_id] ?? 0) + 1
     return acc
   }, {})
+  // Total quotes per job (all statuses) - so clients see total activity per request
+  const totalQuotesByJob = (allQuotes ?? []).reduce<Record<string, number>>((acc, q) => {
+    acc[q.job_id] = (acc[q.job_id] ?? 0) + 1
+    return acc
+  }, {})
   const jobsWithNewQuotes = openJobs.filter((j) => (quotesByJob[j.id] ?? 0) > 0)
 
   const stats = [
@@ -397,25 +402,33 @@ export default async function ClientDashboardPage({ searchParams }: PageProps) {
         ) : (
           <div className="space-y-3">
             {jobs.map((job) => {
-              const qCount = quotesByJob[job.id] ?? 0
+              const pendingCount = quotesByJob[job.id] ?? 0
+              const totalCount   = totalQuotesByJob[job.id] ?? 0
               return (
                 <div key={job.id} className="card flex items-center justify-between p-4 hover:bg-warm-50 transition-colors">
                   <div className="min-w-0">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <p className="font-semibold text-warm-900 truncate">{job.title}</p>
-                      {qCount > 0 && (
+                      {pendingCount > 0 && (
                         <span className="rounded-full bg-amber-500 text-white text-xs font-bold px-2 py-0.5 flex-shrink-0">
-                          {qCount} new
+                          {pendingCount} new
                         </span>
                       )}
                     </div>
-                    <p className="text-xs text-warm-400 mt-0.5">{job.material} · Posted {formatDate(job.created_at)}</p>
+                    <p className="text-xs text-warm-400 mt-0.5">
+                      {job.material} · Posted {formatDate(job.created_at)}
+                      {totalCount > 0 && (
+                        <span className="ml-2 text-ink-600 font-medium">
+                          · {totalCount} quote{totalCount !== 1 ? 's' : ''} received
+                        </span>
+                      )}
+                    </p>
                   </div>
                   <div className="flex items-center gap-3 flex-shrink-0">
                     <StatusBadge status={job.status} />
                     <Link href={`/jobs/${job.id}`}>
-                      <Button variant={qCount > 0 ? 'gold' : 'outline'} size="sm">
-                        {qCount > 0 ? `Review ${qCount} quote${qCount !== 1 ? 's' : ''}` : 'View'}
+                      <Button variant={pendingCount > 0 ? 'gold' : 'outline'} size="sm">
+                        {pendingCount > 0 ? `Review ${pendingCount} quote${pendingCount !== 1 ? 's' : ''}` : 'View'}
                       </Button>
                     </Link>
                   </div>
