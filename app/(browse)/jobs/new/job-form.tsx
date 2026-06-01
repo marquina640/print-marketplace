@@ -457,6 +457,7 @@ export function NewJobForm({ clientId, clientLocation, isGuest }: { clientId: st
               label="Deadline"
               type="date"
               value={form.deadline}
+              min={new Date(Date.now() + 86400000).toISOString().split('T')[0]}
               onChange={(e) => set('deadline', e.target.value)}
             />
           </div>
