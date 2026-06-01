@@ -14,6 +14,7 @@ import { MarkShippedButton } from './mark-shipped-button'
 import { ConfirmReceiptButton } from './confirm-receipt-button'
 import { MarkPayoutButton } from './mark-payout-button'
 import { CancelJobButton } from './cancel-job-button'
+import { WithdrawQuoteButton } from './withdraw-quote-button'
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -271,12 +272,17 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
                       <p className="text-sm text-warm-700 leading-relaxed">{q.price_justification}</p>
                     </div>
                   )}
-                  <div className="flex items-center gap-3">
-                    <p className="text-xs text-warm-400">{formatDate(q.created_at)}</p>
-                    {q.status === 'pending' && (
-                      <p className={`text-xs font-medium ${isExpired(q) ? 'text-red-500' : 'text-warm-400'}`}>
-                        · {expiryLabel(q)}
-                      </p>
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <p className="text-xs text-warm-400">{formatDate(q.created_at)}</p>
+                      {q.status === 'pending' && (
+                        <p className={`text-xs font-medium ${isExpired(q) ? 'text-red-500' : 'text-warm-400'}`}>
+                          · {expiryLabel(q)}
+                        </p>
+                      )}
+                    </div>
+                    {isPrinter && q.printer_id === effectiveUserId && q.status === 'pending' && !isExpired(q) && (
+                      <WithdrawQuoteButton quoteId={q.id} jobId={job.id} />
                     )}
                   </div>
 

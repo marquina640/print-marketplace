@@ -288,6 +288,12 @@ export function ProfileSetupForm({ effectiveUserId }: { effectiveUserId: string 
           Save Profile
         </Button>
       </form>
+
+      <div className="mt-8 pt-6 border-t border-warm-200 text-center">
+        <a href="/profile/delete-account" className="text-xs text-warm-400 hover:text-red-500 transition-colors underline underline-offset-2">
+          Delete my account
+        </a>
+      </div>
     </div>
   )
 }
