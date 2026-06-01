@@ -16,8 +16,7 @@ export default function PrivacyPage() {
         <p>The data controller responsible for your personal data is:</p>
         <div className="rounded-xl bg-warm-100 border border-warm-200 px-5 py-4 font-mono text-xs text-ink-700 space-y-0.5">
           <p className="font-bold">PrintMarketHub</p>
-          <p>Birchstrasse</p>
-          <p>8050 Zürich, Switzerland</p>
+          <p>Switzerland</p>
           <p>Email: <a href="mailto:admin@printmarkethub.com">admin@printmarkethub.com</a></p>
         </div>
       </Section>
