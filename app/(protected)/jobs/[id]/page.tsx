@@ -98,14 +98,15 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
   const deadlinePassed    = isOwner && job.status === 'open' && job.deadline && new Date(job.deadline) < new Date()
   const canCancel         = isOwner && ['open', 'quoted'].includes((job as any).status)
 
-  // Maker profile completeness: requires a printer_profile + at least one machine
+  // Maker profile completeness: requires at least one machine
+  // (printer_profiles record is optional — don't block quoting if it's missing)
   let profileComplete = true
   if (isPrinter && !isOwner && job.status === 'open') {
-    const [{ data: pp }, { count: machineCount }] = await Promise.all([
-      supabase.from('printer_profiles').select('description').eq('user_id', effectiveUserId).single(),
-      supabase.from('printer_machines').select('*', { count: 'exact', head: true }).eq('user_id', effectiveUserId),
-    ])
-    profileComplete = !!(pp && (machineCount ?? 0) > 0)
+    const { count: machineCount } = await supabase
+      .from('printer_machines')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', effectiveUserId)
+    profileComplete = (machineCount ?? 0) > 0
   }
 
   const canSubmitQuote    = isPrinter && !isOwner && job.status === 'open' && !blockedByReviews && profileComplete
@@ -433,20 +434,15 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
                 <div className="flex items-start gap-3">
                   <span className="text-2xl">🖨️</span>
                   <div>
-                    <p className="font-semibold text-warm-900">Complete your profile first</p>
+                    <p className="font-semibold text-warm-900">Add a machine first</p>
                     <p className="text-sm text-warm-500 mt-1">
-                      You need to set up your maker profile and add at least one machine before you can submit quotes.
+                      You need to add at least one machine to your profile before you can submit quotes.
                     </p>
                   </div>
                 </div>
                 <div className="flex flex-col gap-2">
-                  <Link href="/profile/setup">
-                    <button className="w-full rounded-xl bg-gold-400 hover:bg-gold-500 text-ink-950 text-sm font-semibold py-2.5 transition-colors">
-                      Set up profile →
-                    </button>
-                  </Link>
                   <Link href="/profile/machines">
-                    <button className="w-full rounded-xl border border-warm-300 text-warm-700 hover:bg-warm-100 text-sm font-medium py-2.5 transition-colors">
+                    <button className="w-full rounded-xl bg-gold-400 hover:bg-gold-500 text-ink-950 text-sm font-semibold py-2.5 transition-colors">
                       Add a machine →
                     </button>
                   </Link>
