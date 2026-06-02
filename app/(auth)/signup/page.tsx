@@ -36,7 +36,7 @@ export default function SignupPage() {
       email,
       password,
       options: {
-        emailRedirectTo: `https://print-marketplace-wine.vercel.app/auth/callback`,
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
       },
     })
 
@@ -55,7 +55,7 @@ export default function SignupPage() {
     const { error: authError } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `https://print-marketplace-wine.vercel.app/auth/callback`,
+        redirectTo: `${window.location.origin}/auth/callback`,
       },
     })
     if (authError) {

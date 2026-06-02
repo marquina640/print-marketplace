@@ -39,7 +39,7 @@ export default function LoginPage() {
     const { error: authError } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `https://print-marketplace-wine.vercel.app/auth/callback`,
+        redirectTo: `${window.location.origin}/auth/callback`,
       },
     })
     if (authError) {
