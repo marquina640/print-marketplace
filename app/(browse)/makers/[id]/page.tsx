@@ -5,6 +5,7 @@ import { CertificationBadge, JobTypeBadge, MaterialBadge } from '@/components/ui
 import { Button } from '@/components/ui/button'
 import { getCertificationLevel, MANUFACTURING_PROCESSES } from '@/lib/utils'
 import { formatDate } from '@/lib/utils'
+import { InviteToJobButton } from '@/components/makers/invite-to-job-button'
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -89,9 +90,15 @@ export default async function MakerProfilePage({ params }: PageProps) {
               </Link>
             )}
             {!isGuest && !isOwnProfile && (
-              <Link href={`/jobs/new?maker=${id}`}>
-                <Button variant="gold" className="w-full sm:w-auto">Request a Quote</Button>
-              </Link>
+              <>
+                <Link href={`/jobs/new?maker=${id}`}>
+                  <Button variant="gold" className="w-full sm:w-auto">Post a new request</Button>
+                </Link>
+                <InviteToJobButton
+                  makerId={id}
+                  makerName={printerProfile.display_name ?? 'this maker'}
+                />
+              </>
             )}
             {isOwnProfile && (
               <Link href="/profile/setup">

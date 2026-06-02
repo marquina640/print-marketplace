@@ -109,6 +109,17 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
     profileComplete = (machineCount ?? 0) > 0
   }
 
+  // Check if this maker was personally invited
+  const { data: invitation } = isPrinter && !isOwner
+    ? await (supabase as any)
+        .from('job_invitations')
+        .select('id')
+        .eq('job_id', id)
+        .eq('maker_id', effectiveUserId)
+        .maybeSingle()
+    : { data: null }
+  const wasInvited = !!invitation
+
   const canSubmitQuote    = isPrinter && !isOwner && job.status === 'open' && !blockedByReviews && profileComplete
   const canAcceptQuote    = isOwner && job.status === 'open'
   const canMarkShipped    = isPrinter && effectiveUserId === acceptedPrinter && (job as any).status === 'paid'
@@ -173,6 +184,21 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
           <div>
             <p className="font-semibold text-warm-800">This request was cancelled</p>
             <p className="text-sm text-warm-500 mt-0.5">The client closed this request before a deal was made.</p>
+          </div>
+        </div>
+      )}
+
+      {/* Invited banner */}
+      {wasInvited && (
+        <div className="rounded-xl bg-indigo-50 border border-indigo-200 px-5 py-4 flex items-center gap-3">
+          <div className="h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0">
+            <svg className="h-4 w-4 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+          </div>
+          <div>
+            <p className="font-semibold text-indigo-900 text-sm">You were personally invited to quote on this job</p>
+            <p className="text-xs text-indigo-600 mt-0.5">The client browsed your profile and chose you specifically.</p>
           </div>
         </div>
       )}
