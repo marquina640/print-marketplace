@@ -59,13 +59,10 @@ export default function LegalLayout({ children }: { children: React.ReactNode })
       {/* Footer */}
       <footer className="border-t border-warm-200 bg-white py-8 mt-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-warm-400">
-          <span>© 2025 PrintMarketHub · Switzerland</span>
-          <div className="flex gap-5">
-            {LEGAL_NAV.map((item) => (
-              <Link key={item.href} href={item.href} className="hover:text-ink-900 transition-colors">
-                {item.label}
-              </Link>
-            ))}
+          <span>© {new Date().getFullYear()} PrintMarketHub</span>
+          <div className="flex flex-wrap justify-center gap-x-5 gap-y-2">
+            <Link href="/" className="hover:text-ink-900 transition-colors">Home</Link>
+            <a href="mailto:admin@printmarkethub.com" className="hover:text-ink-900 transition-colors">Contact</a>
           </div>
         </div>
       </footer>
