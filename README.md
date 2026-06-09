@@ -218,7 +218,7 @@ Stripe is prepared but not activated. When ready:
 
 ## Roadmap (Post-MVP)
 
-- [ ] Stripe Connect payments + escrow
+- [ ] Stripe Connect payments
 - [ ] Review & rating system (table exists, UI pending)
 - [ ] Printer public profile pages
 - [ ] Job status updates (in_progress → completed)
