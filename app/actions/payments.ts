@@ -24,14 +24,16 @@ export async function markJobShipped(jobId: string, details: ShippingDetails) {
   const previewUserId = profile?.role === 'admin' ? cookieStore.get('admin_preview_user_id')?.value : undefined
   const effectiveUserId = previewUserId ?? user.id
 
-  const { data: job } = await supabase.from('jobs').select('*').eq('id', jobId).single()
+  const admin = createAdminClient()
+
+  const { data: job } = await admin.from('jobs').select('*').eq('id', jobId).single()
   if (!job || (job as any).status !== 'paid') throw new Error('Job not in paid state')
 
-  const { data: acceptedQuote } = await supabase
+  const { data: acceptedQuote } = await admin
     .from('quotes').select('printer_id').eq('job_id', jobId).eq('status', 'accepted').single()
   if (!acceptedQuote || acceptedQuote.printer_id !== effectiveUserId) throw new Error('Not the accepted printer')
 
-  await supabase.from('jobs').update({
+  const { error: updateError } = await admin.from('jobs').update({
     status: 'shipped',
     shipped_at: new Date().toISOString(),
     in_person_delivery: details.inPerson,
@@ -39,9 +41,9 @@ export async function markJobShipped(jobId: string, details: ShippingDetails) {
     tracking_number:    details.inPerson ? null : (details.trackingNumber ?? null),
     shipped_date:       details.shippedDate ?? new Date().toISOString().slice(0, 10),
   } as any).eq('id', jobId)
+  if (updateError) throw new Error(updateError.message)
 
   // Look up client email for the email notification
-  const admin = createAdminClient()
   const { data: clientProfile } = await admin
     .from('profiles').select('email').eq('user_id', job.client_id).single()
 
@@ -68,20 +70,22 @@ export async function confirmJobDelivery(jobId: string) {
   const previewUserId = profile?.role === 'admin' ? cookieStore.get('admin_preview_user_id')?.value : undefined
   const effectiveUserId = previewUserId ?? user.id
 
-  const { data: job } = await supabase.from('jobs').select('*').eq('id', jobId).single()
+  const adminClient = createAdminClient()
+
+  const { data: job } = await adminClient.from('jobs').select('*').eq('id', jobId).single()
   if (!job || (job as any).status !== 'shipped') throw new Error('Job not in shipped state')
   if (job.client_id !== effectiveUserId) throw new Error('Not the job owner')
 
-  await supabase.from('jobs').update({
+  const { error: deliveryError } = await adminClient.from('jobs').update({
     status: 'delivered',
     delivered_at: new Date().toISOString(),
   } as any).eq('id', jobId)
+  if (deliveryError) throw new Error(deliveryError.message)
 
-  const { data: acceptedQuote } = await supabase
+  const { data: acceptedQuote } = await adminClient
     .from('quotes').select('printer_id, price').eq('job_id', jobId).eq('status', 'accepted').single()
 
   if (acceptedQuote) {
-    const adminClient = createAdminClient()
     const { data: printerProfile } = await adminClient
       .from('profiles').select('email').eq('user_id', acceptedQuote.printer_id).single()
 
@@ -140,15 +144,17 @@ export async function markPayoutSent(jobId: string) {
   const { data: profile } = await supabase.from('profiles').select('role').eq('user_id', user.id).single()
   if (profile?.role !== 'admin') throw new Error('Not admin')
 
-  const { data: job } = await supabase.from('jobs').select('*').eq('id', jobId).single()
+  const admin = createAdminClient()
+
+  const { data: job } = await admin.from('jobs').select('*').eq('id', jobId).single()
   if (!job || !['delivered', 'completed'].includes((job as any).status)) throw new Error('Job not delivered')
 
-  await supabase.from('jobs').update({
+  await admin.from('jobs').update({
     payout_at: new Date().toISOString(),
     status: 'completed',
   } as any).eq('id', jobId)
 
-  const { data: acceptedQuote } = await supabase
+  const { data: acceptedQuote } = await admin
     .from('quotes').select('printer_id, price').eq('job_id', jobId).eq('status', 'accepted').single()
 
   if (acceptedQuote) {
