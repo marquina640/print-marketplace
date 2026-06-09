@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { formatDate } from '@/lib/utils'
 import { StatusBadge } from '@/components/ui/badge'
 import { CreateUserForm } from './create-user-form'
+import { DeleteUserButton } from './delete-user-button'
 
 export const metadata = { title: 'Users - Admin' }
 
@@ -83,7 +84,7 @@ function UserTable({ title, users, highlight, hasProfile, hasMachines }: {
   users: { user_id: string; email: string; display_name: string | null; role: string; created_at: string; onboarding_complete: boolean | null }[]
 }) {
   const showMakerCols = !!(hasProfile || hasMachines)
-  const headers = ['Name', 'Email', 'Role', 'Onboarded', ...(showMakerCols ? ['Profile', 'Machines'] : []), 'Joined', ...(showMakerCols ? [''] : [])]
+  const headers = ['Name', 'Email', 'Role', 'Onboarded', ...(showMakerCols ? ['Profile', 'Machines'] : []), 'Joined', ...(showMakerCols ? [''] : []), '']
 
   return (
     <section>
@@ -133,6 +134,12 @@ function UserTable({ title, users, highlight, hasProfile, hasMachines }: {
                       </Link>
                     </td>
                   )}
+                  <td className="px-4 py-3 text-sm">
+                    <DeleteUserButton
+                      userId={u.user_id}
+                      name={u.display_name ?? u.email}
+                    />
+                  </td>
                 </tr>
               ))}
             </tbody>
