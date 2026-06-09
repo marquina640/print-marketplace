@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 const benefits = [
   { icon: '🆓', title: 'Free to join', desc: 'No subscription, no listing fee. A commission applies only when a job is successfully completed — no upfront costs, ever.' },
   { icon: '💸', title: 'You set your prices', desc: 'Quote whatever you think is fair. There\'s no floor or ceiling - the market finds the right price.' },
-  { icon: '🔒', title: 'Always get paid', desc: 'Payment is collected from the client before you start. Once they confirm delivery, the money is automatically released to your account.' },
+  { icon: '🔒', title: 'Always get paid', desc: 'The client pays via Stripe at checkout. Once they confirm delivery, Stripe sends the money directly to your account.' },
   { icon: '📅', title: 'Work your schedule', desc: 'Only quote on jobs you want to take. Busy this week? Simply don\'t quote. No penalties, no minimums.' },
   { icon: '⭐', title: 'Build a reputation', desc: 'Every completed job adds a verified review to your profile. A strong rating unlocks higher-value engineering jobs.' },
   { icon: '🗺️', title: 'Community-first', desc: 'Your profile is shown to clients near you first - faster turnaround, easier pickups, and clients who value finding someone local.' },

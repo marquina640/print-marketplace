@@ -12,7 +12,7 @@ export default function TermsPage() {
         <p>
           PrintMarketHub ("the Platform", "we", "us") is an online marketplace that connects customers
           ("Clients") with independent 3D printing professionals ("Makers"). We are not a party to any
-          transaction between Clients and Makers - we provide the tools, payment protection, and trust infrastructure
+          transaction between Clients and Makers - we provide the tools, secure payment processing, and trust infrastructure
           that make those transactions possible.
         </p>
       </Section>
@@ -58,14 +58,14 @@ export default function TermsPage() {
         </p>
       </Section>
 
-      <Section title="5. Payment Protection">
+      <Section title="5. How Payments Work">
         <p>
-          All payments are processed via Stripe and held until the Client confirms delivery.
-          Funds are released to the Maker only after the Client confirms receipt of the order.
+          All payments are processed by Stripe, Inc. on behalf of the Maker. The Client pays at checkout
+          and the Maker receives their payout via Stripe once the Client confirms delivery.
         </p>
         <ul className="list-disc pl-5 mt-3 space-y-1">
           <li>Clients must confirm receipt within a reasonable time after delivery.</li>
-          <li>If a Client does not confirm within 14 days of the marked ship date, funds may be automatically released to the Maker.</li>
+          <li>If a Client does not confirm within 14 days of the marked ship date, the payout is processed to the Maker automatically.</li>
           <li>Chargebacks initiated outside the Platform's dispute process may result in account suspension.</li>
         </ul>
       </Section>
@@ -118,7 +118,7 @@ export default function TermsPage() {
         <p>
           If a dispute arises between a Client and a Maker, both parties should first attempt to
           resolve it through the Platform's messaging system. If unresolved, either party may contact
-          PrintMarketHub support. We reserve the right to make final decisions on fund release in
+          PrintMarketHub support. We reserve the right to make final decisions on payment outcomes in
           disputed transactions, including partial refunds where appropriate.
         </p>
       </Section>

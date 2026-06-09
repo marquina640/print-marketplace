@@ -13,14 +13,14 @@ export default function RefundsPage() {
         This policy explains how PrintMarketHub handles payments, delivery confirmation, refunds, and disputes between Clients and Makers. PrintMarketHub acts as a neutral facilitator - not an arbitrator - in any dispute.
       </p>
 
-      <Section n="1" title="Payment Protection">
-        <p>When a Client accepts a Maker's quote, payment is immediately collected via Stripe and held until delivery is confirmed. The Maker does not receive funds until one of the following occurs:</p>
+      <Section n="1" title="How Payments Work">
+        <p>When a Client accepts a Maker's quote, payment is immediately collected by Stripe on behalf of the Maker. The Maker's payout is processed once one of the following occurs:</p>
         <ul>
           <li>The Client confirms successful delivery of the order</li>
           <li>The automatic confirmation period expires without a dispute being raised</li>
           <li>A dispute is resolved in the Maker's favour</li>
         </ul>
-        <p>This protects both parties: Clients are assured payment is only released upon satisfactory delivery; Makers are assured payment is secured before production begins.</p>
+        <p>This protects both parties: Clients know the maker gets paid only on satisfactory delivery; Makers know payment is secured before production begins.</p>
       </Section>
 
       <Section n="2" title="Order Lifecycle">
@@ -30,7 +30,7 @@ export default function RefundsPage() {
             ['2', 'In Production', 'Maker begins manufacturing. Payment pending delivery confirmation.'],
             ['3', 'Shipped', 'Maker marks the order as shipped and provides tracking information.'],
             ['4', 'Delivered', 'Client confirms receipt of the order.'],
-            ['5', 'Completed', 'PrintMarketHub releases funds to the Maker (less commission).'],
+            ['5', 'Completed', 'Stripe sends the payout to the Maker (less platform commission).'],
           ].map(([step, status, desc]) => (
             <div key={step} className="flex gap-4 p-4 border-b border-warm-100 last:border-0 hover:bg-warm-50">
               <div className="h-7 w-7 rounded-full bg-gold-400 flex items-center justify-center text-[11px] font-black text-ink-950 flex-shrink-0">{step}</div>
@@ -44,8 +44,8 @@ export default function RefundsPage() {
       </Section>
 
       <Section n="3" title="Delivery Confirmation">
-        <p>Upon receiving their order, Clients must confirm delivery through the Platform. This releases the secured funds to the Maker.</p>
-        <p>If a Client does not confirm delivery within <strong>7 days</strong> of the Maker marking the order as delivered, and no dispute has been opened, PrintMarketHub reserves the right to release the funds to the Maker automatically.</p>
+        <p>Upon receiving their order, Clients must confirm delivery through the Platform. This triggers the Maker's payout via Stripe.</p>
+        <p>If a Client does not confirm delivery within <strong>7 days</strong> of the Maker marking the order as delivered, and no dispute has been opened, PrintMarketHub reserves the right to process the Maker's payout automatically.</p>
         <p>Clients should inspect their order promptly upon receipt and raise any concerns before confirming delivery.</p>
       </Section>
 
@@ -69,11 +69,11 @@ export default function RefundsPage() {
       <Section n="5" title="Dispute Resolution Process">
         <p>Once a dispute is opened:</p>
         <ul>
-          <li>The held funds are frozen pending resolution</li>
+          <li>The Maker's payout is paused pending resolution</li>
           <li>The Maker is notified and has <strong>5 business days</strong> to respond with their position and evidence</li>
           <li>PrintMarketHub reviews all evidence and communicates a recommended resolution within <strong>10 business days</strong></li>
           <li>Both parties are encouraged to accept the recommendation</li>
-          <li>If both parties accept, the funds are distributed accordingly</li>
+          <li>If both parties accept, the payment is distributed accordingly via Stripe</li>
           <li>If a party rejects the recommendation, they may escalate to formal mediation at their own cost</li>
         </ul>
         <p>PrintMarketHub's role is that of a neutral facilitator. Our recommended resolution is not legally binding but is made in good faith based on the evidence provided.</p>

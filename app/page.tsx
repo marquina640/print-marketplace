@@ -150,7 +150,7 @@ export default async function LandingPage() {
                   <div className="h-5 w-5 rounded-full bg-gold-400/30 flex items-center justify-center flex-shrink-0">
                     <svg className="h-3 w-3 text-gold-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
                   </div>
-                  <p className="text-[11px] text-gold-300">Your payment is held safely until you confirm delivery</p>
+                  <p className="text-[11px] text-gold-300">Pay via Stripe — the maker gets paid when you confirm delivery</p>
                 </div>
               </div>
             </div>
@@ -275,7 +275,7 @@ export default async function LandingPage() {
                 { n: '1', icon: '📁', title: 'Find or upload your model', desc: 'Browse MakerWorld or Thingiverse, or upload your own STL or STEP file.' },
                 { n: '2', icon: '📋', title: 'Post your request', desc: 'Describe material, color, quantity, deadline, and budget. Takes 2 minutes.' },
                 { n: '3', icon: '💬', title: 'Compare quotes and choose', desc: 'Get multiple quotes from local makers. Compare prices, ratings, and timelines. Ask questions before deciding.' },
-                { n: '4', icon: '📦', title: 'Pay and receive', desc: 'Accept the best quote and pay securely. Your money is held safely and released only when you confirm delivery.' },
+                { n: '4', icon: '📦', title: 'Pay and receive', desc: 'Accept the best quote and pay via Stripe. The maker gets paid once you confirm your order has arrived.' },
               ].map((s) => (
                 <div key={s.n} className="rounded-2xl border border-warm-200 bg-white p-5 relative">
                   <div className="absolute -top-3 left-5 h-6 w-6 rounded-full bg-gold-400 flex items-center justify-center text-[11px] font-black text-ink-950">
@@ -343,7 +343,7 @@ export default async function LandingPage() {
               {
                 Icon: Shield,
                 title: 'Your money is protected',
-                desc: "Payment is held safely until you confirm delivery. Makers only get paid when you're happy.",
+                desc: "Pay via Stripe at checkout. The maker only gets paid once you confirm your order has arrived and you're happy.",
               },
               {
                 Icon: CreditCard,

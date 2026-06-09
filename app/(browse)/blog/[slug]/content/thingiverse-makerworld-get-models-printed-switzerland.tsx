@@ -76,7 +76,7 @@ export default function Post() {
         Compare the quotes - check not just price but also the maker&apos;s profile, past reviews, and the machines they use. A maker with a high-quality printer and good reviews is usually worth a small premium over the cheapest option.
       </p>
       <p>
-        Once you accept a quote, pay through the platform, and the maker gets to work. When your part arrives, confirm delivery and the payment is released. Done.
+        Once you accept a quote, pay through the platform via Stripe, and the maker gets to work. When your part arrives, confirm delivery and the maker gets paid. Done.
       </p>
 
       <div className="mt-8 rounded-2xl bg-[#1a1535] text-white p-6 space-y-3">

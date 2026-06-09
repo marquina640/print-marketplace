@@ -19,7 +19,7 @@ const clientFAQ = [
   },
   {
     q: 'Is it safe to pay through the platform?',
-    a: <p>Yes. Payments are processed by Stripe - the same technology used by Shopify, Amazon, and thousands of other platforms. Your payment is only released to the maker once you confirm that your print has arrived and you&apos;re happy with it. If something goes wrong before delivery, you&apos;re covered.</p>,
+    a: <p>Yes. All payments are processed by Stripe - the same technology used by Shopify, Amazon, and thousands of other platforms. The maker gets paid only after you confirm that your print has arrived and you&apos;re happy with it. If something goes wrong before you confirm, you&apos;re covered.</p>,
   },
   {
     q: 'What file formats do you accept?',
@@ -39,7 +39,7 @@ const clientFAQ = [
   },
   {
     q: 'What if my print doesn\'t turn out right?',
-    a: <p>Before releasing payment, you confirm delivery and inspect your order. If the print doesn&apos;t match the agreed spec, you can raise a dispute. We review the case and mediate between you and the maker. Payment is only released when you&apos;re satisfied - you&apos;re never forced to accept a bad result.</p>,
+    a: <p>You confirm delivery and inspect your order before the maker gets paid. If the print doesn&apos;t match the agreed spec, you can raise a dispute. We review the case and mediate between you and the maker. The maker only gets paid when you&apos;re satisfied - you&apos;re never forced to accept a bad result.</p>,
   },
   {
     q: 'How long does it take to receive my print?',
@@ -88,7 +88,7 @@ const makerFAQ = [
   },
   {
     q: 'How and when do I get paid?',
-    a: <p>When a client accepts your quote and pays, the payment is processed through Stripe and held until delivery is confirmed. Once the client confirms delivery, the payment (minus the platform fee) is automatically released to your connected Stripe account. Payouts typically arrive within 2 business days depending on your bank.</p>,
+    a: <p>When a client accepts your quote and pays, Stripe processes the payment. Once the client confirms delivery, Stripe sends the payout (minus the platform fee) to your connected Stripe account. Payouts typically arrive within 2 business days depending on your bank.</p>,
   },
   {
     q: 'Do I need to be a professional printer?',
@@ -104,7 +104,7 @@ const makerFAQ = [
   },
   {
     q: 'What happens if a client doesn\'t confirm delivery?',
-    a: <p>If a client doesn&apos;t confirm delivery within 7 days of the job being marked as shipped, the platform automatically releases payment to you. This ensures you&apos;re not stuck waiting indefinitely.</p>,
+    a: <p>If a client doesn&apos;t confirm delivery within 7 days of the job being marked as shipped, the platform automatically processes the payout to you. This ensures you&apos;re not stuck waiting indefinitely.</p>,
   },
   {
     q: 'Can I pause my account if I\'m too busy?',

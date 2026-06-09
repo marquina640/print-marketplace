@@ -449,7 +449,7 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
                           )}
                           {canConfirmReceipt && (
                             <>
-                              <p className="text-xs text-amber-700">Once you've received your order, confirm receipt to release payment to the maker.</p>
+                              <p className="text-xs text-amber-700">Once you've received your order, confirm receipt so the maker gets paid.</p>
                               <ConfirmReceiptButton jobId={job.id} />
                             </>
                           )}

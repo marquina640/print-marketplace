@@ -33,7 +33,7 @@ export default function Post() {
         This is the option most people don&apos;t know exists. Thousands of people in communities around the world have 3D printers sitting in their homes and workshops - hobbyists, engineers, small businesses - who are happy to print for others in exchange for payment.
       </p>
       <p>
-        PrintMarketHub connects you with verified makers near you. You post what you need, receive quotes from multiple makers, compare prices and profiles, then pay securely through the platform. Your payment is held safely and only released to the maker once you confirm the print has arrived and meets the spec.
+        PrintMarketHub connects you with verified makers near you. You post what you need, receive quotes from multiple makers, compare prices and profiles, then pay securely via Stripe through the platform. The maker gets paid once you confirm the print has arrived and meets the spec.
       </p>
       <p><strong>Good for:</strong> anyone who wants a quality print quickly, without owning a machine or learning anything new.</p>
 
@@ -53,7 +53,7 @@ export default function Post() {
         <li>Specify material, quantity, deadline, and any budget constraints</li>
         <li>Wait for quotes - most requests hear back within a few hours</li>
         <li>Review the quotes, check maker profiles and ratings, and accept the best one</li>
-        <li>Pay securely through the platform - funds released only on delivery</li>
+        <li>Pay securely via Stripe — the maker gets paid when you confirm delivery</li>
       </ol>
 
       <div className="mt-8 rounded-2xl bg-[#1a1535] text-white p-6 space-y-3">
