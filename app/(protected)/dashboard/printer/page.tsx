@@ -8,16 +8,16 @@ import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/ui/empty-state'
 import { formatCurrency, formatDate, getCertificationLevel, CERTIFICATION_LEVELS } from '@/lib/utils'
 import { CertificationBadge } from '@/components/ui/badge'
-import { StripeConnectButton } from '@/components/payments/stripe-connect-button'
+import { PayPalConnectButton } from '@/components/payments/paypal-connect-button'
 
 export const metadata = { title: 'Printer Dashboard' }
 
 interface PageProps {
-  searchParams: Promise<{ stripe?: string }>
+  searchParams: Promise<{ stripe?: string; paypal?: string }>
 }
 
 export default async function PrinterDashboardPage({ searchParams }: PageProps) {
-  const { stripe: stripeParam } = await searchParams
+  const { stripe: stripeParam, paypal: paypalParam } = await searchParams
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
@@ -61,7 +61,7 @@ export default async function PrinterDashboardPage({ searchParams }: PageProps) 
       : recentJobsQuery,
     supabase
       .from('printer_profiles')
-      .select('certification_level, display_name, stripe_account_id, stripe_onboarding_complete')
+      .select('certification_level, display_name, paypal_merchant_id, paypal_onboarding_complete')
       .eq('user_id', effectiveUserId)
       .single(),
   ])
@@ -99,7 +99,7 @@ export default async function PrinterDashboardPage({ searchParams }: PageProps) 
   const certLevel        = makerProfile?.certification_level ?? 0
   const cert             = getCertificationLevel(certLevel)
   const nextCert         = certLevel < 3 ? CERTIFICATION_LEVELS[certLevel + 1] : null
-  const stripeConnected  = (makerProfile as any)?.stripe_onboarding_complete === true
+  const paypalConnected  = (makerProfile as any)?.paypal_onboarding_complete === true
   const isAdminPreview   = !!previewUserId
 
   // Earnings: sum of accepted quote prices for delivered/completed jobs
@@ -143,15 +143,15 @@ export default async function PrinterDashboardPage({ searchParams }: PageProps) 
         <Link href="/jobs"><Button variant="gold">Browse Requests</Button></Link>
       </div>
 
-      {/* Stripe Connect panel */}
+      {/* PayPal Connect panel */}
       {!isAdminPreview && (
-        stripeConnected ? (
-          stripeParam === 'connected' ? (
+        paypalConnected ? (
+          paypalParam === 'connected' ? (
             <div className="rounded-xl bg-emerald-50 border border-emerald-200 px-5 py-4 flex items-center gap-3">
               <span className="text-xl">✓</span>
               <div>
-                <p className="font-semibold text-emerald-900">Stripe account connected!</p>
-                <p className="text-sm text-emerald-700">Payments from clients will be sent directly to your Stripe account once delivery is confirmed.</p>
+                <p className="font-semibold text-emerald-900">PayPal account connected!</p>
+                <p className="text-sm text-emerald-700">Payments from clients will go directly to your PayPal account once delivery is confirmed.</p>
               </div>
             </div>
           ) : (
@@ -159,11 +159,11 @@ export default async function PrinterDashboardPage({ searchParams }: PageProps) 
               <div className="flex items-center gap-3">
                 <div className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
                 <div>
-                  <p className="font-semibold text-emerald-900 text-sm">Stripe payments connected</p>
-                  <p className="text-xs text-emerald-700">Payments are released automatically when clients confirm delivery.</p>
+                  <p className="font-semibold text-emerald-900 text-sm">PayPal payments connected</p>
+                  <p className="text-xs text-emerald-700">Payments go directly to your PayPal account when clients confirm delivery.</p>
                 </div>
               </div>
-              <StripeConnectButton label="Manage account" />
+              <PayPalConnectButton label="Manage account" />
             </div>
           )
         ) : (
@@ -171,13 +171,13 @@ export default async function PrinterDashboardPage({ searchParams }: PageProps) 
             <div className="flex items-start gap-3 mb-3">
               <span className="text-2xl">💳</span>
               <div>
-                <p className="font-semibold text-amber-900">Connect your Stripe account to get paid</p>
+                <p className="font-semibold text-amber-900">Connect your PayPal account to get paid</p>
                 <p className="text-sm text-amber-700 mt-0.5">
-                  You need a Stripe account to receive payments. It only takes a few minutes. Once connected, payments are released to you automatically when clients confirm delivery.
+                  You need a PayPal account to receive payments. It only takes a few minutes to set up.
                 </p>
               </div>
             </div>
-            <StripeConnectButton label="Set up payments →" />
+            <PayPalConnectButton label="Set up payments →" />
           </div>
         )
       )}

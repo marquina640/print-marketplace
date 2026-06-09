@@ -129,9 +129,8 @@ export function emailJobPaid({
     html: `
       <h2 style="margin:0 0 8px;font-size:20px;font-weight:800;color:#1a1625;">Payment confirmed &#x1F4B3;</h2>
       <p style="margin:0 0 20px;color:#6b6760;font-size:14px;line-height:1.6;">
-        <strong style="color:#1a1625;">${price.toFixed(2)}</strong> has been secured
-        for <em>${jobTitle}</em>. You can start printing - funds will be released once the
-        client confirms delivery.
+        <strong style="color:#1a1625;">CHF ${price.toFixed(2)}</strong> has been received
+        for <em>${jobTitle}</em>. You can start printing now.
       </p>
       ${ctaButton('View Job &rarr;', `${APP_URL}${jobUrl}`)}
     `,
@@ -181,8 +180,7 @@ export function emailDeliveryConfirmed({
     html: `
       <h2 style="margin:0 0 8px;font-size:20px;font-weight:800;color:#1a1625;">Delivery confirmed &#x2705;</h2>
       <p style="margin:0 0 20px;color:#6b6760;font-size:14px;line-height:1.6;">
-        The client confirmed receipt of <em>${jobTitle}</em>. Your payment is being processed
-        and will arrive in your Stripe account shortly.
+        The client confirmed receipt of <em>${jobTitle}</em>. Your payment is on its way to your PayPal account.
       </p>
       <p style="margin:0;color:#6b6760;font-size:14px;">
         Don&apos;t forget to leave a review &mdash; it helps build your reputation on the platform.

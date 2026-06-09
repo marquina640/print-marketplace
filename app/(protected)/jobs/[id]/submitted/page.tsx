@@ -38,8 +38,8 @@ const STEPS = [
   {
     icon: '🔒',
     label: 'Step 5',
-    title: 'Pay securely via Stripe',
-    desc: "Your payment is processed by Stripe at checkout. The maker only gets paid once you confirm your order has arrived.",
+    title: 'Pay securely via PayPal',
+    desc: "Your payment is processed by PayPal at checkout. The maker gets paid once you confirm your order has arrived.",
     bg: 'bg-indigo-50 border-indigo-100',
     iconBg: 'bg-indigo-100 text-indigo-600',
   },

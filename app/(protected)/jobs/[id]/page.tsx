@@ -9,7 +9,7 @@ import { formatCurrency, formatDate, formatFileSize, CURRENCIES } from '@/lib/ut
 import { AcceptQuoteButton } from './accept-quote-button'
 import { countUnreviewedJobs } from '@/app/actions/review-gate'
 import { ReviewForm } from './review-form'
-import { PaymentButton } from '@/components/payments/payment-button'
+import { PayPalPaymentButton } from '@/components/payments/paypal-payment-button'
 import { MarkShippedButton } from './mark-shipped-button'
 import { ConfirmReceiptButton } from './confirm-receipt-button'
 import { MarkPayoutButton } from './mark-payout-button'
@@ -162,7 +162,21 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
       )}
       {payment === 'cancelled' && (
         <div className="rounded-xl bg-amber-50 border border-amber-200 px-5 py-4">
-          <p className="text-sm font-medium text-amber-800">Payment was cancelled. You can try again whenever you're ready.</p>
+          <p className="text-sm font-medium text-amber-800">Payment was cancelled. You can try again whenever you&apos;re ready.</p>
+        </div>
+      )}
+      {payment === 'pending' && (
+        <div className="rounded-xl bg-amber-50 border border-amber-200 px-5 py-4 flex items-center gap-3">
+          <span className="text-xl">⏳</span>
+          <div>
+            <p className="font-semibold text-amber-900">Payment is being processed</p>
+            <p className="text-sm text-amber-700">PayPal is processing your payment. This page will update automatically.</p>
+          </div>
+        </div>
+      )}
+      {payment === 'error' && (
+        <div className="rounded-xl bg-red-50 border border-red-200 px-5 py-4">
+          <p className="text-sm font-medium text-red-800">Something went wrong processing your payment. Please try again or contact support.</p>
         </div>
       )}
 
@@ -409,7 +423,7 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
                         <div className="rounded-xl border border-gold-300 bg-gold-50 p-4">
                           <p className="text-sm font-semibold text-ink-900 mb-1">Confirm your order</p>
                           <p className="text-xs text-warm-600 mb-3">Pay now to secure your order. The maker gets paid once you confirm delivery.</p>
-                          <PaymentButton jobId={job.id} amount={q.price} />
+                          <PayPalPaymentButton jobId={job.id} amount={q.price} />
                         </div>
                       )}
 
