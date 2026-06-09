@@ -28,7 +28,7 @@ export default function TermsPage() {
       <Section n="4" title="Job Posting and Quoting">
         <p>Clients may post manufacturing jobs including specifications, reference images, and 3D model files (STL, STEP, 3MF, OBJ, ZIP). By posting a job, the Client warrants that they own or have the right to use all uploaded files and that the requested item is lawful.</p>
         <p>Makers may submit quotes on open jobs. Quotes are binding offers. A contract between Client and Maker is formed when a Client accepts a quote.</p>
-        <p>Quotes expire after 24 hours unless otherwise agreed. PrintMarketHub does not guarantee response times or the number of quotes received.</p>
+        <p>Quotes expire after 3 days unless otherwise agreed. PrintMarketHub does not guarantee response times or the number of quotes received.</p>
       </Section>
 
       <Section n="5" title="Payments">

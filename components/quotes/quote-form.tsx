@@ -102,7 +102,7 @@ export function QuoteForm({ jobId, printerId: printerIdProp, shippingRequired, e
       image_url = publicUrl
     }
 
-    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
+    const expiresAt = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString()
 
     const payload = {
       job_id: jobId,
