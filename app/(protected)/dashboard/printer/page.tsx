@@ -36,10 +36,13 @@ export default async function PrinterDashboardPage({ searchParams }: PageProps) 
   const { data: testUsers } = await supabase.from('profiles').select('user_id').eq('is_test', true)
   const testUserIds = testUsers?.map((u) => u.user_id) ?? []
 
+  const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
+
   const recentJobsQuery = supabase
     .from('jobs')
     .select('*')
     .eq('status', 'open')
+    .gte('created_at', sevenDaysAgo)
     .order('created_at', { ascending: false })
     .limit(6)
 

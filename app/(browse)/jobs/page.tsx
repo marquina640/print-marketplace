@@ -53,12 +53,16 @@ export default async function JobsFeedPage({ searchParams }: PageProps) {
 
   const today = new Date().toISOString().slice(0, 10) // YYYY-MM-DD
 
+  const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
+
   let query = supabase.from('jobs').select('*').eq('status', 'open').order(col, { ascending: asc })
   if (testUserIds.length > 0) query = query.not('client_id', 'in', `(${testUserIds.join(',')})`)
   // Never show a maker their own requests (use effectiveUserId to handle preview mode correctly)
   if (effectiveUserId) query = query.neq('client_id', effectiveUserId)
   // Hide jobs whose deadline has passed
   query = query.or(`deadline.is.null,deadline.gte.${today}`)
+  // Hide jobs older than 7 days
+  query = query.gte('created_at', sevenDaysAgo)
   if (material) query = query.eq('material', material)
   if (q) query = query.ilike('title', `%${q}%`)
   if (shipping === '1') query = query.eq('shipping_required', true)

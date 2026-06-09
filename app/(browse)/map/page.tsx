@@ -35,9 +35,12 @@ export default async function MapPage() {
     .from('profiles').select('user_id').eq('role', 'printer_owner').eq('is_test', false)
   const validMakerIds = validMakerProfiles?.map((p) => p.user_id) ?? []
 
+  const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
+
   let jobsQuery = supabase.from('jobs')
     .select('id, title, material, budget, location, latitude, longitude')
     .eq('status', 'open')
+    .gte('created_at', sevenDaysAgo)
   if (testIds.length > 0) jobsQuery = jobsQuery.not('client_id', 'in', `(${testIds.join(',')})`)
   if (user) jobsQuery = jobsQuery.neq('client_id', user.id)
 
