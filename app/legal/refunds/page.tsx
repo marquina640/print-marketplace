@@ -14,7 +14,7 @@ export default function RefundsPage() {
       </p>
 
       <Section n="1" title="Payment Protection">
-        <p>When a Client accepts a Maker's quote, payment is immediately collected by PrintMarketHub via Stripe and held securely. The Maker does not receive funds until one of the following occurs:</p>
+        <p>When a Client accepts a Maker's quote, payment is immediately collected via Stripe and held until delivery is confirmed. The Maker does not receive funds until one of the following occurs:</p>
         <ul>
           <li>The Client confirms successful delivery of the order</li>
           <li>The automatic confirmation period expires without a dispute being raised</li>
@@ -26,8 +26,8 @@ export default function RefundsPage() {
       <Section n="2" title="Order Lifecycle">
         <div className="rounded-xl border border-warm-200 overflow-hidden">
           {[
-            ['1', 'Accepted', 'Client accepts a quote. Stripe payment collected. Funds held securely.'],
-            ['2', 'In Production', 'Maker begins manufacturing. Funds remain held securely.'],
+            ['1', 'Accepted', 'Client accepts a quote. Payment collected via Stripe.'],
+            ['2', 'In Production', 'Maker begins manufacturing. Payment pending delivery confirmation.'],
             ['3', 'Shipped', 'Maker marks the order as shipped and provides tracking information.'],
             ['4', 'Delivered', 'Client confirms receipt of the order.'],
             ['5', 'Completed', 'PrintMarketHub releases funds to the Maker (less commission).'],

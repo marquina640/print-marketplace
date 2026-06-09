@@ -156,7 +156,7 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
           <span className="text-2xl">✓</span>
           <div>
             <p className="font-semibold text-emerald-900">Payment received!</p>
-            <p className="text-sm text-emerald-700">Your payment is held securely. The maker will now prepare and ship your order.</p>
+            <p className="text-sm text-emerald-700">Your payment is protected. The maker will now prepare and ship your order.</p>
           </div>
         </div>
       )}

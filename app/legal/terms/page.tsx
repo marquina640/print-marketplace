@@ -33,7 +33,7 @@ export default function TermsPage() {
 
       <Section n="5" title="Payments">
         <p>All payments are processed through <strong>Stripe, Inc.</strong> pursuant to Stripe's own Terms of Service. By making or receiving payments on the Platform, you agree to be bound by Stripe's applicable policies.</p>
-        <p>Upon quote acceptance, the Client's payment is collected by PrintMarketHub and held securely until the Client confirms delivery or the dispute resolution period expires. PrintMarketHub then releases funds to the Maker less the applicable Platform commission.</p>
+        <p>Upon quote acceptance, the Client's payment is collected via Stripe and held until the Client confirms delivery or the dispute resolution period expires. PrintMarketHub then releases funds to the Maker less the applicable Platform commission.</p>
         <p>PrintMarketHub charges a <strong>12% platform commission</strong> on each successfully completed transaction. This commission is deducted from the Maker's payout at the time of release. Rates may be updated with 30 days' written notice.</p>
         <p>Payments are processed in the currency selected by the Client. Supported payment methods include credit/debit card and bank transfer as made available by Stripe for your region.</p>
       </Section>

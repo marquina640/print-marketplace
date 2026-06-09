@@ -188,7 +188,7 @@ export default function HowItWorksPage() {
         <p className="text-center text-sm font-semibold text-warm-500 mb-5 uppercase tracking-widest text-xs">Built on trust</p>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
           {[
-            { icon: '🔒', title: 'Escrow payments', desc: 'Your money is protected until you confirm delivery' },
+            { icon: '🔒', title: 'Protected payments', desc: 'Your money is only released to the maker once you confirm delivery' },
             { icon: '⭐', title: 'Verified reviews', desc: 'Ratings from real completed jobs only' },
             { icon: '💬', title: 'On-platform chat', desc: 'All communication in one place, no phone numbers needed' },
             { icon: '🛡️', title: 'Dispute protection', desc: 'Fair mediation if anything goes wrong - you\'re never left without recourse' },
