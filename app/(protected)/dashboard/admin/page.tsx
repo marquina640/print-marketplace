@@ -22,6 +22,12 @@ export default async function AdminDashboardPage() {
 
   if (profile?.role !== 'admin') redirect('/dashboard')
 
+  const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+  function effectiveStatus(j: { status: string; created_at: string }) {
+    if (j.status === 'open' && new Date(j.created_at) < sevenDaysAgo) return 'delisted'
+    return j.status
+  }
+
   const [
     { count: userCount },
     { count: jobCount },
@@ -217,7 +223,7 @@ export default async function AdminDashboardPage() {
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-600">{j.material}</td>
                     <td className="px-4 py-3 text-sm text-gray-600">{formatCurrency(j.budget)}</td>
-                    <td className="px-4 py-3"><StatusBadge status={j.status} /></td>
+                    <td className="px-4 py-3"><StatusBadge status={effectiveStatus(j)} /></td>
                     <td className="px-4 py-3 text-sm text-gray-400">{formatDate(j.created_at)}</td>
                   </tr>
                 ))}
