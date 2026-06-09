@@ -7,6 +7,7 @@ import { StatusBadge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/ui/empty-state'
 import { formatCurrency, formatDate } from '@/lib/utils'
+import { RelistButton } from '@/components/jobs/relist-button'
 
 export const metadata = { title: 'Customer Dashboard' }
 
@@ -53,8 +54,11 @@ export default async function ClientDashboardPage({ searchParams }: PageProps) {
     : { data: [] }
 
   const now = new Date()
+  const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
 
   const openJobs      = jobs?.filter((j) => j.status === 'open') ?? []
+  const delistedJobs  = openJobs.filter((j) => new Date(j.created_at) < sevenDaysAgo)
+  const activeOpenJobs = openJobs.filter((j) => new Date(j.created_at) >= sevenDaysAgo)
   const activeJobs    = jobs?.filter((j) => ['paid', 'shipped', 'delivered', 'in_progress'].includes(j.status)) ?? []
   const completedJobs = jobs?.filter((j) => j.status === 'completed') ?? []
 
@@ -198,6 +202,37 @@ export default async function ClientDashboardPage({ searchParams }: PageProps) {
                   <Link href={`/jobs/${job.id}`}>
                     <Button variant="gold" size="sm">Review Quotes →</Button>
                   </Link>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── DELISTED JOBS ── */}
+      {delistedJobs.length > 0 && (
+        <div className="rounded-2xl border-2 border-warm-300 bg-warm-50 p-5">
+          <div className="flex items-center gap-2 mb-3">
+            <span className="h-2.5 w-2.5 rounded-full bg-warm-400 inline-block" />
+            <h2 className="font-bold text-warm-800">
+              {delistedJobs.length === 1 ? 'A request was delisted' : 'Some requests were delisted'}
+            </h2>
+          </div>
+          <p className="text-sm text-warm-500 mb-4">
+            No quote was accepted within 7 days, so {delistedJobs.length === 1 ? 'this request is' : 'these requests are'} no longer visible to makers. You can relist {delistedJobs.length === 1 ? 'it' : 'them'} instantly.
+          </p>
+          <div className="space-y-2">
+            {delistedJobs.map((job) => (
+              <div key={job.id} className="flex items-center justify-between bg-white rounded-xl px-4 py-3 border border-warm-200">
+                <div>
+                  <p className="font-semibold text-warm-900 text-sm">{job.title}</p>
+                  <p className="text-xs text-warm-400 mt-0.5">{job.material} · Posted {formatDate(job.created_at)}</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Link href={`/jobs/${job.id}`}>
+                    <Button variant="outline" size="sm">View</Button>
+                  </Link>
+                  <RelistButton jobId={job.id} />
                 </div>
               </div>
             ))}
@@ -404,6 +439,7 @@ export default async function ClientDashboardPage({ searchParams }: PageProps) {
             {jobs.map((job) => {
               const pendingCount = quotesByJob[job.id] ?? 0
               const totalCount   = totalQuotesByJob[job.id] ?? 0
+              const isDelisted   = job.status === 'open' && new Date(job.created_at) < sevenDaysAgo
               return (
                 <div key={job.id} className="card flex items-center justify-between p-4 hover:bg-warm-50 transition-colors">
                   <div className="min-w-0">
@@ -412,6 +448,11 @@ export default async function ClientDashboardPage({ searchParams }: PageProps) {
                       {pendingCount > 0 && (
                         <span className="rounded-full bg-amber-500 text-white text-xs font-bold px-2 py-0.5 flex-shrink-0">
                           {pendingCount} new
+                        </span>
+                      )}
+                      {isDelisted && (
+                        <span className="rounded-full bg-warm-200 text-warm-600 text-xs font-semibold px-2 py-0.5 flex-shrink-0">
+                          Delisted
                         </span>
                       )}
                     </div>
@@ -425,12 +466,16 @@ export default async function ClientDashboardPage({ searchParams }: PageProps) {
                     </p>
                   </div>
                   <div className="flex items-center gap-3 flex-shrink-0">
-                    <StatusBadge status={job.status} />
-                    <Link href={`/jobs/${job.id}`}>
-                      <Button variant={pendingCount > 0 ? 'gold' : 'outline'} size="sm">
-                        {pendingCount > 0 ? `Review ${pendingCount} quote${pendingCount !== 1 ? 's' : ''}` : 'View'}
-                      </Button>
-                    </Link>
+                    {!isDelisted && <StatusBadge status={job.status} />}
+                    {isDelisted ? (
+                      <RelistButton jobId={job.id} />
+                    ) : (
+                      <Link href={`/jobs/${job.id}`}>
+                        <Button variant={pendingCount > 0 ? 'gold' : 'outline'} size="sm">
+                          {pendingCount > 0 ? `Review ${pendingCount} quote${pendingCount !== 1 ? 's' : ''}` : 'View'}
+                        </Button>
+                      </Link>
+                    )}
                   </div>
                 </div>
               )
