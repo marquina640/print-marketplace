@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import { cookies } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 
 const STEPS = [
@@ -59,13 +60,19 @@ export default async function JobSubmittedPage({ params }: { params: Promise<{ i
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return notFound()
 
+  // Support admin preview mode
+  const { data: profile } = await supabase.from('profiles').select('role').eq('user_id', user.id).single()
+  const cookieStore = await cookies()
+  const previewUserId = profile?.role === 'admin' ? cookieStore.get('admin_preview_user_id')?.value : undefined
+  const effectiveUserId = previewUserId ?? user.id
+
   const { data: job } = await supabase
     .from('jobs')
     .select('title, client_id, image_url')
     .eq('id', id)
     .single()
 
-  if (!job || job.client_id !== user.id) return notFound()
+  if (!job || job.client_id !== effectiveUserId) return notFound()
 
   return (
     <div className="max-w-xl mx-auto py-6 space-y-6">
