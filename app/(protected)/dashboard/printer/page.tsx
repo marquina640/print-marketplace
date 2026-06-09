@@ -143,8 +143,7 @@ export default async function PrinterDashboardPage({ searchParams }: PageProps) 
       </div>
 
       {/* PayPal payout panel */}
-      {!isAdminPreview && (
-        paypalEmail ? (
+      {paypalEmail ? (
           <div className="rounded-xl bg-emerald-50 border border-emerald-200 px-5 py-4 flex items-center justify-between gap-3">
             <div className="flex items-center gap-3">
               <div className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
@@ -170,7 +169,6 @@ export default async function PrinterDashboardPage({ searchParams }: PageProps) 
               </Link>
             </div>
           </div>
-        )
       )}
 
       {/* Certification panel */}
