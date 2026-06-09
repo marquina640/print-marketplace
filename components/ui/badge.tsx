@@ -30,6 +30,7 @@ export function Badge({ children, className, variant = 'default' }: BadgeProps) 
 
 const statusConfig: Record<string, { label: string; variant: BadgeProps['variant'] }> = {
   open:        { label: 'Open',          variant: 'success' },
+  delisted:    { label: 'Delisted',      variant: 'default' },
   quoted:      { label: 'Quoted',        variant: 'info'    },
   accepted:    { label: 'Accepted',      variant: 'violet'  },
   in_progress: { label: 'In Progress',   variant: 'warning' },

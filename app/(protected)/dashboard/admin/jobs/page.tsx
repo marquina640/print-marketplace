@@ -20,8 +20,15 @@ export default async function AdminJobsPage() {
     .order('created_at', { ascending: false })
     .limit(100)
 
+  const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+
   const real  = jobs?.filter((j) => !(j.profiles as any)?.is_test) ?? []
   const tests = jobs?.filter((j) =>  (j.profiles as any)?.is_test) ?? []
+
+  function effectiveStatus(j: typeof real[number]) {
+    if (j.status === 'open' && new Date(j.created_at) < sevenDaysAgo) return 'delisted'
+    return j.status
+  }
 
   function JobTable({ rows }: { rows: typeof real }) {
     if (rows.length === 0) return <p className="text-sm text-warm-400 py-4">No requests.</p>
@@ -49,7 +56,7 @@ export default async function AdminJobsPage() {
                     </td>
                     <td className="px-4 py-3 text-sm text-warm-600">{j.material}</td>
                     <td className="px-4 py-3 text-sm text-warm-600">{j.budget ? formatCurrency(j.budget) : '—'}</td>
-                    <td className="px-4 py-3"><StatusBadge status={j.status} /></td>
+                    <td className="px-4 py-3"><StatusBadge status={effectiveStatus(j)} /></td>
                     <td className="px-4 py-3 text-sm text-warm-400">{formatDate(j.created_at)}</td>
                   </tr>
                 )
