@@ -1,4 +1,5 @@
 ﻿import { redirect } from 'next/navigation'
+import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { formatDate } from '@/lib/utils'
 import { StatusBadge } from '@/components/ui/badge'
@@ -82,7 +83,7 @@ function UserTable({ title, users, highlight, hasProfile, hasMachines }: {
   users: { user_id: string; email: string; display_name: string | null; role: string; created_at: string; onboarding_complete: boolean | null }[]
 }) {
   const showMakerCols = !!(hasProfile || hasMachines)
-  const headers = ['Name', 'Email', 'Role', 'Onboarded', ...(showMakerCols ? ['Profile', 'Machines'] : []), 'Joined']
+  const headers = ['Name', 'Email', 'Role', 'Onboarded', ...(showMakerCols ? ['Profile', 'Machines'] : []), 'Joined', ...(showMakerCols ? [''] : [])]
 
   return (
     <section>
@@ -125,6 +126,13 @@ function UserTable({ title, users, highlight, hasProfile, hasMachines }: {
                     </>
                   )}
                   <td className="px-4 py-3 text-sm text-warm-400">{formatDate(u.created_at)}</td>
+                  {showMakerCols && (
+                    <td className="px-4 py-3 text-sm">
+                      <Link href={`/makers/${u.user_id}`} className="text-ink-600 hover:underline font-medium" target="_blank">
+                        View profile →
+                      </Link>
+                    </td>
+                  )}
                 </tr>
               ))}
             </tbody>
