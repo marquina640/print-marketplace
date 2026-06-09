@@ -2,7 +2,7 @@
 
 import { useTransition } from 'react'
 import { Button } from '@/components/ui/button'
-import { confirmJobDelivery } from '@/app/actions/escrow'
+import { confirmJobDelivery } from '@/app/actions/payments'
 
 export function ConfirmReceiptButton({ jobId }: { jobId: string }) {
   const [pending, startTransition] = useTransition()

@@ -2,7 +2,7 @@
 
 import { useState, useRef, useTransition } from 'react'
 import { Button } from '@/components/ui/button'
-import { markJobShipped } from '@/app/actions/escrow'
+import { markJobShipped } from '@/app/actions/payments'
 import { createClient } from '@/lib/supabase/client'
 
 const CARRIERS = [

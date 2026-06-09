@@ -2,7 +2,7 @@
 
 import { useTransition } from 'react'
 import { Button } from '@/components/ui/button'
-import { markPayoutSent } from '@/app/actions/escrow'
+import { markPayoutSent } from '@/app/actions/payments'
 
 export function MarkPayoutButton({ jobId, makerName, amount }: { jobId: string; makerName: string; amount: number }) {
   const [pending, startTransition] = useTransition()
