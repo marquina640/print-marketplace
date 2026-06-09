@@ -40,27 +40,16 @@ export async function POST(req: NextRequest) {
 
     if (!quote) return NextResponse.json({ error: 'No accepted quote found' }, { status: 404 })
 
-    // Look up maker's connected PayPal merchant ID (if they've done onboarding)
-    const { data: printerProfile } = await admin
-      .from('printer_profiles')
-      .select('paypal_merchant_id, paypal_onboarding_complete')
-      .eq('user_id', quote.printer_id)
-      .single()
-
-    const makerMerchantId = (printerProfile as any)?.paypal_onboarding_complete === true
-      ? ((printerProfile as any)?.paypal_merchant_id as string | undefined)
-      : undefined
-
     const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'
 
+    // Method 2: full amount goes to our PayPal account; maker is paid out on delivery
     const { orderId, approveUrl } = await createPayPalOrder({
-      amountValue:      quote.price.toFixed(2),
-      currency:         'CHF',
-      description:      `3D Print: ${job.title}`,
+      amountValue: quote.price.toFixed(2),
+      currency:    'CHF',
+      description: `3D Print: ${job.title}`,
       jobId,
-      returnUrl:        `${appUrl}/api/paypal/orders/capture?jobId=${jobId}`,
-      cancelUrl:        `${appUrl}/jobs/${jobId}?payment=cancelled`,
-      makerMerchantId,
+      returnUrl:   `${appUrl}/api/paypal/orders/capture?jobId=${jobId}`,
+      cancelUrl:   `${appUrl}/jobs/${jobId}?payment=cancelled`,
     })
 
     // Persist the order ID on the job so we can capture it on return

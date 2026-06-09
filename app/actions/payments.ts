@@ -5,6 +5,7 @@ import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { createNotification, notifyJobShipped, notifyDeliveryConfirmed } from './notifications'
+import { sendPayPalPayout, PLATFORM_FEE_PERCENT } from '@/lib/paypal'
 
 export interface ShippingDetails {
   inPerson: boolean
@@ -90,6 +91,42 @@ export async function confirmJobDelivery(jobId: string) {
       printerId:    acceptedQuote.printer_id,
       printerEmail: printerProfile?.email ?? '',
     })
+
+    // Auto-payout: send maker their share via PayPal Payouts API
+    const { data: printerPaypalProfile } = await adminClient
+      .from('printer_profiles').select('paypal_email').eq('user_id', acceptedQuote.printer_id).single()
+
+    const paypalEmail = (printerPaypalProfile as any)?.paypal_email as string | null
+
+    if (paypalEmail && acceptedQuote.price) {
+      const makerShare = (acceptedQuote.price * (1 - PLATFORM_FEE_PERCENT)).toFixed(2)
+      try {
+        await sendPayPalPayout({
+          recipientEmail: paypalEmail,
+          amount:         makerShare,
+          currency:       'CHF',
+          jobId,
+          jobTitle:       job.title,
+        })
+        // Payout succeeded — mark job completed immediately
+        await adminClient.from('jobs').update({
+          payout_at: new Date().toISOString(),
+          status:    'completed',
+        } as any).eq('id', jobId)
+
+        await createNotification({
+          userId: acceptedQuote.printer_id,
+          type:   'payout_sent',
+          title:  'Payment sent!',
+          body:   `CHF ${makerShare} for "${job.title}" has been sent to your PayPal.`,
+          link:   `/jobs/${jobId}`,
+        })
+      } catch (err) {
+        // Payout failed — job stays at 'delivered', shows in admin Pending Payouts
+        console.error('Auto-payout failed for job', jobId, err)
+      }
+    }
+    // If no paypal_email set, job stays at 'delivered' → visible in admin Pending Payouts
   }
 
   revalidatePath(`/jobs/${jobId}`)

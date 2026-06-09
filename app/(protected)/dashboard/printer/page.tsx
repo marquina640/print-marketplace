@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/ui/empty-state'
 import { formatCurrency, formatDate, getCertificationLevel, CERTIFICATION_LEVELS } from '@/lib/utils'
 import { CertificationBadge } from '@/components/ui/badge'
-import { PayPalConnectButton } from '@/components/payments/paypal-connect-button'
 
 export const metadata = { title: 'Printer Dashboard' }
 
@@ -61,7 +60,7 @@ export default async function PrinterDashboardPage({ searchParams }: PageProps) 
       : recentJobsQuery,
     supabase
       .from('printer_profiles')
-      .select('certification_level, display_name, paypal_merchant_id, paypal_onboarding_complete')
+      .select('certification_level, display_name, paypal_email')
       .eq('user_id', effectiveUserId)
       .single(),
   ])
@@ -99,7 +98,7 @@ export default async function PrinterDashboardPage({ searchParams }: PageProps) 
   const certLevel        = makerProfile?.certification_level ?? 0
   const cert             = getCertificationLevel(certLevel)
   const nextCert         = certLevel < 3 ? CERTIFICATION_LEVELS[certLevel + 1] : null
-  const paypalConnected  = (makerProfile as any)?.paypal_onboarding_complete === true
+  const paypalEmail      = (makerProfile as any)?.paypal_email as string | null
   const isAdminPreview   = !!previewUserId
 
   // Earnings: sum of accepted quote prices for delivered/completed jobs
@@ -143,41 +142,33 @@ export default async function PrinterDashboardPage({ searchParams }: PageProps) 
         <Link href="/jobs"><Button variant="gold">Browse Requests</Button></Link>
       </div>
 
-      {/* PayPal Connect panel */}
+      {/* PayPal payout panel */}
       {!isAdminPreview && (
-        paypalConnected ? (
-          paypalParam === 'connected' ? (
-            <div className="rounded-xl bg-emerald-50 border border-emerald-200 px-5 py-4 flex items-center gap-3">
-              <span className="text-xl">✓</span>
+        paypalEmail ? (
+          <div className="rounded-xl bg-emerald-50 border border-emerald-200 px-5 py-4 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
               <div>
-                <p className="font-semibold text-emerald-900">PayPal account connected!</p>
-                <p className="text-sm text-emerald-700">Payments from clients will go directly to your PayPal account once delivery is confirmed.</p>
+                <p className="font-semibold text-emerald-900 text-sm">Payouts configured</p>
+                <p className="text-xs text-emerald-700">Payments sent to <span className="font-mono">{paypalEmail}</span> automatically after delivery.</p>
               </div>
             </div>
-          ) : (
-            <div className="rounded-xl bg-emerald-50 border border-emerald-200 px-5 py-4 flex items-center justify-between gap-3">
-              <div className="flex items-center gap-3">
-                <div className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
-                <div>
-                  <p className="font-semibold text-emerald-900 text-sm">PayPal payments connected</p>
-                  <p className="text-xs text-emerald-700">Payments go directly to your PayPal account when clients confirm delivery.</p>
-                </div>
-              </div>
-              <PayPalConnectButton label="Manage account" />
-            </div>
-          )
+            <Link href="/profile/setup">
+              <Button variant="outline" size="sm">Update</Button>
+            </Link>
+          </div>
         ) : (
-          <div className="rounded-xl bg-amber-50 border border-amber-300 px-5 py-4">
-            <div className="flex items-start gap-3 mb-3">
-              <span className="text-2xl">💳</span>
-              <div>
-                <p className="font-semibold text-amber-900">Connect your PayPal account to get paid</p>
-                <p className="text-sm text-amber-700 mt-0.5">
-                  You need a PayPal account to receive payments. It only takes a few minutes to set up.
-                </p>
-              </div>
+          <div className="rounded-xl bg-amber-50 border border-amber-300 px-5 py-4 flex items-start gap-3">
+            <span className="text-2xl">💳</span>
+            <div className="flex-1">
+              <p className="font-semibold text-amber-900">Add your PayPal email to get paid</p>
+              <p className="text-sm text-amber-700 mt-0.5 mb-3">
+                When a client confirms delivery, your payment is sent automatically to your PayPal.
+              </p>
+              <Link href="/profile/setup">
+                <Button variant="gold" size="sm">Add PayPal email →</Button>
+              </Link>
             </div>
-            <PayPalConnectButton label="Set up payments →" />
           </div>
         )
       )}

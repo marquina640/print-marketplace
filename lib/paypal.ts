@@ -247,6 +247,59 @@ export async function capturePayPalOrder(orderId: string, makerMerchantId?: stri
   }
 }
 
+// ─── Payouts (Method 2) ──────────────────────────────────────────────────────
+
+export interface PayoutParams {
+  recipientEmail: string   // maker's PayPal email
+  amount:         string   // e.g. "88.00"
+  currency:       string   // e.g. "CHF"
+  jobId:          string
+  jobTitle:       string
+}
+
+/**
+ * Sends a payout to a maker's PayPal email via the Payouts API.
+ * Requires Payouts API to be enabled on the live app.
+ */
+export async function sendPayPalPayout(params: PayoutParams): Promise<void> {
+  const { recipientEmail, amount, currency, jobId, jobTitle } = params
+  const token = await getPayPalToken()
+
+  const body = {
+    sender_batch_header: {
+      sender_batch_id: `PMH_${jobId}_${Date.now()}`,
+      email_subject:   'Your payment from PrintMarketHub',
+      email_message:   `Your payment for completing "${jobTitle}" has been processed. Thank you for using PrintMarketHub!`,
+    },
+    items: [{
+      recipient_type: 'EMAIL',
+      receiver:       recipientEmail,
+      amount:         { value: amount, currency },
+      note:           `Payment for: ${jobTitle}`,
+      sender_item_id: `JOB_${jobId}`,
+    }],
+  }
+
+  const res = await fetch(`${baseUrl()}/v1/payments/payouts`, {
+    method:  'POST',
+    headers: {
+      'Content-Type':  'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+    body:  JSON.stringify(body),
+    cache: 'no-store',
+  })
+
+  const data = await res.json() as { batch_header?: { payout_batch_id?: string }; name?: string; message?: string }
+
+  if (!res.ok) {
+    const msg = data.message ?? data.name ?? String(res.status)
+    throw new Error(`PayPal payout failed: ${msg}`)
+  }
+
+  console.log(`PayPal payout sent for job ${jobId} → ${recipientEmail}, batch: ${data.batch_header?.payout_batch_id}`)
+}
+
 // ─── Webhook verification ────────────────────────────────────────────────────
 
 /** Verifies a PayPal webhook signature. */

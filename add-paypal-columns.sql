@@ -1,8 +1,9 @@
 -- Run this in: Supabase Dashboard → SQL Editor → New Query
 -- Adds PayPal Commerce Platform columns to existing tables
 
--- On printer_profiles: store the maker's connected PayPal merchant ID
+-- On printer_profiles: PayPal payout email + Connected Path fields (for future PPCP upgrade)
 ALTER TABLE printer_profiles
+  ADD COLUMN IF NOT EXISTS paypal_email               TEXT,
   ADD COLUMN IF NOT EXISTS paypal_merchant_id         TEXT,
   ADD COLUMN IF NOT EXISTS paypal_onboarding_complete BOOLEAN DEFAULT FALSE;
 

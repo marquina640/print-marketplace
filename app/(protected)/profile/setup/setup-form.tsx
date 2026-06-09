@@ -67,6 +67,7 @@ export function ProfileSetupForm({ effectiveUserId }: { effectiveUserId: string 
     pickup: true,
     hourly_rate: '',
     description: '',
+    paypal_email: '',
     lat: null as number | null,
     lng: null as number | null,
   })
@@ -95,6 +96,7 @@ export function ProfileSetupForm({ effectiveUserId }: { effectiveUserId: string 
           pickup: data.pickup,
           hourly_rate: data.hourly_rate?.toString() ?? '',
           description: data.description ?? '',
+          paypal_email: (data as any).paypal_email ?? '',
           lat: data.latitude ?? null,
           lng: data.longitude ?? null,
         })
@@ -164,6 +166,7 @@ export function ProfileSetupForm({ effectiveUserId }: { effectiveUserId: string 
       pickup: form.pickup,
       hourly_rate: form.design_services && form.hourly_rate ? parseFloat(form.hourly_rate) : null,
       description: form.description.trim() || null,
+      paypal_email: form.paypal_email.trim() || null,
       latitude: form.lat,
       longitude: form.lng,
     }
@@ -278,6 +281,24 @@ export function ProfileSetupForm({ effectiveUserId }: { effectiveUserId: string 
           <Textarea label="About your service" value={form.description}
             onChange={(e) => set('description', e.target.value)} rows={4}
             placeholder="Describe your setup, turnaround, specialties, and what makes you stand out…" />
+        </div>
+
+        <div className="card p-6 space-y-3">
+          <div>
+            <h2 className="font-semibold text-warm-900">Payout Account</h2>
+            <p className="text-xs text-warm-500 mt-0.5">Where we send your payment after delivery is confirmed.</p>
+          </div>
+          <Input
+            label="PayPal email address"
+            type="email"
+            value={form.paypal_email}
+            onChange={(e) => set('paypal_email', e.target.value)}
+            placeholder="your@paypal.com"
+            hint="Must be the email linked to your PayPal account"
+          />
+          {form.paypal_email && (
+            <p className="text-xs text-emerald-600 font-medium">✓ Payouts will be sent here automatically after delivery</p>
+          )}
         </div>
 
         {error && (
