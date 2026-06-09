@@ -47,10 +47,10 @@ export default function TermsPage() {
 
       <Section title="4. Platform Commission">
         <p>
-          PrintMarketHub charges a <strong>12% platform fee</strong> on every transaction processed
-          through the Platform. This fee is automatically deducted from the payment before funds are
-          transferred to the Maker. Clients pay the full quoted price; Makers receive 88% of the
-          agreed amount.
+          PrintMarketHub charges a platform commission on every transaction processed through the
+          Platform. This fee is automatically deducted from the payment before funds are transferred
+          to the Maker. The current rate is published on the{' '}
+          <a href="/for-makers" className="underline">For Makers</a> page and in the Maker Terms.
         </p>
         <p className="mt-2">
           This fee covers payment processing, buyer protection, dispute resolution infrastructure,

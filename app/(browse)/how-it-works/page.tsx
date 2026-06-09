@@ -102,7 +102,7 @@ const makerSteps = [
     number: '06',
     icon: '💰',
     title: 'Get paid',
-    desc: 'Once the client confirms delivery, your payment (minus 12% platform fee) is automatically released to your Stripe account. Payouts arrive within 2 business days.',
+    desc: 'Once the client confirms delivery, your payment is automatically released to your Stripe account. Payouts arrive within 2 business days.',
     color: 'border-emerald-200 bg-emerald-50',
     numColor: 'text-emerald-400',
   },

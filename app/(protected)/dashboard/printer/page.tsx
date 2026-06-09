@@ -148,7 +148,7 @@ export default async function PrinterDashboardPage({ searchParams }: PageProps) 
               <span className="text-xl">✓</span>
               <div>
                 <p className="font-semibold text-emerald-900">Stripe account connected!</p>
-                <p className="text-sm text-emerald-700">Payments from clients will be sent directly to your Stripe account, minus the 12% platform fee.</p>
+                <p className="text-sm text-emerald-700">Payments from clients will be sent directly to your Stripe account once delivery is confirmed.</p>
               </div>
             </div>
           ) : (
@@ -157,7 +157,7 @@ export default async function PrinterDashboardPage({ searchParams }: PageProps) 
                 <div className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
                 <div>
                   <p className="font-semibold text-emerald-900 text-sm">Stripe payments connected</p>
-                  <p className="text-xs text-emerald-700">You receive 88% of each payment automatically. Platform fee: 12%.</p>
+                  <p className="text-xs text-emerald-700">Payments are released automatically when clients confirm delivery.</p>
                 </div>
               </div>
               <StripeConnectButton label="Manage account" />
@@ -170,7 +170,7 @@ export default async function PrinterDashboardPage({ searchParams }: PageProps) 
               <div>
                 <p className="font-semibold text-amber-900">Connect your Stripe account to get paid</p>
                 <p className="text-sm text-amber-700 mt-0.5">
-                  You need a Stripe account to receive payments. It only takes a few minutes. Once connected, clients can pay and you receive 88% automatically - the platform keeps 12%.
+                  You need a Stripe account to receive payments. It only takes a few minutes. Once connected, payments are released to you automatically when clients confirm delivery.
                 </p>
               </div>
             </div>
