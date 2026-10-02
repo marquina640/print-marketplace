@@ -149,23 +149,42 @@ export async function markPayoutSent(jobId: string) {
   const { data: job } = await admin.from('jobs').select('*').eq('id', jobId).single()
   if (!job || !['delivered', 'completed'].includes((job as any).status)) throw new Error('Job not delivered')
 
+  const { data: acceptedQuote } = await admin
+    .from('quotes').select('printer_id, price').eq('job_id', jobId).eq('status', 'accepted').single()
+
+  if (!acceptedQuote) throw new Error('No accepted quote found')
+
+  // Look up maker's PayPal email
+  const { data: printerPaypalProfile } = await admin
+    .from('printer_profiles').select('paypal_email').eq('user_id', acceptedQuote.printer_id).single()
+
+  const paypalEmail = (printerPaypalProfile as any)?.paypal_email as string | null
+  if (!paypalEmail) throw new Error('Maker has no PayPal email configured')
+
+  const makerShare = (acceptedQuote.price * (1 - PLATFORM_FEE_PERCENT)).toFixed(2)
+
+  // Actually send the money via PayPal Payouts API
+  await sendPayPalPayout({
+    recipientEmail: paypalEmail,
+    amount:         makerShare,
+    currency:       'CHF',
+    jobId,
+    jobTitle:       job.title,
+  })
+
+  // Only mark complete after successful payout
   await admin.from('jobs').update({
     payout_at: new Date().toISOString(),
     status: 'completed',
   } as any).eq('id', jobId)
 
-  const { data: acceptedQuote } = await admin
-    .from('quotes').select('printer_id, price').eq('job_id', jobId).eq('status', 'accepted').single()
-
-  if (acceptedQuote) {
-    await createNotification({
-      userId: acceptedQuote.printer_id,
-      type: 'payout_sent',
-      title: 'Payment sent!',
-      body: `Your payment for "${job.title}" has been transferred to you.`,
-      link: `/jobs/${jobId}`,
-    })
-  }
+  await createNotification({
+    userId: acceptedQuote.printer_id,
+    type: 'payout_sent',
+    title: 'Payment sent!',
+    body: `CHF ${makerShare} for "${job.title}" has been sent to your PayPal.`,
+    link: `/jobs/${jobId}`,
+  })
 
   revalidatePath(`/jobs/${jobId}`)
   revalidatePath('/dashboard/admin')
