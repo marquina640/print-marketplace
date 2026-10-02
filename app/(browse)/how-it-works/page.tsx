@@ -42,8 +42,8 @@ const clientSteps = [
   {
     number: '05',
     icon: '🔒',
-    title: 'Pay securely via Stripe',
-    desc: 'Your payment is processed by Stripe at checkout. The maker gets paid once you confirm delivery — you\'re never charged for a result you haven\'t approved.',
+    title: 'Pay securely',
+    desc: 'Your payment is processed securely at checkout. The maker gets paid once you confirm delivery — you\'re never charged for a result you haven\'t approved.',
     color: 'border-indigo-200 bg-indigo-50',
     numColor: 'text-indigo-400',
   },
@@ -102,7 +102,7 @@ const makerSteps = [
     number: '06',
     icon: '💰',
     title: 'Get paid',
-    desc: 'Once the client confirms delivery, your payment is automatically released to your Stripe account. Payouts arrive within 2 business days.',
+    desc: 'Once the client confirms delivery, your payment is automatically sent to your PayPal account. Payouts typically arrive within 1 business day.',
     color: 'border-emerald-200 bg-emerald-50',
     numColor: 'text-emerald-400',
   },
@@ -188,7 +188,7 @@ export default function HowItWorksPage() {
         <p className="text-center text-sm font-semibold text-warm-500 mb-5 uppercase tracking-widest text-xs">Built on trust</p>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
           {[
-            { icon: '🔒', title: 'Secure payments', desc: 'All payments processed by Stripe. The maker gets paid when you confirm delivery.' },
+            { icon: '🔒', title: 'Secure payments', desc: 'All payments processed securely via PayPal. The maker gets paid when you confirm delivery.' },
             { icon: '⭐', title: 'Verified reviews', desc: 'Ratings from real completed jobs only' },
             { icon: '💬', title: 'On-platform chat', desc: 'All communication in one place, no phone numbers needed' },
             { icon: '🛡️', title: 'Dispute protection', desc: 'Fair mediation if anything goes wrong - you\'re never left without recourse' },

@@ -28,7 +28,7 @@ export default function PrivacyPage() {
           ['Profile data', 'Display name, city, location coordinates, bio, printer specifications, certification level'],
           ['Job and transaction data', 'Job descriptions, specifications, quotes, accepted prices, payment status, shipping status'],
           ['Uploaded files', '3D model files (STL, STEP, 3MF, OBJ), reference images, and any other files you upload'],
-          ['Payment data', 'Payment method type, transaction IDs. Full card details are processed exclusively by Stripe and are never stored by us.'],
+          ['Payment data', 'Payment method type, transaction IDs. Full card details are processed exclusively by our payment provider and are never stored by us.'],
           ['Communications', 'Messages sent through the platform between Clients and Makers'],
           ['Location data', 'Address and coordinates you provide for job or profile location purposes'],
           ['Usage data', 'IP address, browser type, pages visited, and interaction logs for security and analytics purposes'],
@@ -58,7 +58,7 @@ export default function PrivacyPage() {
         <ul>
           <li>Create and manage your account</li>
           <li>Connect Clients with Makers and facilitate job transactions</li>
-          <li>Process payments via Stripe on behalf of Makers</li>
+          <li>Process payments and transfer earnings to Makers upon job completion</li>
           <li>Send transactional notifications (job updates, quotes, payment confirmations)</li>
           <li>Resolve disputes between Clients and Makers</li>
           <li>Detect and prevent fraud, abuse, and security incidents</li>
@@ -70,7 +70,7 @@ export default function PrivacyPage() {
       <Section n="6" title="Data Sharing and Sub-processors">
         <p>We share your data with the following third-party service providers solely to operate the Platform:</p>
         <Table rows={[
-          ['Stripe, Inc.', 'Payment processing for marketplace transactions', 'United States (SCCs in place)'],
+          ['PayPal Holdings, Inc.', 'Payment processing for marketplace transactions', 'United States (SCCs in place)'],
           ['Supabase, Inc.', 'Database hosting and authentication', 'European Union'],
           ['Resend, Inc.', 'Transactional email delivery', 'United States (SCCs in place)'],
           ['Google LLC', 'Maps JavaScript API and Places API for location features', 'United States (SCCs in place)'],

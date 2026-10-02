@@ -32,10 +32,10 @@ export default function TermsPage() {
       </Section>
 
       <Section n="5" title="Payments">
-        <p>All payments are processed through <strong>Stripe, Inc.</strong> pursuant to Stripe's own Terms of Service. By making or receiving payments on the Platform, you agree to be bound by Stripe's applicable policies.</p>
-        <p>Upon quote acceptance, the Client's payment is collected by Stripe. The Maker's payout is processed via Stripe once the Client confirms delivery or the dispute resolution period expires.</p>
+        <p>All payments are processed securely through our payment provider. By making or receiving payments on the Platform, you agree to be bound by the payment provider's applicable policies.</p>
+        <p>Upon quote acceptance, the Client pays through the Platform. The Maker's payout is transferred once the Client confirms delivery or the dispute resolution period expires.</p>
         <p>PrintMarketHub charges a <strong>12% platform commission</strong> on each successfully completed transaction. This commission is deducted from the Maker's payout upon completion. Rates may be updated with 30 days' written notice.</p>
-        <p>Payments are processed in the currency selected by the Client. Supported payment methods include credit/debit card and bank transfer as made available by Stripe for your region.</p>
+        <p>Payments are processed in CHF. Supported payment methods include credit/debit card and PayPal.</p>
       </Section>
 
       <Section n="6" title="File Uploads and Intellectual Property">

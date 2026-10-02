@@ -19,7 +19,7 @@ const clientFAQ = [
   },
   {
     q: 'Is it safe to pay through the platform?',
-    a: <p>Yes. All payments are processed by Stripe - the same technology used by Shopify, Amazon, and thousands of other platforms. The maker gets paid only after you confirm that your print has arrived and you&apos;re happy with it. If something goes wrong before you confirm, you&apos;re covered.</p>,
+    a: <p>Yes. All payments are processed securely through PayPal. The maker gets paid only after you confirm that your print has arrived and you&apos;re happy with it. If something goes wrong before you confirm, you&apos;re covered.</p>,
   },
   {
     q: 'What file formats do you accept?',
@@ -88,7 +88,7 @@ const makerFAQ = [
   },
   {
     q: 'How and when do I get paid?',
-    a: <p>When a client accepts your quote and pays, Stripe processes the payment. Once the client confirms delivery, Stripe sends the payout (minus the platform fee) to your connected Stripe account. Payouts typically arrive within 2 business days depending on your bank.</p>,
+    a: <p>When a client accepts your quote and pays, the payment is processed securely. Once the client confirms delivery, the payout (minus the platform fee) is sent to your PayPal account. Payouts typically arrive within 1 business day.</p>,
   },
   {
     q: 'Do I need to be a professional printer?',

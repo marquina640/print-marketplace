@@ -14,7 +14,7 @@ export default function RefundsPage() {
       </p>
 
       <Section n="1" title="How Payments Work">
-        <p>When a Client accepts a Maker's quote, payment is immediately collected by Stripe on behalf of the Maker. The Maker's payout is processed once one of the following occurs:</p>
+        <p>When a Client accepts a Maker's quote, payment is processed securely through our platform. The Maker's payout is transferred once one of the following occurs:</p>
         <ul>
           <li>The Client confirms successful delivery of the order</li>
           <li>The automatic confirmation period expires without a dispute being raised</li>
@@ -26,11 +26,11 @@ export default function RefundsPage() {
       <Section n="2" title="Order Lifecycle">
         <div className="rounded-xl border border-warm-200 overflow-hidden">
           {[
-            ['1', 'Accepted', 'Client accepts a quote. Payment collected via Stripe.'],
+            ['1', 'Accepted', 'Client accepts a quote. Payment processed securely.'],
             ['2', 'In Production', 'Maker begins manufacturing. Payment pending delivery confirmation.'],
             ['3', 'Shipped', 'Maker marks the order as shipped and provides tracking information.'],
             ['4', 'Delivered', 'Client confirms receipt of the order.'],
-            ['5', 'Completed', 'Stripe sends the payout to the Maker (less platform commission).'],
+            ['5', 'Completed', 'Payout sent to the Maker (less platform commission).'],
           ].map(([step, status, desc]) => (
             <div key={step} className="flex gap-4 p-4 border-b border-warm-100 last:border-0 hover:bg-warm-50">
               <div className="h-7 w-7 rounded-full bg-gold-400 flex items-center justify-center text-[11px] font-black text-ink-950 flex-shrink-0">{step}</div>
@@ -44,7 +44,7 @@ export default function RefundsPage() {
       </Section>
 
       <Section n="3" title="Delivery Confirmation">
-        <p>Upon receiving their order, Clients must confirm delivery through the Platform. This triggers the Maker's payout via Stripe.</p>
+        <p>Upon receiving their order, Clients must confirm delivery through the Platform. This triggers the Maker's payout.</p>
         <p>If a Client does not confirm delivery within <strong>7 days</strong> of the Maker marking the order as delivered, and no dispute has been opened, PrintMarketHub reserves the right to process the Maker's payout automatically.</p>
         <p>Clients should inspect their order promptly upon receipt and raise any concerns before confirming delivery.</p>
       </Section>
@@ -73,7 +73,7 @@ export default function RefundsPage() {
           <li>The Maker is notified and has <strong>5 business days</strong> to respond with their position and evidence</li>
           <li>PrintMarketHub reviews all evidence and communicates a recommended resolution within <strong>10 business days</strong></li>
           <li>Both parties are encouraged to accept the recommendation</li>
-          <li>If both parties accept, the payment is distributed accordingly via Stripe</li>
+          <li>If both parties accept, the payment is distributed accordingly</li>
           <li>If a party rejects the recommendation, they may escalate to formal mediation at their own cost</li>
         </ul>
         <p>PrintMarketHub's role is that of a neutral facilitator. Our recommended resolution is not legally binding but is made in good faith based on the evidence provided.</p>
@@ -106,11 +106,11 @@ export default function RefundsPage() {
       </Section>
 
       <Section n="8" title="Chargebacks">
-        <p>If a Client initiates a chargeback with their bank or Stripe without first going through the Platform dispute process, PrintMarketHub reserves the right to:</p>
+        <p>If a Client initiates a chargeback with their bank without first going through the Platform dispute process, PrintMarketHub reserves the right to:</p>
         <ul>
           <li>Suspend the Client's account pending investigation</li>
           <li>Reverse any platform credits or discounts associated with the transaction</li>
-          <li>Share transaction evidence with Stripe and the issuing bank</li>
+          <li>Share transaction evidence with the payment provider and the issuing bank</li>
         </ul>
         <p>Fraudulent chargebacks may result in permanent account termination and recovery proceedings.</p>
       </Section>
