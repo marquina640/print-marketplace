@@ -122,8 +122,12 @@ export default async function PrinterDashboardPage({ searchParams }: PageProps) 
     return acc
   }, {})
 
+  const completedStatuses = new Set(['completed', 'delivered'])
+  const activeJobStatusById = Object.fromEntries((pipelineJobs ?? []).map(j => [j.id, j.status]))
+  const activeJobsCount = acceptedQuotes.filter(q => !completedStatuses.has(activeJobStatusById[q.job_id])).length
+
   const stats = [
-    { label: 'Active Jobs',      value: acceptedQuotes.length,                    color: 'text-emerald-600' },
+    { label: 'Active Jobs',      value: activeJobsCount,                          color: 'text-emerald-600' },
     { label: 'Pending Quotes',   value: pendingQuotes.length,                     color: 'text-amber-600'   },
     { label: 'Total Earned',     value: `$${totalEarned.toFixed(0)}`,             color: 'text-ink-900', isText: true },
     { label: 'Acceptance Rate',  value: `${acceptanceRate}%`,                     color: acceptanceRate >= 50 ? 'text-emerald-600' : 'text-warm-500', isText: true },
@@ -249,12 +253,12 @@ export default async function PrinterDashboardPage({ searchParams }: PageProps) 
             <span className="h-2 w-2 rounded-full bg-emerald-500 inline-block" />
             Active Jobs
           </h2>
-          {acceptedQuotes.length > 0 && (
-            <span className="text-xs text-warm-400">{acceptedQuotes.length} job{acceptedQuotes.length !== 1 ? 's' : ''} to complete</span>
+          {activeJobsCount > 0 && (
+            <span className="text-xs text-warm-400">{activeJobsCount} job{activeJobsCount !== 1 ? 's' : ''} to complete</span>
           )}
         </div>
 
-        {acceptedQuotes.length === 0 ? (
+        {activeJobsCount === 0 ? (
           <EmptyState
             icon={<svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>}
             title="No active jobs yet"
@@ -263,7 +267,7 @@ export default async function PrinterDashboardPage({ searchParams }: PageProps) 
           />
         ) : (
           <div className="card divide-y divide-warm-100">
-            {acceptedQuotes.map((q) => {
+            {acceptedQuotes.filter(q => !completedStatuses.has(activeJobStatusById[q.job_id])).map((q) => {
               const job = quotedJobsById[q.job_id] ?? null
               const reviewState      = reviewStateByJob.get(q.job_id)
               const needsMyReview    = deliveredJobIds.has(q.job_id) && reviewState && !reviewState.makerReviewed
