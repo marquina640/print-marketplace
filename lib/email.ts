@@ -236,6 +236,72 @@ export function emailReviewsPublished({
   })
 }
 
+// ─── Maker onboarding sequence ─────────────────────────────────────────────
+
+export function emailMakerAddMachine({ to, name }: { to: string; name: string | null }) {
+  const greeting = name ? `Hi ${name},` : 'Hi there,'
+  return sendEmail({
+    to,
+    subject: 'Add your printer — customers can\'t find you yet',
+    html: `
+      <h2 style="margin:0 0 8px;font-size:20px;font-weight:800;color:#1a1625;">You&apos;re not on the map yet</h2>
+      <p style="margin:0 0 16px;color:#6b6760;font-size:14px;line-height:1.6;">
+        ${greeting} You signed up as a maker on PrintMarketHub &mdash; great!
+        The last step to appear on the map and receive quote requests is to add your printer(s) to your profile.
+      </p>
+      <p style="margin:0 0 20px;color:#6b6760;font-size:14px;line-height:1.6;">
+        It takes about 2 minutes. Just add your brand, model, build volume, and a photo.
+      </p>
+      ${ctaButton('Add my printer &rarr;', `${APP_URL}/profile/machines`)}
+      <p style="margin:24px 0 0;color:#9e9b94;font-size:12px;line-height:1.6;">
+        Customers are already posting print requests near you. Don&apos;t miss out.
+      </p>
+    `,
+  })
+}
+
+export function emailMakerMissingRequests({ to, name }: { to: string; name: string | null }) {
+  const greeting = name ? `Hi ${name},` : 'Hi there,'
+  return sendEmail({
+    to,
+    subject: 'Print requests near you are going to other makers',
+    html: `
+      <h2 style="margin:0 0 8px;font-size:20px;font-weight:800;color:#1a1625;">Requests are going unanswered</h2>
+      <p style="margin:0 0 16px;color:#6b6760;font-size:14px;line-height:1.6;">
+        ${greeting} Clients are posting 3D print requests on PrintMarketHub, but you still
+        haven&apos;t added a printer to your profile &mdash; so you&apos;re invisible to them.
+      </p>
+      <p style="margin:0 0 20px;color:#6b6760;font-size:14px;line-height:1.6;">
+        Adding your machine takes 2 minutes and puts you on the map immediately.
+        Makers with complete profiles are already quoting and winning jobs.
+      </p>
+      ${ctaButton('Add my printer now &rarr;', `${APP_URL}/profile/machines`)}
+    `,
+  })
+}
+
+export function emailMakerSetupPayouts({ to, name }: { to: string; name: string | null }) {
+  const greeting = name ? `Hi ${name},` : 'Hi there,'
+  return sendEmail({
+    to,
+    subject: 'One last step before you can get paid',
+    html: `
+      <h2 style="margin:0 0 8px;font-size:20px;font-weight:800;color:#1a1625;">Connect your bank account</h2>
+      <p style="margin:0 0 16px;color:#6b6760;font-size:14px;line-height:1.6;">
+        ${greeting} Your printer is on the map and clients can find you &mdash; nice work!
+        To receive payment when you complete a job, you need to connect your bank account via Stripe.
+      </p>
+      <p style="margin:0 0 20px;color:#6b6760;font-size:14px;line-height:1.6;">
+        It takes about 5 minutes. Once connected, payouts happen automatically after the client confirms delivery.
+      </p>
+      ${ctaButton('Set up payouts &rarr;', `${APP_URL}/profile/setup`)}
+      <p style="margin:24px 0 0;color:#9e9b94;font-size:12px;line-height:1.6;">
+        You can still receive and submit quotes without this, but you won&apos;t be able to get paid until it&apos;s set up.
+      </p>
+    `,
+  })
+}
+
 export function emailOnboardingReminder({ to, name }: { to: string; name: string | null }) {
   const greeting = name ? `Hi ${name},` : 'Hi there,'
   return sendEmail({
