@@ -70,7 +70,7 @@ export function ProfileSetupForm({ effectiveUserId }: { effectiveUserId: string 
     pickup: true,
     hourly_rate: '',
     description: '',
-    paypal_email: '',
+    paypal_email: '', // kept for DB compat but no longer shown in UI
     lat: null as number | null,
     lng: null as number | null,
   })
@@ -310,19 +310,6 @@ export function ProfileSetupForm({ effectiveUserId }: { effectiveUserId: string 
             />
           )}
 
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-warm-200" /></div>
-            <div className="relative flex justify-center"><span className="bg-white px-2 text-xs text-warm-400">or use PayPal as fallback</span></div>
-          </div>
-
-          <Input
-            label="PayPal email address (optional)"
-            type="email"
-            value={form.paypal_email}
-            onChange={(e) => set('paypal_email', e.target.value)}
-            placeholder="your@paypal.com"
-            hint="Only used if Stripe is not connected"
-          />
         </div>
 
         {error && (

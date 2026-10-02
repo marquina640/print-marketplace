@@ -60,7 +60,7 @@ export default async function PrinterDashboardPage({ searchParams }: PageProps) 
       : recentJobsQuery,
     supabase
       .from('printer_profiles')
-      .select('certification_level, display_name, paypal_email, stripe_account_id')
+      .select('certification_level, display_name, stripe_account_id')
       .eq('user_id', effectiveUserId)
       .single(),
   ])
@@ -98,9 +98,7 @@ export default async function PrinterDashboardPage({ searchParams }: PageProps) 
   const certLevel        = makerProfile?.certification_level ?? 0
   const cert             = getCertificationLevel(certLevel)
   const nextCert         = certLevel < 3 ? CERTIFICATION_LEVELS[certLevel + 1] : null
-  const paypalEmail      = (makerProfile as any)?.paypal_email as string | null
   const stripeAccountId  = (makerProfile as any)?.stripe_account_id as string | null
-  const hasPayoutMethod  = !!stripeAccountId || !!paypalEmail
   const isAdminPreview   = !!previewUserId
 
   // Earnings: sum of accepted quote prices for delivered/completed jobs
@@ -149,17 +147,13 @@ export default async function PrinterDashboardPage({ searchParams }: PageProps) 
       </div>
 
       {/* Payout panel */}
-      {hasPayoutMethod ? (
+      {stripeAccountId ? (
         <div className="rounded-xl bg-emerald-50 border border-emerald-200 px-5 py-4 flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <div className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
             <div>
               <p className="font-semibold text-emerald-900 text-sm">Payouts configured</p>
-              <p className="text-xs text-emerald-700">
-                {stripeAccountId
-                  ? 'Payments sent directly to your bank account via Stripe after delivery.'
-                  : <>Payments sent to <span className="font-mono">{paypalEmail}</span> via PayPal after delivery.</>}
-              </p>
+              <p className="text-xs text-emerald-700">Payments sent directly to your bank account after delivery confirmation.</p>
             </div>
           </div>
           <Link href="/profile/setup">

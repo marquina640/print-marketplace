@@ -5,14 +5,13 @@ import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { createNotification, notifyJobShipped, notifyDeliveryConfirmed } from './notifications'
-import { sendPayPalPayout, PLATFORM_FEE_PERCENT } from '@/lib/paypal'
-import { transferToMaker } from '@/lib/stripe'
+import { transferToMaker, PLATFORM_FEE_PERCENT } from '@/lib/stripe'
 
 export interface ShippingDetails {
   inPerson: boolean
   carrier?: string
   trackingNumber?: string
-  shippedDate?: string // ISO date string YYYY-MM-DD
+  shippedDate?: string
 }
 
 export async function markJobShipped(jobId: string, details: ShippingDetails) {
@@ -35,8 +34,8 @@ export async function markJobShipped(jobId: string, details: ShippingDetails) {
   if (!acceptedQuote || acceptedQuote.printer_id !== effectiveUserId) throw new Error('Not the accepted printer')
 
   const { error: updateError } = await admin.from('jobs').update({
-    status: 'shipped',
-    shipped_at: new Date().toISOString(),
+    status:             'shipped',
+    shipped_at:         new Date().toISOString(),
     in_person_delivery: details.inPerson,
     shipping_carrier:   details.inPerson ? null : (details.carrier ?? null),
     tracking_number:    details.inPerson ? null : (details.trackingNumber ?? null),
@@ -44,7 +43,6 @@ export async function markJobShipped(jobId: string, details: ShippingDetails) {
   } as any).eq('id', jobId)
   if (updateError) throw new Error(updateError.message)
 
-  // Look up client email for the email notification
   const { data: clientProfile } = await admin
     .from('profiles').select('email').eq('user_id', job.client_id).single()
 
@@ -78,7 +76,7 @@ export async function confirmJobDelivery(jobId: string) {
   if (job.client_id !== effectiveUserId) throw new Error('Not the job owner')
 
   const { error: deliveryError } = await adminClient.from('jobs').update({
-    status: 'delivered',
+    status:       'delivered',
     delivered_at: new Date().toISOString(),
   } as any).eq('id', jobId)
   if (deliveryError) throw new Error(deliveryError.message)
@@ -97,29 +95,15 @@ export async function confirmJobDelivery(jobId: string) {
       printerEmail: printerProfile?.email ?? '',
     })
 
-    // Auto-payout: try Stripe transfer first, fall back to PayPal
-    const { data: printerPaypalProfile } = await adminClient
-      .from('printer_profiles').select('paypal_email, stripe_account_id').eq('user_id', acceptedQuote.printer_id).single()
+    const { data: printerPayoutProfile } = await adminClient
+      .from('printer_profiles').select('stripe_account_id').eq('user_id', acceptedQuote.printer_id).single()
 
-    const stripeAccountId = (printerPaypalProfile as any)?.stripe_account_id as string | null
-    const paypalEmail     = (printerPaypalProfile as any)?.paypal_email as string | null
+    const stripeAccountId = (printerPayoutProfile as any)?.stripe_account_id as string | null
 
-    if (acceptedQuote.price) {
+    if (acceptedQuote.price && stripeAccountId) {
       const makerShareStr = (acceptedQuote.price * (1 - PLATFORM_FEE_PERCENT)).toFixed(2)
       try {
-        if (stripeAccountId) {
-          await transferToMaker(acceptedQuote.price, stripeAccountId, jobId, job.title)
-        } else if (paypalEmail) {
-          await sendPayPalPayout({
-            recipientEmail: paypalEmail,
-            amount:         makerShareStr,
-            currency:       'CHF',
-            jobId,
-            jobTitle:       job.title,
-          })
-        } else {
-          throw new Error('No payout method configured for maker')
-        }
+        await transferToMaker(acceptedQuote.price, stripeAccountId, jobId, job.title)
 
         await adminClient.from('jobs').update({
           payout_at: new Date().toISOString(),
@@ -130,15 +114,14 @@ export async function confirmJobDelivery(jobId: string) {
           userId: acceptedQuote.printer_id,
           type:   'payout_sent',
           title:  'Payment sent!',
-          body:   `CHF ${makerShareStr} for "${job.title}" has been sent to your account.`,
+          body:   `CHF ${makerShareStr} for "${job.title}" has been sent to your bank account.`,
           link:   `/jobs/${jobId}`,
         })
       } catch (err) {
-        // Payout failed — job stays at 'delivered', shows in admin Pending Payouts
         console.error('Auto-payout failed for job', jobId, err)
       }
     }
-    // If no payout method set, job stays at 'delivered' → visible in admin Pending Payouts
+    // If no Stripe account, job stays at 'delivered' → visible in admin Pending Payouts
   }
 
   revalidatePath(`/jobs/${jobId}`)
@@ -159,43 +142,29 @@ export async function markPayoutSent(jobId: string) {
 
   const { data: acceptedQuote } = await admin
     .from('quotes').select('printer_id, price').eq('job_id', jobId).eq('status', 'accepted').single()
-
   if (!acceptedQuote) throw new Error('No accepted quote found')
 
-  const { data: printerPaypalProfile } = await admin
-    .from('printer_profiles').select('paypal_email, stripe_account_id').eq('user_id', acceptedQuote.printer_id).single()
+  const { data: printerPayoutProfile } = await admin
+    .from('printer_profiles').select('stripe_account_id').eq('user_id', acceptedQuote.printer_id).single()
 
-  const stripeAccountId = (printerPaypalProfile as any)?.stripe_account_id as string | null
-  const paypalEmail     = (printerPaypalProfile as any)?.paypal_email as string | null
+  const stripeAccountId = (printerPayoutProfile as any)?.stripe_account_id as string | null
+  if (!stripeAccountId) throw new Error('Maker has no Stripe account connected')
 
   const makerShare = (acceptedQuote.price * (1 - PLATFORM_FEE_PERCENT)).toFixed(2)
 
-  if (stripeAccountId) {
-    await transferToMaker(acceptedQuote.price, stripeAccountId, jobId, job.title)
-  } else if (paypalEmail) {
-    await sendPayPalPayout({
-      recipientEmail: paypalEmail,
-      amount:         makerShare,
-      currency:       'CHF',
-      jobId,
-      jobTitle:       job.title,
-    })
-  } else {
-    throw new Error('Maker has no payout method configured (no Stripe account or PayPal email)')
-  }
+  await transferToMaker(acceptedQuote.price, stripeAccountId, jobId, job.title)
 
-  // Only mark complete after successful payout
   await admin.from('jobs').update({
     payout_at: new Date().toISOString(),
-    status: 'completed',
+    status:    'completed',
   } as any).eq('id', jobId)
 
   await createNotification({
     userId: acceptedQuote.printer_id,
-    type: 'payout_sent',
-    title: 'Payment sent!',
-    body: `CHF ${makerShare} for "${job.title}" has been sent to your PayPal.`,
-    link: `/jobs/${jobId}`,
+    type:   'payout_sent',
+    title:  'Payment sent!',
+    body:   `CHF ${makerShare} for "${job.title}" has been sent to your bank account.`,
+    link:   `/jobs/${jobId}`,
   })
 
   revalidatePath(`/jobs/${jobId}`)
