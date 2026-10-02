@@ -305,17 +305,11 @@ export function ProfileSetupForm({ effectiveUserId }: { effectiveUserId: string 
             <p className="text-xs text-warm-500 mt-0.5">Where we send your payment after delivery is confirmed.</p>
           </div>
 
-          {stripeReturn === 'success' && stripeStatus && !stripeStatus.connected && (
-            <div className="rounded-xl bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-800">
-              <p className="font-semibold">Stripe setup received ✓</p>
-              <p className="text-xs mt-0.5">Your account is under review. Payouts will activate once Stripe approves it — usually within 1–2 business days.</p>
-            </div>
-          )}
-
           {stripeStatus !== null && (
             <StripeConnectButton
               connected={stripeStatus.connected}
               detailsSubmitted={stripeStatus.detailsSubmitted}
+              isReturn={stripeReturn === 'success'}
             />
           )}
 
