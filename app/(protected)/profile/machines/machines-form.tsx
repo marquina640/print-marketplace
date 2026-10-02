@@ -127,6 +127,7 @@ export function MachinesForm({ effectiveUserId }: { effectiveUserId: string }) {
     setError(null)
     if (!form.brand) { setError('Select a brand.'); return }
     if (!form.model.trim()) { setError('Enter a model name.'); return }
+    if (!photoFile && !form.photo_url) { setError('Upload a photo of your machine.'); return }
 
     setSaving(true)
     const supabase = createClient()
