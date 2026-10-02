@@ -25,25 +25,28 @@ export default async function AdminCertificationsPage() {
     { count: approvedCount },
     { count: rejectedCount },
   ] = await Promise.all([
-    admin
-      .from('certification_requests')
-      .select('*, profiles:maker_id(display_name, email), printer_profiles:maker_id(city)')
-      .eq('status', 'pending')
-      .order('created_at', { ascending: true }),
-    admin
-      .from('certification_requests')
-      .select('*, profiles:maker_id(display_name, email)')
-      .in('status', ['approved', 'rejected', 'more_info'])
-      .order('created_at', { ascending: false })
-      .limit(20),
+    admin.from('certification_requests').select('*').eq('status', 'pending').order('created_at', { ascending: true }),
+    admin.from('certification_requests').select('*').in('status', ['approved', 'rejected', 'more_info']).order('created_at', { ascending: false }).limit(20),
     admin.from('certification_requests').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
     admin.from('certification_requests').select('*', { count: 'exact', head: true }).eq('status', 'approved'),
     admin.from('certification_requests').select('*', { count: 'exact', head: true }).eq('status', 'rejected'),
   ])
 
+  // Fetch profiles separately to avoid join issues
+  const allMakerIds = [...new Set([...(pending ?? []), ...(reviewed ?? [])].map((r) => r.maker_id))]
+  const { data: profileRows } = allMakerIds.length > 0
+    ? await admin.from('profiles').select('user_id, display_name, email').in('user_id', allMakerIds)
+    : { data: [] }
+  const { data: printerProfileRows } = allMakerIds.length > 0
+    ? await admin.from('printer_profiles').select('user_id, city').in('user_id', allMakerIds)
+    : { data: [] }
+
+  const profileMap = Object.fromEntries((profileRows ?? []).map((p) => [p.user_id, p]))
+  const printerMap = Object.fromEntries((printerProfileRows ?? []).map((p) => [p.user_id, p]))
+
   const pendingRequests = (pending ?? []).map((r) => {
-    const p = r.profiles as { display_name: string | null; email: string } | null
-    const pp = r.printer_profiles as { city: string } | null
+    const p = profileMap[r.maker_id]
+    const pp = printerMap[r.maker_id]
     return {
       id:              r.id,
       maker_id:        r.maker_id,
@@ -111,7 +114,7 @@ export default async function AdminCertificationsPage() {
           <h2 className="text-lg font-bold text-ink-900 mb-4">Recently Reviewed</h2>
           <div className="card divide-y divide-warm-100 overflow-hidden">
             {reviewed.map((r) => {
-              const p = r.profiles as { display_name: string | null; email: string } | null
+              const p = profileMap[r.maker_id] as { display_name: string | null; email: string } | undefined
               const statusConfig: Record<string, string> = {
                 approved:  'text-emerald-600',
                 rejected:  'text-red-500',
