@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { StatusBadge } from '@/components/ui/badge'
 import { formatDate, formatCurrency } from '@/lib/utils'
 import Link from 'next/link'
+import { DeleteJobButton } from './delete-job-button'
 
 export const metadata = { title: 'All Requests - Admin' }
 
@@ -38,7 +39,7 @@ export default async function AdminJobsPage() {
           <table className="min-w-full divide-y divide-warm-100">
             <thead className="bg-warm-50">
               <tr>
-                {['Title', 'Customer', 'Material', 'Budget', 'Status', 'Posted'].map((h) => (
+                {['Title', 'Customer', 'Material', 'Budget', 'Status', 'Posted', ''].map((h) => (
                   <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-warm-500 uppercase tracking-wider">{h}</th>
                 ))}
               </tr>
@@ -58,6 +59,9 @@ export default async function AdminJobsPage() {
                     <td className="px-4 py-3 text-sm text-warm-600">{j.budget ? formatCurrency(j.budget) : '—'}</td>
                     <td className="px-4 py-3"><StatusBadge status={effectiveStatus(j)} /></td>
                     <td className="px-4 py-3 text-sm text-warm-400">{formatDate(j.created_at)}</td>
+                    <td className="px-4 py-3 text-sm">
+                      <DeleteJobButton jobId={j.id} title={j.title} />
+                    </td>
                   </tr>
                 )
               })}
