@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { MATERIALS, COLORS } from '@/lib/utils'
 import { AddressAutocomplete } from '@/components/ui/address-autocomplete'
+import { StripeConnectButton } from '@/components/payments/stripe-connect-button'
 
 function MultiCheckbox({ label, options, selected, onChange }: {
   label: string; options: string[]; selected: string[]; onChange: (v: string[]) => void
@@ -55,6 +56,8 @@ export function ProfileSetupForm({ effectiveUserId }: { effectiveUserId: string 
   const [avatarFile, setAvatarFile] = useState<File | null>(null)
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
 
+  const [stripeStatus, setStripeStatus] = useState<{ connected: boolean; detailsSubmitted: boolean } | null>(null)
+
   const [form, setFormState] = useState({
     display_name: '',
     city: '',
@@ -80,6 +83,17 @@ export function ProfileSetupForm({ effectiveUserId }: { effectiveUserId: string 
         supabase.from('printer_profiles').select('*').eq('user_id', effectiveUserId).single(),
         supabase.from('profiles').select('display_name, city, address, latitude, longitude, avatar_url').eq('user_id', effectiveUserId).single(),
       ])
+
+      // Load Stripe account status if connected
+      const stripeAccountId = (data as any)?.stripe_account_id as string | null
+      if (stripeAccountId) {
+        try {
+          const res = await fetch(`/api/stripe/connect/status?accountId=${stripeAccountId}`)
+          if (res.ok) setStripeStatus(await res.json())
+        } catch { /* ignore */ }
+      } else {
+        setStripeStatus({ connected: false, detailsSubmitted: false })
+      }
 
       if (clientProfile?.avatar_url) setAvatarPreview(clientProfile.avatar_url)
 
@@ -283,22 +297,32 @@ export function ProfileSetupForm({ effectiveUserId }: { effectiveUserId: string 
             placeholder="Describe your setup, turnaround, specialties, and what makes you stand out…" />
         </div>
 
-        <div className="card p-6 space-y-3">
+        <div className="card p-6 space-y-4">
           <div>
             <h2 className="font-semibold text-warm-900">Payout Account</h2>
             <p className="text-xs text-warm-500 mt-0.5">Where we send your payment after delivery is confirmed.</p>
           </div>
+
+          {stripeStatus !== null && (
+            <StripeConnectButton
+              connected={stripeStatus.connected}
+              detailsSubmitted={stripeStatus.detailsSubmitted}
+            />
+          )}
+
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-warm-200" /></div>
+            <div className="relative flex justify-center"><span className="bg-white px-2 text-xs text-warm-400">or use PayPal as fallback</span></div>
+          </div>
+
           <Input
-            label="PayPal email address"
+            label="PayPal email address (optional)"
             type="email"
             value={form.paypal_email}
             onChange={(e) => set('paypal_email', e.target.value)}
             placeholder="your@paypal.com"
-            hint="Must be the email linked to your PayPal account"
+            hint="Only used if Stripe is not connected"
           />
-          {form.paypal_email && (
-            <p className="text-xs text-emerald-600 font-medium">✓ Payouts will be sent here automatically after delivery</p>
-          )}
         </div>
 
         {error && (
