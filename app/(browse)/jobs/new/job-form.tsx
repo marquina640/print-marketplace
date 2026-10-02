@@ -11,7 +11,14 @@ import { MATERIALS, MATERIALS_DECORATIVE, COLORS, CURRENCIES, formatFileSize, JO
 
 interface ClientLocation { address: string; lat: number | null; lng: number | null }
 
-export function NewJobForm({ clientId, clientLocation, isGuest }: { clientId: string; clientLocation: ClientLocation; isGuest?: boolean }) {
+export function NewJobForm({ clientId, clientLocation, isGuest, makerProcesses, makerName, makerId }: {
+  clientId: string
+  clientLocation: ClientLocation
+  isGuest?: boolean
+  makerProcesses?: string[] | null
+  makerName?: string | null
+  makerId?: string | null
+}) {
   const router = useRouter()
   const modelFileRef = useRef<HTMLInputElement>(null)
   const imageFileRef = useRef<HTMLInputElement>(null)
@@ -42,7 +49,7 @@ export function NewJobForm({ clientId, clientLocation, isGuest }: { clientId: st
     pickup_ok: false,
     needs_design: false,
     job_type: 'functional',
-    process: 'fdm',
+    process: makerProcesses?.length ? makerProcesses[0] : 'fdm',
     print_quality: 'normal',
   })
 
@@ -241,6 +248,17 @@ export function NewJobForm({ clientId, clientLocation, isGuest }: { clientId: st
       }
     }
 
+    // Auto-invite the maker if this request was posted from their profile
+    if (makerId && user) {
+      try {
+        await fetch('/api/invitations/auto', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ jobId: job.id, makerId }),
+        })
+      } catch { /* non-critical */ }
+    }
+
     router.push(`/jobs/${job.id}/submitted`)
   }
 
@@ -337,6 +355,11 @@ export function NewJobForm({ clientId, clientLocation, isGuest }: { clientId: st
         <div className="card p-6 space-y-3">
           <div className="flex items-center gap-2">
             <h2 className="font-semibold text-ink-900">Manufacturing Process</h2>
+            {makerProcesses && makerName && (
+              <span className="text-xs text-warm-400 font-normal">
+                — showing {makerName}&apos;s capabilities
+              </span>
+            )}
             <div className="relative group">
               <button type="button" className="h-4 w-4 rounded-full bg-warm-200 text-warm-600 text-[10px] font-bold flex items-center justify-center hover:bg-warm-300 transition-colors flex-shrink-0">
                 ?
@@ -359,6 +382,7 @@ export function NewJobForm({ clientId, clientLocation, isGuest }: { clientId: st
             {MANUFACTURING_PROCESSES.filter((p) => {
               if (!p.available) return false
               if (form.job_type === 'decorative') return p.value === 'fdm' || p.value === 'resin'
+              if (makerProcesses) return makerProcesses.includes(p.value)
               return true
             }).map((p) => {
               const active = form.process === p.value

@@ -6,7 +6,12 @@ import { countUnreviewedJobs } from '@/app/actions/review-gate'
 
 export const metadata = { title: 'Post a Request' }
 
-export default async function NewJobPage() {
+interface PageProps {
+  searchParams: Promise<{ maker?: string }>
+}
+
+export default async function NewJobPage({ searchParams }: PageProps) {
+  const { maker: makerParam } = await searchParams
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
@@ -60,5 +65,20 @@ export default async function NewJobPage() {
     }
   }
 
-  return <NewJobForm clientId={clientId} clientLocation={clientLocation} isGuest={isGuest} />
+  // If coming from a specific maker's profile, restrict processes to that maker's capabilities
+  let makerProcesses: string[] | null = null
+  let makerName: string | null = null
+  if (makerParam) {
+    const [{ data: makerMachines }, { data: makerProfile }] = await Promise.all([
+      supabase.from('machines').select('process').eq('maker_id', makerParam),
+      supabase.from('printer_profiles').select('display_name').eq('user_id', makerParam).single(),
+    ])
+    const processes = [...new Set((makerMachines ?? []).map((m) => m.process).filter(Boolean))]
+    if (processes.length > 0) {
+      makerProcesses = processes
+      makerName = makerProfile?.display_name ?? null
+    }
+  }
+
+  return <NewJobForm clientId={clientId} clientLocation={clientLocation} isGuest={isGuest} makerProcesses={makerProcesses} makerName={makerName} makerId={makerParam ?? null} />
 }
