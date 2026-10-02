@@ -58,7 +58,7 @@ export async function POST(req: NextRequest) {
       .update({ paypal_order_id: orderId } as any)
       .eq('id', jobId)
 
-    return NextResponse.json({ url: approveUrl })
+    return NextResponse.json({ orderId, url: approveUrl })
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err)
     console.error('PayPal order create error:', message)
