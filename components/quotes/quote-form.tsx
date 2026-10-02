@@ -52,8 +52,8 @@ export function QuoteForm({ jobId, printerId: printerIdProp, shippingRequired, e
       setError('Please upload a photo of the model or your print preview.')
       return
     }
-    if (!price || parseFloat(price) <= 0) {
-      setError('Please enter a valid price.')
+    if (!price || parseFloat(price) < 10) {
+      setError('Minimum quote price is CHF 10.00.')
       return
     }
     if (!leadTime || parseInt(leadTime) < 1) {
@@ -210,7 +210,7 @@ export function QuoteForm({ jobId, printerId: printerIdProp, shippingRequired, e
         <Input
           label={shippingRequired ? 'Your price incl. shipping (CHF)' : 'Your price (CHF)'}
           type="number" min="0" step="0.01" required
-          value={price} onChange={(e) => setPrice(e.target.value)} placeholder="49.00"
+          value={price} onChange={(e) => setPrice(e.target.value)} placeholder="49.00" min="10"
         />
         <Input label="Lead time (days)" type="number" min="1" required
           value={leadTime} onChange={(e) => setLeadTime(e.target.value)} placeholder="7" />
