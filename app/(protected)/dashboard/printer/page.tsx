@@ -49,6 +49,7 @@ export default async function PrinterDashboardPage({ searchParams }: PageProps) 
     { data: allMyQuotes },
     { data: recentJobs },
     { data: makerProfile },
+    { count: machineCount },
   ] = await Promise.all([
     supabase
       .from('quotes')
@@ -63,7 +64,13 @@ export default async function PrinterDashboardPage({ searchParams }: PageProps) 
       .select('certification_level, display_name, stripe_account_id')
       .eq('user_id', effectiveUserId)
       .single(),
+    supabase
+      .from('machines')
+      .select('*', { count: 'exact', head: true })
+      .eq('maker_id', effectiveUserId),
   ])
+
+  const hasMachines = (machineCount ?? 0) > 0
 
   // Fetch job details separately (avoid inner-join RLS issue where accepted jobs are filtered out)
   const quotedJobIds = [...new Set(allMyQuotes?.map((q) => q.job_id) ?? [])]
@@ -170,6 +177,22 @@ export default async function PrinterDashboardPage({ searchParams }: PageProps) 
             </p>
             <Link href="/profile/setup">
               <Button variant="gold" size="sm">Set up payouts →</Button>
+            </Link>
+          </div>
+        </div>
+      )}
+
+      {/* No machines banner */}
+      {!hasMachines && (
+        <div className="rounded-xl bg-red-50 border border-red-300 px-5 py-4 flex items-start gap-3">
+          <span className="text-2xl">🖨️</span>
+          <div className="flex-1">
+            <p className="font-semibold text-red-900">Add a machine — you won't be visible to customers without one</p>
+            <p className="text-sm text-red-700 mt-0.5 mb-3">
+              Customers can't find you on the map and you can't submit quotes until you add at least one printer to your profile.
+            </p>
+            <Link href="/profile/machines">
+              <Button variant="gold" size="sm">Add a machine →</Button>
             </Link>
           </div>
         </div>

@@ -33,7 +33,14 @@ export default async function MapPage() {
 
   const { data: validMakerProfiles } = await supabase
     .from('profiles').select('user_id').eq('role', 'printer_owner').eq('is_test', false)
-  const validMakerIds = validMakerProfiles?.map((p) => p.user_id) ?? []
+  const allMakerIds = validMakerProfiles?.map((p) => p.user_id) ?? []
+
+  // Only show makers who have at least one machine
+  const { data: makersWithMachines } = allMakerIds.length > 0
+    ? await supabase.from('machines').select('maker_id').in('maker_id', allMakerIds)
+    : { data: [] }
+  const makerIdsWithMachines = new Set((makersWithMachines ?? []).map((m) => m.maker_id))
+  const validMakerIds = allMakerIds.filter((id) => makerIdsWithMachines.has(id))
 
   const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
 
