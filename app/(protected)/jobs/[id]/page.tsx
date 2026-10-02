@@ -9,7 +9,7 @@ import { formatCurrency, formatDate, formatFileSize, CURRENCIES } from '@/lib/ut
 import { AcceptQuoteButton } from './accept-quote-button'
 import { countUnreviewedJobs } from '@/app/actions/review-gate'
 import { ReviewForm } from './review-form'
-import { PayPalPaymentButton } from '@/components/payments/paypal-payment-button'
+import { StripePaymentButton } from '@/components/payments/stripe-payment-button'
 import { MarkShippedButton } from './mark-shipped-button'
 import { ConfirmReceiptButton } from './confirm-receipt-button'
 import { MarkPayoutButton } from './mark-payout-button'
@@ -446,7 +446,7 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
                         <div className="rounded-xl border border-gold-300 bg-gold-50 p-4">
                           <p className="text-sm font-semibold text-ink-900 mb-1">Confirm your order</p>
                           <p className="text-xs text-warm-600 mb-3">Pay now to secure your order. The maker gets paid once you confirm delivery.</p>
-                          <PayPalPaymentButton jobId={job.id} amount={q.price} />
+                          <StripePaymentButton jobId={job.id} amount={q.price} />
                         </div>
                       )}
 
