@@ -239,6 +239,22 @@ export function CertificationForm({ effectiveUserId }: { effectiveUserId: string
           )}
 
           <form onSubmit={handleSubmit} className="card p-6 space-y-5">
+            <div className="rounded-xl bg-warm-50 border border-warm-200 p-4 flex items-start gap-3">
+              <span className="text-xl flex-shrink-0">🖨️</span>
+              <div>
+                <p className="text-sm font-semibold text-ink-900">Download the benchmark model</p>
+                <p className="text-xs text-warm-500 mt-0.5 mb-2">Print the All-In-One Calibration Test using your normal everyday settings.</p>
+                <a
+                  href="https://makerworld.com/en/models/1469968-all-in-one-calibration-test"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-block text-xs font-semibold text-ink-700 underline underline-offset-2 hover:text-gold-600 transition-colors"
+                >
+                  Download on MakerWorld →
+                </a>
+              </div>
+            </div>
+
             <div>
               <p className="form-label mb-2">Benchmark Photos * <span className="text-warm-400 font-normal">(1–8 photos)</span></p>
               <div className="grid grid-cols-4 gap-2">
