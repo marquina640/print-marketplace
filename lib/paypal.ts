@@ -159,6 +159,7 @@ export async function createPayPalOrder(params: CreateOrderParams): Promise<Orde
       brand_name:          'PrintMarketHub',
       shipping_preference: 'NO_SHIPPING',
       user_action:         'PAY_NOW',
+      landing_page:        'BILLING',
       return_url:          returnUrl,
       cancel_url:          cancelUrl,
     },
