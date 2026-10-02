@@ -1,6 +1,6 @@
 ﻿import { Resend } from 'resend'
 
-const FROM = 'PrintMarketHub <noreply@printmarkethub.com>'
+const FROM = 'PrintMarketHub <hello@printmarkethub.com>'
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://printmarkethub.com'
 
 /** Wraps content HTML in a clean branded email shell */
@@ -36,6 +36,8 @@ function emailTemplate(content: string): string {
             <a href="${APP_URL}/terms" style="color:#9e9b94;text-decoration:underline;">Terms</a>
             &nbsp;&middot;&nbsp;
             <a href="${APP_URL}/legal/privacy" style="color:#9e9b94;text-decoration:underline;">Privacy</a>
+            &nbsp;&middot;&nbsp;
+            <a href="${APP_URL}/dashboard" style="color:#9e9b94;text-decoration:underline;">Unsubscribe</a>
           </td>
         </tr>
 
@@ -71,7 +73,16 @@ export async function sendEmail({
 
   try {
     const resend = new Resend(apiKey)
-    await resend.emails.send({ from: FROM, to, subject, html: emailTemplate(html) })
+    await resend.emails.send({
+      from: FROM,
+      to,
+      subject,
+      html: emailTemplate(html),
+      headers: {
+        'List-Unsubscribe': `<${APP_URL}/dashboard>`,
+        'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+      },
+    })
   } catch (err) {
     console.error('[email] send failed:', err)
   }
