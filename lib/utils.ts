@@ -332,30 +332,25 @@ export const BENCHMARK_REQUIREMENTS: Record<number, {
     title: 'Verified Quality - Level 1',
     parts: [
       {
-        name: 'Calibration Cube (20×20×20 mm)',
-        purpose: 'Dimensional accuracy and first-layer quality',
-        criteria: ['All faces within ±0.3 mm', 'No warping or lifting', 'Clean top surface', 'Sharp edges'],
-      },
-      {
-        name: 'Overhang Test',
-        purpose: 'Overhang and cooling performance',
-        criteria: ['Clean 30°, 45°, 60° overhangs', 'No excessive drooping at 60°', 'Good surface on all angles'],
-      },
-      {
-        name: 'Bridge Test (25 mm)',
-        purpose: 'Bridging and retraction quality',
-        criteria: ['Bridge sag under 1 mm', 'No stringing across gap', 'Smooth underside'],
-      },
-      {
-        name: 'Surface Finish Panel (80×80×5 mm)',
-        purpose: 'Top surface and side wall quality',
-        criteria: ['No gaps or holes in top layer', 'Consistent layer lines on sides', 'No blobs or zits'],
+        name: 'All-In-One Calibration Test',
+        purpose: 'Tests overhangs, bridging, stringing, retraction, thin walls, and surface quality in one print',
+        criteria: [
+          'Arch overhang clean with no drooping',
+          'Bridge spanning without major sag or stringing',
+          'Thin towers standing without excessive wobble',
+          'Concentric circles well-defined and separated',
+          'No excessive stringing between features',
+          'Clean top surfaces with no holes or blobs',
+          'Thin walls visible and not fused together',
+        ],
       },
     ],
     extras: [
-      'Print all parts in PLA or your primary material',
-      'Use your normal print settings - do not tune just for testing',
-      'Photograph each part from multiple angles with a ruler or coin for scale',
+      'Download the model at makerworld.com/en/models/1469968-all-in-one-calibration-test',
+      'Print in PLA or your primary material using your normal everyday settings',
+      'Do not tune settings specifically for this test — we want to see your typical results',
+      'Photograph the finished print from multiple angles in good lighting',
+      'Include a close-up of the arch, bridge, and thin towers',
     ],
   },
   2: {
