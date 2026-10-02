@@ -5,6 +5,7 @@ import { formatDate } from '@/lib/utils'
 import { StatusBadge } from '@/components/ui/badge'
 import { CreateUserForm } from './create-user-form'
 import { DeleteUserButton } from './delete-user-button'
+import { RemindButton } from './remind-button'
 
 export const metadata = { title: 'Users - Admin' }
 
@@ -56,7 +57,7 @@ export default async function AdminUsersPage() {
       <CreateUserForm />
 
       {/* Not onboarded */}
-      {notOnboarded.length > 0 && <UserTable title="Not Onboarded" users={notOnboarded} highlight />}
+      {notOnboarded.length > 0 && <UserTable title="Not Onboarded" users={notOnboarded} highlight showRemind />}
 
       {/* Clients */}
       <UserTable title="Customers" users={clients} />
@@ -76,15 +77,16 @@ function Pill({ yes }: { yes: boolean }) {
     : <span className="text-red-400 font-medium">✗ No</span>
 }
 
-function UserTable({ title, users, highlight, hasProfile, hasMachines }: {
+function UserTable({ title, users, highlight, hasProfile, hasMachines, showRemind }: {
   title: string
   highlight?: boolean
+  showRemind?: boolean
   hasProfile?: Set<string>
   hasMachines?: Set<string>
   users: { user_id: string; email: string; display_name: string | null; role: string; created_at: string; onboarding_complete: boolean | null }[]
 }) {
   const showMakerCols = !!(hasProfile || hasMachines)
-  const headers = ['Name', 'Email', 'Role', 'Onboarded', ...(showMakerCols ? ['Profile', 'Machines'] : []), 'Joined', ...(showMakerCols ? [''] : []), '']
+  const headers = ['Name', 'Email', 'Role', 'Onboarded', ...(showMakerCols ? ['Profile', 'Machines'] : []), 'Joined', ...(showMakerCols ? [''] : []), ...(showRemind ? [''] : []), '']
 
   return (
     <section>
@@ -132,6 +134,11 @@ function UserTable({ title, users, highlight, hasProfile, hasMachines }: {
                       <Link href={`/makers/${u.user_id}`} className="text-ink-600 hover:underline font-medium" target="_blank">
                         View profile →
                       </Link>
+                    </td>
+                  )}
+                  {showRemind && (
+                    <td className="px-4 py-3 text-sm">
+                      <RemindButton userId={u.user_id} />
                     </td>
                   )}
                   <td className="px-4 py-3 text-sm">

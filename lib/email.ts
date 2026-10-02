@@ -235,3 +235,19 @@ export function emailReviewsPublished({
     `,
   })
 }
+
+export function emailOnboardingReminder({ to, name }: { to: string; name: string | null }) {
+  const greeting = name ? `Hi ${name},` : 'Hi there,'
+  return sendEmail({
+    to,
+    subject: 'Complete your PrintMarketHub profile',
+    html: `
+      <h2 style="margin:0 0 8px;font-size:20px;font-weight:800;color:#1a1625;">You&apos;re almost there!</h2>
+      <p style="margin:0 0 16px;color:#6b6760;font-size:14px;line-height:1.6;">
+        ${greeting} You signed up for PrintMarketHub but haven&apos;t finished setting up your profile yet.
+        Complete it now to start posting jobs or receiving quote requests from clients.
+      </p>
+      ${ctaButton('Complete my profile &rarr;', `${APP_URL}/onboarding`)}
+    `,
+  })
+}
