@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
 
     if (!accountId) {
       accountId = await createConnectedAccount(profile?.email ?? '')
-      await admin.from('printer_profiles').update({ stripe_account_id: accountId } as any).eq('user_id', user.id)
+      await admin.from('printer_profiles').upsert({ user_id: user.id, stripe_account_id: accountId } as any, { onConflict: 'user_id' })
     }
 
     const onboardingUrl = await createConnectOnboardingLink(
