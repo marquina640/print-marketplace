@@ -60,7 +60,7 @@ export default async function PrinterDashboardPage({ searchParams }: PageProps) 
       : recentJobsQuery,
     supabase
       .from('printer_profiles')
-      .select('certification_level, display_name, paypal_email')
+      .select('certification_level, display_name, paypal_email, stripe_account_id')
       .eq('user_id', effectiveUserId)
       .single(),
   ])
@@ -99,6 +99,8 @@ export default async function PrinterDashboardPage({ searchParams }: PageProps) 
   const cert             = getCertificationLevel(certLevel)
   const nextCert         = certLevel < 3 ? CERTIFICATION_LEVELS[certLevel + 1] : null
   const paypalEmail      = (makerProfile as any)?.paypal_email as string | null
+  const stripeAccountId  = (makerProfile as any)?.stripe_account_id as string | null
+  const hasPayoutMethod  = !!stripeAccountId || !!paypalEmail
   const isAdminPreview   = !!previewUserId
 
   // Earnings: sum of accepted quote prices for delivered/completed jobs
@@ -146,33 +148,37 @@ export default async function PrinterDashboardPage({ searchParams }: PageProps) 
         <Link href="/jobs"><Button variant="gold">Browse Requests</Button></Link>
       </div>
 
-      {/* PayPal payout panel */}
-      {paypalEmail ? (
-          <div className="rounded-xl bg-emerald-50 border border-emerald-200 px-5 py-4 flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <div className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
-              <div>
-                <p className="font-semibold text-emerald-900 text-sm">Payouts configured</p>
-                <p className="text-xs text-emerald-700">Payments sent to <span className="font-mono">{paypalEmail}</span> automatically after delivery.</p>
-              </div>
+      {/* Payout panel */}
+      {hasPayoutMethod ? (
+        <div className="rounded-xl bg-emerald-50 border border-emerald-200 px-5 py-4 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
+            <div>
+              <p className="font-semibold text-emerald-900 text-sm">Payouts configured</p>
+              <p className="text-xs text-emerald-700">
+                {stripeAccountId
+                  ? 'Payments sent directly to your bank account via Stripe after delivery.'
+                  : <>Payments sent to <span className="font-mono">{paypalEmail}</span> via PayPal after delivery.</>}
+              </p>
             </div>
+          </div>
+          <Link href="/profile/setup">
+            <Button variant="outline" size="sm">Update</Button>
+          </Link>
+        </div>
+      ) : (
+        <div className="rounded-xl bg-amber-50 border border-amber-300 px-5 py-4 flex items-start gap-3">
+          <span className="text-2xl">💳</span>
+          <div className="flex-1">
+            <p className="font-semibold text-amber-900">Connect your bank account to get paid</p>
+            <p className="text-sm text-amber-700 mt-0.5 mb-3">
+              Connect via Stripe to receive payments directly to your bank after delivery confirmation.
+            </p>
             <Link href="/profile/setup">
-              <Button variant="outline" size="sm">Update</Button>
+              <Button variant="gold" size="sm">Set up payouts →</Button>
             </Link>
           </div>
-        ) : (
-          <div className="rounded-xl bg-amber-50 border border-amber-300 px-5 py-4 flex items-start gap-3">
-            <span className="text-2xl">💳</span>
-            <div className="flex-1">
-              <p className="font-semibold text-amber-900">Add your PayPal email to get paid</p>
-              <p className="text-sm text-amber-700 mt-0.5 mb-3">
-                When a client confirms delivery, your payment is sent automatically to your PayPal.
-              </p>
-              <Link href="/profile/setup">
-                <Button variant="gold" size="sm">Add PayPal email →</Button>
-              </Link>
-            </div>
-          </div>
+        </div>
       )}
 
       {/* Certification panel */}
