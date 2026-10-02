@@ -1,7 +1,7 @@
 ﻿'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -57,6 +57,8 @@ export function ProfileSetupForm({ effectiveUserId }: { effectiveUserId: string 
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
 
   const [stripeStatus, setStripeStatus] = useState<{ connected: boolean; detailsSubmitted: boolean } | null>(null)
+  const searchParams = useSearchParams()
+  const stripeReturn = searchParams.get('stripe')
 
   const [form, setFormState] = useState({
     display_name: '',
@@ -302,6 +304,13 @@ export function ProfileSetupForm({ effectiveUserId }: { effectiveUserId: string 
             <h2 className="font-semibold text-warm-900">Payout Account</h2>
             <p className="text-xs text-warm-500 mt-0.5">Where we send your payment after delivery is confirmed.</p>
           </div>
+
+          {stripeReturn === 'success' && stripeStatus && !stripeStatus.connected && (
+            <div className="rounded-xl bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-800">
+              <p className="font-semibold">Stripe setup received ✓</p>
+              <p className="text-xs mt-0.5">Your account is under review. Payouts will activate once Stripe approves it — usually within 1–2 business days.</p>
+            </div>
+          )}
 
           {stripeStatus !== null && (
             <StripeConnectButton
