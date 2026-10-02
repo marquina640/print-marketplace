@@ -233,21 +233,31 @@ export function CertificationForm({ effectiveUserId }: { effectiveUserId: string
           )}
 
           <form onSubmit={handleSubmit} className="card p-6 space-y-5">
-            <div className="rounded-xl bg-warm-50 border border-warm-200 p-4 flex items-start gap-3">
-              <span className="text-xl flex-shrink-0">🖨️</span>
-              <div>
-                <p className="text-sm font-semibold text-ink-900">Download the benchmark model</p>
-                <p className="text-xs text-warm-500 mt-0.5 mb-2">Print the All-In-One Calibration Test using your normal everyday settings.</p>
-                <a
-                  href="https://makerworld.com/en/models/1469968-all-in-one-calibration-test"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-block text-xs font-semibold text-ink-700 underline underline-offset-2 hover:text-gold-600 transition-colors"
-                >
-                  Download on MakerWorld →
-                </a>
+            {benchmarks && benchmarks.extras.filter((e) => e.startsWith('Download')).length > 0 && (
+              <div className="rounded-xl bg-warm-50 border border-warm-200 p-4 flex items-start gap-3">
+                <span className="text-xl flex-shrink-0">🖨️</span>
+                <div>
+                  <p className="text-sm font-semibold text-ink-900">Download the benchmark models</p>
+                  <div className="mt-1.5 space-y-1.5">
+                    {benchmarks.extras
+                      .filter((e) => e.startsWith('Download'))
+                      .map((e, i) => {
+                        const arrowIdx = e.indexOf('→')
+                        const label = arrowIdx > -1 ? e.slice('Download models: '.length, arrowIdx).trim() : e
+                        const url = arrowIdx > -1 ? 'https://' + e.slice(arrowIdx + 1).trim() : null
+                        return url ? (
+                          <a key={i} href={url} target="_blank" rel="noopener noreferrer"
+                            className="block text-xs font-semibold text-ink-700 underline underline-offset-2 hover:text-gold-600 transition-colors">
+                            {label} →
+                          </a>
+                        ) : (
+                          <p key={i} className="text-xs text-warm-500">{e}</p>
+                        )
+                      })}
+                  </div>
+                </div>
               </div>
-            </div>
+            )}
 
             <div>
               <p className="form-label mb-2">Benchmark Photos * <span className="text-warm-400 font-normal">(1–8 photos)</span></p>
