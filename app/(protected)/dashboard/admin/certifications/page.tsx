@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
+import { createClient }      from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { CertificationBadge } from '@/components/ui/badge'
 import { CERTIFICATION_LEVELS, formatDate } from '@/lib/utils'
 import { ReviewCard } from './review-card'
@@ -15,6 +16,8 @@ export default async function AdminCertificationsPage() {
     .from('profiles').select('role').eq('user_id', user.id).single()
   if (profile?.role !== 'admin') redirect('/dashboard')
 
+  const admin = createAdminClient()
+
   const [
     { data: pending },
     { data: reviewed },
@@ -22,20 +25,20 @@ export default async function AdminCertificationsPage() {
     { count: approvedCount },
     { count: rejectedCount },
   ] = await Promise.all([
-    supabase
+    admin
       .from('certification_requests')
       .select('*, profiles:maker_id(display_name, email), printer_profiles:maker_id(city)')
       .eq('status', 'pending')
       .order('created_at', { ascending: true }),
-    supabase
+    admin
       .from('certification_requests')
       .select('*, profiles:maker_id(display_name, email)')
       .in('status', ['approved', 'rejected', 'more_info'])
       .order('created_at', { ascending: false })
       .limit(20),
-    supabase.from('certification_requests').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
-    supabase.from('certification_requests').select('*', { count: 'exact', head: true }).eq('status', 'approved'),
-    supabase.from('certification_requests').select('*', { count: 'exact', head: true }).eq('status', 'rejected'),
+    admin.from('certification_requests').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
+    admin.from('certification_requests').select('*', { count: 'exact', head: true }).eq('status', 'approved'),
+    admin.from('certification_requests').select('*', { count: 'exact', head: true }).eq('status', 'rejected'),
   ])
 
   const pendingRequests = (pending ?? []).map((r) => {
