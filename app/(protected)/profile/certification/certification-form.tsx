@@ -178,19 +178,13 @@ export function CertificationForm({ effectiveUserId }: { effectiveUserId: string
 
       {nextLevel && (
         <section>
-          <div className="flex items-center justify-between mb-3">
+          <div className="mb-3">
             <h2 className="text-base font-bold text-ink-900">
               Path to Level {nextLevel} - {CERTIFICATION_LEVELS[nextLevel].name}
             </h2>
-            <button
-              onClick={() => setOpenLevel(openLevel === nextLevel ? null : nextLevel)}
-              className="text-xs text-ink-600 hover:text-ink-900 font-medium"
-            >
-              {openLevel === nextLevel ? 'Hide requirements' : 'View requirements'}
-            </button>
           </div>
 
-          {openLevel === nextLevel && benchmarks && (
+          {benchmarks && (
             <div className="card p-5 space-y-5">
               <p className="text-sm text-warm-500">{benchmarks.extras.map((e, i) => (
                 <span key={i} className="block mb-1">• {e}</span>
