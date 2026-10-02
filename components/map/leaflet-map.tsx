@@ -51,7 +51,7 @@ export function LeafletMap({ jobs, printers, filter }: LeafletMapProps) {
         shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
       })
 
-      const map = L.map(mapRef.current!).setView(ZURICH, 12)
+      const map = L.map(mapRef.current!).setView(ZURICH, 5)
       leafletRef.current = { map, L }
 
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -60,6 +60,17 @@ export function LeafletMap({ jobs, printers, filter }: LeafletMapProps) {
       }).addTo(map)
 
       renderMarkers({ map, L })
+
+      // Pan to user's location if available
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => { map.setView([pos.coords.latitude, pos.coords.longitude], 11) },
+          () => { map.setView(ZURICH, 12) },
+          { timeout: 5000 }
+        )
+      } else {
+        map.setView(ZURICH, 12)
+      }
     })
 
     return () => {
