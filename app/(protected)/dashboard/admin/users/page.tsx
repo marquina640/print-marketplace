@@ -6,6 +6,7 @@ import { StatusBadge } from '@/components/ui/badge'
 import { CreateUserForm } from './create-user-form'
 import { DeleteUserButton } from './delete-user-button'
 import { RemindButton } from './remind-button'
+import { MapClient } from '@/components/map/map-client'
 
 export const metadata = { title: 'Users - Admin' }
 
@@ -25,9 +26,9 @@ export default async function AdminUsersPage() {
 
   const allUserIds = users?.map((u) => u.user_id) ?? []
 
-  // Check which users have a printer_profile row
+  // Fetch maker profiles for map + table checks
   const { data: printerProfileRows } = allUserIds.length > 0
-    ? await supabase.from('printer_profiles').select('user_id').in('user_id', allUserIds)
+    ? await supabase.from('printer_profiles').select('user_id, display_name, city, latitude, longitude, certification_level').in('user_id', allUserIds)
     : { data: [] }
   const hasProfile = new Set((printerProfileRows ?? []).map((p) => p.user_id))
 
@@ -36,6 +37,18 @@ export default async function AdminUsersPage() {
     ? await supabase.from('machines').select('maker_id').in('maker_id', allUserIds)
     : { data: [] }
   const hasMachines = new Set((machineRows ?? []).map((m) => m.maker_id))
+
+  // Build map pins for makers with coordinates
+  const makerPins = (printerProfileRows ?? [])
+    .filter((p) => p.latitude != null && p.longitude != null)
+    .map((p) => ({
+      id: p.user_id,
+      display_name: p.display_name,
+      city: p.city,
+      certLevel: p.certification_level ?? 0,
+      lat: p.latitude as number,
+      lng: p.longitude as number,
+    }))
 
   const clients      = users?.filter((u) => u.role === 'client' && u.onboarding_complete) ?? []
   const makers       = users?.filter((u) => u.role === 'printer_owner' && u.onboarding_complete) ?? []
@@ -52,6 +65,16 @@ export default async function AdminUsersPage() {
           </p>
         </div>
       </div>
+
+      {/* Makers map */}
+      {makerPins.length > 0 && (
+        <div>
+          <p className="text-xs font-semibold text-warm-400 uppercase tracking-wider mb-2">
+            {makerPins.length} maker{makerPins.length !== 1 ? 's' : ''} with location
+          </p>
+          <MapClient jobs={[]} printers={makerPins} defaultMode="printers" />
+        </div>
+      )}
 
       {/* Create user form */}
       <CreateUserForm />
