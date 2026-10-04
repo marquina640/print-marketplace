@@ -6,7 +6,7 @@ import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
-import { MATERIALS, COLORS } from '@/lib/utils'
+import { MATERIALS_BY_LEVEL, COLORS } from '@/lib/utils'
 import { AddressAutocomplete } from '@/components/ui/address-autocomplete'
 import { StripeConnectButton } from '@/components/payments/stripe-connect-button'
 
@@ -35,6 +35,57 @@ function MultiCheckbox({ label, options, selected, onChange }: {
   )
 }
 
+const LEVEL_LABELS: Record<number, string> = { 0: 'Level 0 · Basic', 1: 'Level 1 · Functional', 2: 'Level 2 · Engineering' }
+
+function MaterialsCheckbox({ selected, onChange, certLevel }: {
+  selected: string[]
+  onChange: (v: string[]) => void
+  certLevel: number
+}) {
+  const groups = [0, 1, 2] as const
+  return (
+    <div className="space-y-4">
+      {groups.map((level) => {
+        const items = MATERIALS_BY_LEVEL.filter((m) => m.minLevel === level)
+        const locked = certLevel < level
+        return (
+          <div key={level}>
+            <p className="text-xs font-bold uppercase tracking-widest text-warm-400 mb-1.5 flex items-center gap-1.5">
+              {LEVEL_LABELS[level]}
+              {locked && <span className="text-amber-500 normal-case font-medium tracking-normal">🔒 Requires level {level}</span>}
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {items.map(({ label }) => {
+                const active = selected.includes(label)
+                return (
+                  <button
+                    key={label}
+                    type="button"
+                    disabled={locked}
+                    onClick={() => {
+                      if (locked) return
+                      onChange(active ? selected.filter((v) => v !== label) : [...selected, label])
+                    }}
+                    className={`rounded-full border px-3 py-1 text-xs font-medium transition-all ${
+                      locked
+                        ? 'bg-warm-50 text-warm-300 border-warm-200 cursor-not-allowed opacity-60'
+                        : active
+                          ? 'bg-ink-800 text-white border-ink-800'
+                          : 'bg-white text-warm-600 border-warm-300 hover:border-ink-400'
+                    }`}
+                  >
+                    {label}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
 function Toggle({ label, checked, onChange }: { label: string; checked: boolean; onChange: (v: boolean) => void }) {
   return (
     <label className="flex items-center gap-3 cursor-pointer">
@@ -57,6 +108,7 @@ export function ProfileSetupForm({ effectiveUserId }: { effectiveUserId: string 
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
 
   const [stripeStatus, setStripeStatus] = useState<{ connected: boolean; detailsSubmitted: boolean; hasAccount: boolean } | null>(null)
+  const [certLevel, setCertLevel] = useState(0)
   const searchParams = useSearchParams()
   const stripeReturn = searchParams.get('stripe')
 
@@ -107,6 +159,7 @@ export function ProfileSetupForm({ effectiveUserId }: { effectiveUserId: string 
       if (clientProfile?.avatar_url) setAvatarPreview(clientProfile.avatar_url)
 
       if (data) {
+        setCertLevel(data.certification_level ?? 0)
         setFormState({
           display_name: data.display_name,
           city: data.city,
@@ -275,8 +328,10 @@ export function ProfileSetupForm({ effectiveUserId }: { effectiveUserId: string 
 
         <div className="card p-6 space-y-4">
           <h2 className="font-semibold text-warm-900">Materials & Colors</h2>
-          <MultiCheckbox label="Materials supported *" options={MATERIALS.filter((m) => m !== 'Suggest the best one')}
-            selected={form.materials} onChange={(v) => set('materials', v)} />
+          <div>
+            <p className="form-label mb-2">Materials supported *</p>
+            <MaterialsCheckbox selected={form.materials} onChange={(v) => set('materials', v)} certLevel={certLevel} />
+          </div>
           <MultiCheckbox label="Colors available" options={COLORS.filter((c) => c !== 'Multicolour')}
             selected={form.colors} onChange={(v) => set('colors', v)} />
         </div>

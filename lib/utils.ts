@@ -61,20 +61,72 @@ export const DEFAULT_LAT = 47.3769
 export const DEFAULT_LNG = 8.5417
 
 // ── Materials & Colors ────────────────────────────────────
-// Decorative jobs: only simple plastics (no engineering or technical materials)
-export const MATERIALS_DECORATIVE = [
-  'Suggest the best one',
-  'PLA',
-  'PETG',
-  'TPU',
+
+export type MaterialEntry = { label: string; minLevel: 0 | 1 | 2 }
+
+// Tiered material list: minLevel = minimum certification level required
+export const MATERIALS_BY_LEVEL: MaterialEntry[] = [
+  // ── Level 0 — PLA ─────────────────────────────────────────
+  { label: 'PLA',              minLevel: 0 },
+  { label: 'PLA Matte',        minLevel: 0 },
+  { label: 'PLA Silk+',        minLevel: 0 },
+  { label: 'PLA Translucent',  minLevel: 0 },
+  { label: 'PLA Sparkle',      minLevel: 0 },
+  { label: 'PLA Metal',        minLevel: 0 },
+  { label: 'PLA Wood',         minLevel: 0 },
+  { label: 'PLA Marble',       minLevel: 0 },
+  { label: 'PLA Galaxy',       minLevel: 0 },
+  { label: 'PLA Glow',         minLevel: 0 },
+  { label: 'PLA Gradient',     minLevel: 0 },
+  { label: 'PLA Tough+',       minLevel: 0 },
+  { label: 'PLA Aero',         minLevel: 0 },
+  // ── Level 0 — PETG ────────────────────────────────────────
+  { label: 'PETG',             minLevel: 0 },
+  { label: 'PETG Matte',       minLevel: 0 },
+  { label: 'PETG Translucent', minLevel: 0 },
+  { label: 'PETG HF',          minLevel: 0 },
+  // ── Level 1 — TPU ─────────────────────────────────────────
+  { label: 'TPU 95A',          minLevel: 1 },
+  { label: 'TPU 95A HF',       minLevel: 1 },
+  { label: 'TPU 85A',          minLevel: 1 },
+  { label: 'TPU 90A',          minLevel: 1 },
+  { label: 'TPU for AMS',      minLevel: 1 },
+  // ── Level 1 — ABS / ASA ───────────────────────────────────
+  { label: 'ABS',              minLevel: 1 },
+  { label: 'ASA',              minLevel: 1 },
+  { label: 'ASA Aero',         minLevel: 1 },
+  // ── Level 1 — Resin ───────────────────────────────────────
+  { label: 'Resin (Standard)', minLevel: 1 },
+  { label: 'Resin (ABS-Like)', minLevel: 1 },
+  // ── Level 2 — Engineering composites ──────────────────────
+  { label: 'PLA-CF',           minLevel: 2 },
+  { label: 'PETG-CF',          minLevel: 2 },
+  { label: 'ABS-GF',           minLevel: 2 },
+  { label: 'ASA-CF',           minLevel: 2 },
+  { label: 'PA6 (Nylon)',      minLevel: 2 },
+  { label: 'PA6-CF',           minLevel: 2 },
+  { label: 'PA6-GF',           minLevel: 2 },
+  { label: 'PAHT-CF',          minLevel: 2 },
+  { label: 'PPA-CF',           minLevel: 2 },
+  { label: 'PET-CF',           minLevel: 2 },
+  { label: 'PC (Polycarbonate)', minLevel: 2 },
+  { label: 'PC FR',            minLevel: 2 },
+  { label: 'PPS-CF',           minLevel: 2 },
+  { label: 'PVA',              minLevel: 2 },
+  // ── Catch-all ─────────────────────────────────────────────
+  { label: 'Other',            minLevel: 0 },
 ]
 
-// All materials (functional, engineering, production jobs)
+// Decorative jobs: only Level-0 materials + the "suggest" option
+export const MATERIALS_DECORATIVE = [
+  'Suggest the best one',
+  ...MATERIALS_BY_LEVEL.filter((m) => m.minLevel === 0).map((m) => m.label),
+]
+
+// All materials flat (for client job forms — no certification gate)
 export const MATERIALS = [
   'Suggest the best one',
-  'PLA', 'ABS', 'PETG', 'TPU', 'ASA', 'Nylon', 'Polycarbonate',
-  'Resin (Standard)', 'Resin (ABS-Like)',
-  'Carbon Fiber PLA', 'Wood PLA', 'Metal PLA', 'Other',
+  ...MATERIALS_BY_LEVEL.map((m) => m.label),
 ]
 
 export const COLORS = [
