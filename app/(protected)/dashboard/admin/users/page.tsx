@@ -7,6 +7,7 @@ import { CreateUserForm } from './create-user-form'
 import { DeleteUserButton } from './delete-user-button'
 import { RemindButton } from './remind-button'
 import { MapClient } from '@/components/map/map-client'
+import { PaypalMigrationButton } from './paypal-migration-button'
 
 export const metadata = { title: 'Users - Admin' }
 
@@ -37,6 +38,14 @@ export default async function AdminUsersPage() {
     ? await supabase.from('machines').select('maker_id').in('maker_id', allUserIds)
     : { data: [] }
   const hasMachines = new Set((machineRows ?? []).map((m) => m.maker_id))
+
+  // Count makers with PayPal but no Stripe (need migration)
+  const { data: paypalMakers } = await supabase
+    .from('printer_profiles')
+    .select('user_id')
+    .not('paypal_email', 'is', null)
+    .is('stripe_account_id', null)
+  const paypalMigrationCount = paypalMakers?.length ?? 0
 
   // Build map pins for makers with coordinates
   const makerPins = (printerProfileRows ?? [])
@@ -75,6 +84,9 @@ export default async function AdminUsersPage() {
           <MapClient jobs={[]} printers={makerPins} defaultMode="printers" />
         </div>
       )}
+
+      {/* PayPal migration blast */}
+      <PaypalMigrationButton count={paypalMigrationCount} />
 
       {/* Create user form */}
       <CreateUserForm />

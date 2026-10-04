@@ -90,6 +90,28 @@ export async function sendEmail({
 
 // ─── Typed email helpers ────────────────────────────────────────────────────
 
+export function emailPaypalMigration({ to, paypalEmail }: { to: string; paypalEmail: string }) {
+  return sendEmail({
+    to,
+    subject: 'Action required: connect Stripe to receive payments',
+    html: `
+      <h2 style="margin:0 0 8px;font-size:20px;font-weight:800;color:#1a1625;">Switch to Stripe for payouts</h2>
+      <p style="margin:0 0 16px;color:#6b6760;font-size:14px;line-height:1.6;">
+        We&apos;ve updated our payment system and <strong style="color:#1a1625;">no longer support PayPal payouts</strong>.
+        Your PayPal address (<strong style="color:#1a1625;">${paypalEmail}</strong>) is on file but we can&apos;t send payments there.
+      </p>
+      <p style="margin:0 0 16px;color:#6b6760;font-size:14px;line-height:1.6;">
+        To continue receiving payments when jobs are delivered, please connect a Stripe account.
+        It only takes a few minutes and payments go directly to your bank account.
+      </p>
+      <p style="margin:0;color:#6b6760;font-size:14px;">
+        If you have any questions, just reply to this email.
+      </p>
+      ${ctaButton('Connect Stripe now →', `${APP_URL}/profile/setup`)}
+    `,
+  })
+}
+
 export function emailNewQuote({
   to, jobTitle, makerName, price, jobUrl,
 }: { to: string; jobTitle: string; makerName: string; price: number; jobUrl: string }) {

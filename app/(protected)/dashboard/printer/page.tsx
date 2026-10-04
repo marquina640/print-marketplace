@@ -61,7 +61,7 @@ export default async function PrinterDashboardPage({ searchParams }: PageProps) 
       : recentJobsQuery,
     supabase
       .from('printer_profiles')
-      .select('certification_level, display_name, stripe_account_id')
+      .select('certification_level, display_name, stripe_account_id, paypal_email')
       .eq('user_id', effectiveUserId)
       .single(),
     supabase
@@ -106,6 +106,8 @@ export default async function PrinterDashboardPage({ searchParams }: PageProps) 
   const cert             = getCertificationLevel(certLevel)
   const nextCert         = certLevel < 3 ? CERTIFICATION_LEVELS[certLevel + 1] : null
   const stripeAccountId  = (makerProfile as any)?.stripe_account_id as string | null
+  const paypalEmail      = (makerProfile as any)?.paypal_email as string | null
+  const needsPaypalMigration = !!paypalEmail && !stripeAccountId
   const isAdminPreview   = !!previewUserId
 
   // Earnings: sum of accepted quote prices for delivered/completed jobs
@@ -177,6 +179,23 @@ export default async function PrinterDashboardPage({ searchParams }: PageProps) 
             </p>
             <Link href="/profile/setup">
               <Button variant="gold" size="sm">Set up payouts →</Button>
+            </Link>
+          </div>
+        </div>
+      )}
+
+      {/* PayPal → Stripe migration banner */}
+      {needsPaypalMigration && (
+        <div className="rounded-xl bg-orange-50 border border-orange-300 px-5 py-4 flex items-start gap-3">
+          <span className="text-2xl">⚠️</span>
+          <div className="flex-1">
+            <p className="font-semibold text-orange-900">Action required: switch to Stripe for payouts</p>
+            <p className="text-sm text-orange-700 mt-0.5 mb-3">
+              We no longer support PayPal payouts. Your PayPal address ({paypalEmail}) is on file but we can't send payments there.
+              Please connect a Stripe account to continue receiving payments.
+            </p>
+            <Link href="/profile/setup">
+              <Button variant="gold" size="sm">Connect Stripe →</Button>
             </Link>
           </div>
         </div>
