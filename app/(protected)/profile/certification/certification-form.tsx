@@ -3,8 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
-import { CertificationBadge } from '@/components/ui/badge'
-import { getCertificationLevel, CERTIFICATION_LEVELS, BENCHMARK_REQUIREMENTS } from '@/lib/utils'
+import { CERTIFICATION_LEVELS, BENCHMARK_REQUIREMENTS } from '@/lib/utils'
 import { submitCertificationRequest } from '@/app/actions/request-certification'
 import { formatDate } from '@/lib/utils'
 
@@ -24,6 +23,33 @@ const STATUS_CONFIG: Record<string, { label: string; color: string }> = {
   more_info: { label: 'Info Requested', color: 'bg-ink-50 border-ink-200 text-ink-700'        },
 }
 
+const LEVEL_DETAILS = [
+  {
+    tagline: 'Hobby-level printing for anyone who joins.',
+    jobs: ['Decorative', 'Functional'],
+    materials: ['PLA & variants', 'PETG & variants'],
+    how: null,
+  },
+  {
+    tagline: 'Passed PrintMarketHub quality inspection.',
+    jobs: ['Decorative', 'Functional'],
+    materials: ['+ TPU', '+ ABS / ASA', '+ Resin'],
+    how: 'Print and submit benchmark parts for review.',
+  },
+  {
+    tagline: 'Calibrated machines and tolerance-critical work.',
+    jobs: ['Decorative', 'Functional', 'Engineering', 'Production'],
+    materials: ['+ CF / GF composites', '+ Nylon (PA)', '+ Polycarbonate', '+ Specialty'],
+    how: 'Submit 4 engineering benchmark prints with measurements.',
+  },
+  {
+    tagline: 'Verified print farm for high-volume orders.',
+    jobs: ['Decorative', 'Functional', 'Engineering', 'Production'],
+    materials: ['All materials'],
+    how: 'Submit a business description and print farm photos.',
+  },
+]
+
 export function CertificationForm({ effectiveUserId }: { effectiveUserId: string }) {
   const [certLevel, setCertLevel]     = useState(0)
   const [requests, setRequests]       = useState<CertRequest[]>([])
@@ -40,7 +66,6 @@ export function CertificationForm({ effectiveUserId }: { effectiveUserId: string
 
   const hasPending = requests.some((r) => r.status === 'pending')
   const nextLevel  = certLevel < 3 ? certLevel + 1 : null
-  const cert       = getCertificationLevel(certLevel)
   const benchmarks = nextLevel ? BENCHMARK_REQUIREMENTS[nextLevel] : null
 
   useEffect(() => { load() }, [effectiveUserId])
@@ -127,28 +152,98 @@ export function CertificationForm({ effectiveUserId }: { effectiveUserId: string
         </p>
       </div>
 
-      <div className="card p-6">
-        <div className="flex items-center justify-between flex-wrap gap-4">
-          <div>
-            <p className="text-xs font-bold uppercase tracking-widest text-warm-400 mb-2">Current Level</p>
-            <CertificationBadge level={certLevel} size="lg" />
-            <p className="text-sm text-warm-500 mt-2 max-w-md">{cert.description}</p>
-          </div>
-          <div className="flex gap-1.5">
-            {CERTIFICATION_LEVELS.map((c) => (
-              <div key={c.level} className="text-center">
-                <div className={`h-10 w-10 rounded-xl flex items-center justify-center text-lg font-mono border-2 transition-all ${
-                  c.level <= certLevel
+      {/* Certification ladder */}
+      <div className="space-y-0">
+        {CERTIFICATION_LEVELS.map((c, idx) => {
+          const unlocked = idx <= certLevel
+          const isCurrent = idx === certLevel
+          const isNext = idx === nextLevel
+          const info = LEVEL_DETAILS[idx]
+          return (
+            <div key={c.level} className="relative">
+              {/* Connector line between rows */}
+              {idx < 3 && (
+                <div className={`absolute left-[27px] top-full h-3 w-0.5 z-10 ${unlocked && idx < certLevel ? 'bg-ink-400' : 'bg-warm-200'}`} />
+              )}
+              <div className={`flex gap-4 rounded-xl border p-4 transition-all ${
+                isCurrent
+                  ? 'bg-ink-50 border-ink-300'
+                  : unlocked
+                    ? 'bg-white border-warm-200'
+                    : isNext
+                      ? 'bg-white border-warm-300'
+                      : 'bg-warm-50 border-warm-200'
+              }`}>
+                {/* Level icon */}
+                <div className={`h-[54px] w-[54px] rounded-xl flex items-center justify-center text-xl font-mono border-2 flex-shrink-0 self-start ${
+                  unlocked
                     ? 'bg-ink-900 border-ink-900 text-gold-400'
-                    : 'bg-warm-50 border-warm-200 text-warm-300'
+                    : isNext
+                      ? 'bg-warm-100 border-warm-300 text-warm-400'
+                      : 'bg-warm-100 border-warm-200 text-warm-300'
                 }`}>
-                  {c.icon}
+                  {unlocked ? c.icon : <span className="text-base">🔒</span>}
                 </div>
-                <p className="text-[9px] text-warm-400 mt-1">L{c.level}</p>
+
+                {/* Content */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-start justify-between gap-2 flex-wrap">
+                    <div>
+                      <span className={`font-bold text-sm ${unlocked ? 'text-ink-900' : 'text-warm-500'}`}>{c.name}</span>
+                      <span className="ml-2 text-xs text-warm-400 font-mono">Level {c.level}</span>
+                    </div>
+                    {isCurrent && (
+                      <span className="rounded-full bg-ink-900 text-white text-[10px] font-bold px-2.5 py-0.5 uppercase tracking-wider flex-shrink-0">
+                        Current
+                      </span>
+                    )}
+                    {isNext && hasPending && (
+                      <span className="rounded-full bg-amber-100 text-amber-700 border border-amber-300 text-[10px] font-bold px-2.5 py-0.5 uppercase tracking-wider flex-shrink-0">
+                        Under Review
+                      </span>
+                    )}
+                  </div>
+
+                  <p className={`text-xs mt-0.5 mb-2.5 ${unlocked ? 'text-warm-500' : 'text-warm-400'}`}>{info.tagline}</p>
+
+                  {/* Jobs */}
+                  <div className="mb-2">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-warm-400 mb-1">Job types</p>
+                    <div className="flex flex-wrap gap-1">
+                      {info.jobs.map((j) => (
+                        <span key={j} className={`rounded-full px-2 py-0.5 text-[10px] font-semibold border ${
+                          unlocked
+                            ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                            : 'bg-warm-100 text-warm-400 border-warm-200'
+                        }`}>{j}</span>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Materials */}
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-warm-400 mb-1">
+                      {idx === 0 ? 'Materials' : 'Unlocks'}
+                    </p>
+                    <div className="flex flex-wrap gap-x-3 gap-y-0.5">
+                      {info.materials.map((m) => (
+                        <span key={m} className={`text-xs ${unlocked ? 'text-ink-700 font-medium' : 'text-warm-400'}`}>{m}</span>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* How to apply */}
+                  {isNext && !hasPending && info.how && (
+                    <p className="mt-2.5 text-[11px] text-gold-700 font-semibold bg-gold-50 border border-gold-200 rounded-lg px-2.5 py-1.5">
+                      To apply: {info.how}
+                    </p>
+                  )}
+                </div>
               </div>
-            ))}
-          </div>
-        </div>
+              {idx < 3 && <div className="h-3" />}
+            </div>
+          )
+        })}
       </div>
 
       {requests.length > 0 && (
