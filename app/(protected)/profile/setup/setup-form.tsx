@@ -56,7 +56,7 @@ export function ProfileSetupForm({ effectiveUserId }: { effectiveUserId: string 
   const [avatarFile, setAvatarFile] = useState<File | null>(null)
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
 
-  const [stripeStatus, setStripeStatus] = useState<{ connected: boolean; detailsSubmitted: boolean } | null>(null)
+  const [stripeStatus, setStripeStatus] = useState<{ connected: boolean; detailsSubmitted: boolean; hasAccount: boolean } | null>(null)
   const searchParams = useSearchParams()
   const stripeReturn = searchParams.get('stripe')
 
@@ -91,10 +91,17 @@ export function ProfileSetupForm({ effectiveUserId }: { effectiveUserId: string 
       if (stripeAccountId) {
         try {
           const res = await fetch(`/api/stripe/connect/status?accountId=${stripeAccountId}`)
-          if (res.ok) setStripeStatus(await res.json())
-        } catch { /* ignore */ }
+          if (res.ok) {
+            const s = await res.json()
+            setStripeStatus({ ...s, hasAccount: true })
+          } else {
+            setStripeStatus({ connected: false, detailsSubmitted: false, hasAccount: true })
+          }
+        } catch {
+          setStripeStatus({ connected: false, detailsSubmitted: false, hasAccount: true })
+        }
       } else {
-        setStripeStatus({ connected: false, detailsSubmitted: false })
+        setStripeStatus({ connected: false, detailsSubmitted: false, hasAccount: false })
       }
 
       if (clientProfile?.avatar_url) setAvatarPreview(clientProfile.avatar_url)
@@ -309,6 +316,7 @@ export function ProfileSetupForm({ effectiveUserId }: { effectiveUserId: string 
             <StripeConnectButton
               connected={stripeStatus.connected}
               detailsSubmitted={stripeStatus.detailsSubmitted}
+              hasAccount={stripeStatus.hasAccount}
               isReturn={stripeReturn === 'success'}
             />
           )}

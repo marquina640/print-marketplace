@@ -5,10 +5,11 @@ import { useState } from 'react'
 interface Props {
   connected: boolean
   detailsSubmitted: boolean
+  hasAccount?: boolean
   isReturn?: boolean
 }
 
-export function StripeConnectButton({ connected, detailsSubmitted, isReturn }: Props) {
+export function StripeConnectButton({ connected, detailsSubmitted, hasAccount, isReturn }: Props) {
   const [loading, setLoading] = useState(false)
   const [error, setError]     = useState<string | null>(null)
 
@@ -49,8 +50,8 @@ export function StripeConnectButton({ connected, detailsSubmitted, isReturn }: P
 
   const buttonLabel = detailsSubmitted || isReturn ? 'Resume Stripe setup' : 'Connect bank account via Stripe'
 
-  // If account is submitted but not yet approved, just show the review notice — no need to re-click
-  if ((detailsSubmitted || isReturn) && !connected) {
+  // If account exists in DB but not yet approved/completed, show review/resume notice
+  if ((detailsSubmitted || isReturn || hasAccount) && !connected) {
     return (
       <div className="space-y-2">
         <div className="rounded-xl bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-800">
