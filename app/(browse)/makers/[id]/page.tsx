@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { getCertificationLevel, MANUFACTURING_PROCESSES } from '@/lib/utils'
 import { formatDate } from '@/lib/utils'
 import { InviteToJobButton } from '@/components/makers/invite-to-job-button'
+import { ShareMakerButton } from '@/components/makers/share-maker-button'
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -105,6 +106,7 @@ export default async function MakerProfilePage({ params }: PageProps) {
                 <Button variant="outline" size="sm">Edit Profile</Button>
               </Link>
             )}
+            <ShareMakerButton makerId={id} makerName={printerProfile.display_name ?? 'Maker'} />
           </div>
         </div>
 
