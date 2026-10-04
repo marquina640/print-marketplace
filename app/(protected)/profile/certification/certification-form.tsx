@@ -32,10 +32,11 @@ export function CertificationForm({ effectiveUserId }: { effectiveUserId: string
   const [error, setError]             = useState<string | null>(null)
   const [success, setSuccess]         = useState(false)
   const [openLevel, setOpenLevel]     = useState<number | null>(null)
-  const [photos, setPhotos]           = useState<File[]>([])
-  const [photoUrls, setPhotoUrls]     = useState<string[]>([])
-  const [notes, setNotes]             = useState('')
-  const photoRef                      = useRef<HTMLInputElement>(null)
+  const [photos, setPhotos]               = useState<File[]>([])
+  const [photoUrls, setPhotoUrls]         = useState<string[]>([])
+  const [notes, setNotes]                 = useState('')
+  const [businessDesc, setBusinessDesc]   = useState('')
+  const photoRef                          = useRef<HTMLInputElement>(null)
 
   const hasPending = requests.some((r) => r.status === 'pending')
   const nextLevel  = certLevel < 3 ? certLevel + 1 : null
@@ -73,7 +74,12 @@ export function CertificationForm({ effectiveUserId }: { effectiveUserId: string
     e.preventDefault()
     if (!nextLevel) return
     setError(null)
-    if (photos.length === 0) { setError('Upload at least one benchmark photo.'); return }
+    if (nextLevel === 3) {
+      if (!businessDesc.trim()) { setError('Please provide a description of your print farm business.'); return }
+      if (photos.length < 3) { setError('Upload at least 3 photos of your print farm.'); return }
+    } else {
+      if (photos.length === 0) { setError('Upload at least one benchmark photo.'); return }
+    }
 
     setSubmitting(true)
     try {
@@ -89,11 +95,15 @@ export function CertificationForm({ effectiveUserId }: { effectiveUserId: string
         uploadedUrls.push(publicUrl)
       }
 
-      await submitCertificationRequest(nextLevel, notes, uploadedUrls, certLevel)
+      const combinedNotes = nextLevel === 3 && businessDesc.trim()
+        ? `Business Description:\n${businessDesc.trim()}${notes.trim() ? `\n\nAdditional notes:\n${notes.trim()}` : ''}`
+        : notes
+      await submitCertificationRequest(nextLevel, combinedNotes, uploadedUrls, certLevel)
       setSuccess(true)
       setPhotos([])
       setPhotoUrls([])
       setNotes('')
+      setBusinessDesc('')
       await load()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Submission failed.')
@@ -171,7 +181,7 @@ export function CertificationForm({ effectiveUserId }: { effectiveUserId: string
       {certLevel === 3 && (
         <div className="card p-6 text-center">
           <p className="text-2xl mb-2">★</p>
-          <p className="font-bold text-ink-900">Production Partner - Maximum Level</p>
+          <p className="font-bold text-ink-900">Production Maker - Maximum Level</p>
           <p className="text-sm text-warm-500 mt-1">You have achieved the highest PrintMarketHub certification.</p>
         </div>
       )}
@@ -222,7 +232,9 @@ export function CertificationForm({ effectiveUserId }: { effectiveUserId: string
           <div className="mb-3">
             <h2 className="text-base font-bold text-ink-900">Apply for Level {nextLevel}</h2>
             <p className="text-xs text-warm-500 mt-0.5">
-              Print the benchmark parts above, photograph them, and submit. Our team reviews within 3–5 business days.
+              {nextLevel === 3
+                ? 'Describe your print farm and upload photos of your setup. Our team reviews within 3–5 business days.'
+                : 'Print the benchmark parts above, photograph them, and submit. Our team reviews within 3–5 business days.'}
             </p>
           </div>
 
@@ -259,8 +271,27 @@ export function CertificationForm({ effectiveUserId }: { effectiveUserId: string
               </div>
             )}
 
+            {nextLevel === 3 && (
+              <div>
+                <p className="form-label mb-1.5">Print Farm Description *</p>
+                <textarea
+                  value={businessDesc}
+                  onChange={(e) => setBusinessDesc(e.target.value)}
+                  rows={5}
+                  className="w-full rounded-xl border border-warm-300 bg-warm-50 px-3 py-2 text-sm focus:border-ink-500 focus:outline-none focus:ring-2 focus:ring-ink-500/20 resize-none"
+                  placeholder="Describe your print farm: how many printers you have, what models, your production capacity, your quality control process, and your packaging/fulfillment workflow…"
+                />
+              </div>
+            )}
+
             <div>
-              <p className="form-label mb-2">Benchmark Photos * <span className="text-warm-400 font-normal">(1–8 photos)</span></p>
+              <p className="form-label mb-2">
+                {nextLevel === 3 ? 'Print Farm Photos *' : 'Benchmark Photos *'}
+                {' '}
+                <span className="text-warm-400 font-normal">
+                  {nextLevel === 3 ? '(min. 3, up to 8 photos)' : '(1–8 photos)'}
+                </span>
+              </p>
               <div className="grid grid-cols-4 gap-2">
                 {photoUrls.map((url, i) => (
                   <div key={i} className="relative">
@@ -282,20 +313,24 @@ export function CertificationForm({ effectiveUserId }: { effectiveUserId: string
               <input ref={photoRef} type="file" multiple accept=".jpg,.jpeg,.png,.webp"
                 onChange={handlePhotoChange} className="hidden" />
               <p className="text-xs text-warm-400 mt-1.5">
-                Include all benchmark test prints. Add a ruler or coin for scale. Clear, well-lit photos.
+                {nextLevel === 3
+                  ? 'Wide shots of your full printer setup, plus detail shots. Show printers running if possible.'
+                  : 'Include all benchmark test prints. Add a ruler or coin for scale. Clear, well-lit photos.'}
               </p>
             </div>
 
-            <div>
-              <p className="form-label mb-1.5">Notes (optional)</p>
-              <textarea
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                rows={3}
-                className="w-full rounded-xl border border-warm-300 bg-warm-50 px-3 py-2 text-sm focus:border-ink-500 focus:outline-none focus:ring-2 focus:ring-ink-500/20 resize-none"
-                placeholder="Tell us about your setup - material brand, slicer settings, any special considerations…"
-              />
-            </div>
+            {nextLevel !== 3 && (
+              <div>
+                <p className="form-label mb-1.5">Notes (optional)</p>
+                <textarea
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  rows={3}
+                  className="w-full rounded-xl border border-warm-300 bg-warm-50 px-3 py-2 text-sm focus:border-ink-500 focus:outline-none focus:ring-2 focus:ring-ink-500/20 resize-none"
+                  placeholder="Tell us about your setup - material brand, slicer settings, any special considerations…"
+                />
+              </div>
+            )}
 
             {error && (
               <div className="rounded-xl bg-red-50 border border-red-200 p-3 text-sm text-red-700">{error}</div>
