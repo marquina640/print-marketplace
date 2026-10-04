@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient }      from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { createConnectedAccount, createConnectOnboardingLink, findConnectedAccountByEmail } from '@/lib/stripe'
+import { createConnectedAccount, createConnectOnboardingLink } from '@/lib/stripe'
 
 export async function POST(req: NextRequest) {
   try {
@@ -24,26 +24,32 @@ export async function POST(req: NextRequest) {
     let accountId = (printerProfile as any)?.stripe_account_id as string | null
 
     if (!accountId) {
-      // Recover existing account by email before creating a new one
-      const existing = await findConnectedAccountByEmail(profile?.email ?? '')
-      accountId = existing ?? await createConnectedAccount(profile?.email ?? '')
+      accountId = await createConnectedAccount(profile?.email ?? '')
 
-      // Try to update an existing row first (avoids NOT NULL constraint on display_name/city)
+      // Save to DB BEFORE redirecting — if this fails, abort so we don't lose the link
       const { data: updated } = await admin
         .from('printer_profiles')
         .update({ stripe_account_id: accountId } as any)
         .eq('user_id', user.id)
         .select('user_id')
 
-      // If no row exists yet, create a minimal one with required field placeholders
       if (!updated || updated.length === 0) {
+        // No printer_profiles row yet — create a minimal placeholder
         const { error: insertErr } = await admin.from('printer_profiles').insert({
           user_id:           user.id,
           display_name:      (profile?.email ?? '').split('@')[0],
           city:              '',
           stripe_account_id: accountId,
         } as any)
-        if (insertErr) console.error('stripe onboard: failed to save stripe_account_id', insertErr.message)
+
+        if (insertErr) {
+          // DB save failed — abort so the account ID isn't lost
+          console.error('stripe onboard: failed to save stripe_account_id', insertErr.message)
+          return NextResponse.json(
+            { error: 'Could not save your Stripe account. Please complete your profile first, then connect Stripe.' },
+            { status: 500 }
+          )
+        }
       }
     }
 
