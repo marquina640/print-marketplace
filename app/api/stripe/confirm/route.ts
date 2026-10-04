@@ -43,18 +43,19 @@ export async function POST(req: NextRequest) {
       paypal_order_id: paymentIntentId,
     } as any).eq('id', jobId)
 
-    const { data: job }   = await admin.from('jobs').select('title, client_id').eq('id', jobId).single()
-    const { data: quote } = await admin.from('quotes').select('printer_id, price').eq('job_id', jobId).eq('status', 'accepted').single()
+    // Fetch job title and accepted quote for the notification email
+    const { data: jobDetails } = await admin.from('jobs').select('title').eq('id', jobId).single()
+    const { data: quote }      = await admin.from('quotes').select('printer_id, price').eq('job_id', jobId).eq('status', 'accepted').single()
 
-    if (quote && job) {
-      const { data: printerProfile } = await admin.from('profiles').select('email').eq('user_id', quote.printer_id).single()
-      if (printerProfile?.email) {
+    if (quote && jobDetails) {
+      const { data: printerProfile } = await admin.from('profiles').select('email').eq('user_id', (quote as any).printer_id).single()
+      if ((printerProfile as any)?.email) {
         notifyJobPaid({
           jobId,
-          jobTitle:     job.title,
-          printerId:    quote.printer_id,
-          printerEmail: printerProfile.email,
-          price:        quote.price,
+          jobTitle:     (jobDetails as any).title,
+          printerId:    (quote as any).printer_id,
+          printerEmail: (printerProfile as any).email,
+          price:        (quote as any).price,
         }).catch(() => {})
       }
     }
