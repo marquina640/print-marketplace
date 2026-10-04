@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient }      from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { createConnectedAccount, createConnectOnboardingLink } from '@/lib/stripe'
+import { createConnectedAccount, createConnectOnboardingLink, findConnectedAccountByEmail } from '@/lib/stripe'
 
 export async function POST(req: NextRequest) {
   try {
@@ -24,7 +24,9 @@ export async function POST(req: NextRequest) {
     let accountId = (printerProfile as any)?.stripe_account_id as string | null
 
     if (!accountId) {
-      accountId = await createConnectedAccount(profile?.email ?? '')
+      // Recover existing account by email before creating a new one
+      const existing = await findConnectedAccountByEmail(profile?.email ?? '')
+      accountId = existing ?? await createConnectedAccount(profile?.email ?? '')
 
       // Try to update an existing row first (avoids NOT NULL constraint on display_name/city)
       const { error: updateErr, count } = await admin

@@ -48,6 +48,16 @@ export async function createConnectedAccount(email: string): Promise<string> {
 }
 
 /**
+ * Look up an existing connected account by email.
+ * Returns the account ID if found, null otherwise.
+ */
+export async function findConnectedAccountByEmail(email: string): Promise<string | null> {
+  const accounts = await stripe.accounts.list({ limit: 10 })
+  const match = accounts.data.find((a) => a.email === email)
+  return match?.id ?? null
+}
+
+/**
  * Create a PaymentIntent for the full job amount.
  * We use separate charges + transfers, so no application_fee_amount here.
  */
