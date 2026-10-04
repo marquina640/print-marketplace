@@ -60,8 +60,8 @@ export default function TermsPage() {
 
       <Section title="5. How Payments Work">
         <p>
-          All payments are processed securely through PayPal. The Client pays at checkout
-          and the Maker receives their payout via PayPal once the Client confirms delivery.
+          All payments are processed securely through Stripe. The Client pays at checkout
+          and the Maker receives their payout via Stripe once the Client confirms delivery.
         </p>
         <ul className="list-disc pl-5 mt-3 space-y-1">
           <li>Clients must confirm receipt within a reasonable time after delivery.</li>
@@ -88,7 +88,7 @@ export default function TermsPage() {
         <ul className="list-disc pl-5 mt-2 space-y-1">
           <li>Accurately represent their capabilities, equipment, and certifications.</li>
           <li>Fulfil accepted orders to the agreed specification, timeline, and quality.</li>
-          <li>Connect a valid PayPal account to receive payments.</li>
+          <li>Connect a valid Stripe account to receive payments.</li>
           <li>Maintain professional communication with Clients through the Platform.</li>
           <li>Handle Client-provided files with confidentiality and not reuse them for any other purpose.</li>
         </ul>

@@ -70,7 +70,7 @@ export default function PrivacyPage() {
       <Section n="6" title="Data Sharing and Sub-processors">
         <p>We share your data with the following third-party service providers solely to operate the Platform:</p>
         <Table rows={[
-          ['PayPal Holdings, Inc.', 'Payment processing for marketplace transactions', 'United States (SCCs in place)'],
+          ['Stripe, Inc.', 'Payment processing for marketplace transactions', 'United States (SCCs in place)'],
           ['Supabase, Inc.', 'Database hosting and authentication', 'European Union'],
           ['Resend, Inc.', 'Transactional email delivery', 'United States (SCCs in place)'],
           ['Google LLC', 'Maps JavaScript API and Places API for location features', 'United States (SCCs in place)'],

@@ -29,7 +29,7 @@ export default function CookiesPage() {
                 ['sb-auth-token', 'Strictly Necessary', 'Supabase authentication session token. Required to keep you logged in.', 'Session'],
                 ['admin_preview_as', 'Strictly Necessary', 'Admin role preview state. Used only by admin accounts.', 'Session'],
                 ['admin_preview_user_id', 'Strictly Necessary', 'Admin user preview session. Used only by admin accounts.', 'Session'],
-                ['__paypal_storage__', 'Functional', 'PayPal session and fraud detection for payment security.', 'Session'],
+                ['__stripe_mid', 'Functional', 'Stripe session and fraud detection for payment security.', 'Session / 1 year'],
                 ['Google Maps', 'Functional', 'Google Maps and Places API session cookies for location features. Set by Google LLC.', 'Session / persistent'],
               ].map(([name, type, purpose, duration], i) => (
                 <tr key={i} className="hover:bg-warm-50">
@@ -57,14 +57,14 @@ export default function CookiesPage() {
       </Section>
 
       <Section n="4" title="Functional Cookies">
-        <p>Functional cookies are set by us or by third-party services integrated into the Platform (PayPal, Google Maps). They enable payment processing and location features. These cookies are loaded only when you interact with the relevant features.</p>
+        <p>Functional cookies are set by us or by third-party services integrated into the Platform (Stripe, Google Maps). They enable payment processing and location features. These cookies are loaded only when you interact with the relevant features.</p>
         <p>We do not use any analytics cookies, advertising cookies, or tracking pixels that monitor your behaviour across third-party websites.</p>
       </Section>
 
       <Section n="5" title="Third-Party Cookies">
         <p>The following third parties may set cookies when you use their integrated features:</p>
         <ul>
-          <li><strong>PayPal Holdings, Inc.</strong> - payment processing. PayPal's privacy policy is available at paypal.com/privacy.</li>
+          <li><strong>Stripe, Inc.</strong> - payment processing. Stripe's privacy policy is available at stripe.com/privacy.</li>
           <li><strong>Google LLC</strong> - Maps and Places API for address autocomplete and map display. Google's privacy policy is available at policies.google.com/privacy.</li>
         </ul>
         <p>We do not control the cookies set by these third parties. Please refer to their respective privacy policies for details.</p>

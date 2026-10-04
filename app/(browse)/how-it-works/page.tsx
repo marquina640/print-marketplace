@@ -102,7 +102,7 @@ const makerSteps = [
     number: '06',
     icon: '💰',
     title: 'Get paid',
-    desc: 'Once the client confirms delivery, your payment is automatically sent to your PayPal account. Payouts typically arrive within 1 business day.',
+    desc: 'Once the client confirms delivery, your payment is automatically sent to your bank account via Stripe. Payouts typically arrive within 1–2 business days.',
     color: 'border-emerald-200 bg-emerald-50',
     numColor: 'text-emerald-400',
   },
@@ -188,7 +188,7 @@ export default function HowItWorksPage() {
         <p className="text-center text-sm font-semibold text-warm-500 mb-5 uppercase tracking-widest text-xs">Built on trust</p>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
           {[
-            { icon: '🔒', title: 'Secure payments', desc: 'All payments processed securely via PayPal. The maker gets paid when you confirm delivery.' },
+            { icon: '🔒', title: 'Secure payments', desc: 'All payments processed securely via Stripe. The maker gets paid when you confirm delivery.' },
             { icon: '⭐', title: 'Verified reviews', desc: 'Ratings from real completed jobs only' },
             { icon: '💬', title: 'On-platform chat', desc: 'All communication in one place, no phone numbers needed' },
             { icon: '🛡️', title: 'Dispute protection', desc: 'Fair mediation if anything goes wrong - you\'re never left without recourse' },

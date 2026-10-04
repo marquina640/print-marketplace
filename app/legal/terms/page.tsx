@@ -35,7 +35,7 @@ export default function TermsPage() {
         <p>All payments are processed securely through our payment provider. By making or receiving payments on the Platform, you agree to be bound by the payment provider's applicable policies.</p>
         <p>Upon quote acceptance, the Client pays through the Platform. The Maker's payout is transferred once the Client confirms delivery or the dispute resolution period expires.</p>
         <p>PrintMarketHub charges a <strong>12% platform commission</strong> on each successfully completed transaction. This commission is deducted from the Maker's payout upon completion. Rates may be updated with 30 days' written notice.</p>
-        <p>Payments are processed in CHF. Supported payment methods include credit/debit card and PayPal.</p>
+        <p>Payments are processed in CHF via Stripe. Supported payment methods include credit/debit card and bank transfers.</p>
       </Section>
 
       <Section n="6" title="File Uploads and Intellectual Property">

@@ -275,7 +275,7 @@ export default async function LandingPage() {
                 { n: '1', icon: '📁', title: 'Find or upload your model', desc: 'Browse MakerWorld or Thingiverse, or upload your own STL or STEP file.' },
                 { n: '2', icon: '📋', title: 'Post your request', desc: 'Describe material, color, quantity, deadline, and budget. Takes 2 minutes.' },
                 { n: '3', icon: '💬', title: 'Compare quotes and choose', desc: 'Get multiple quotes from local makers. Compare prices, ratings, and timelines. Ask questions before deciding.' },
-                { n: '4', icon: '📦', title: 'Pay and receive', desc: 'Accept the best quote and pay securely via PayPal. The maker gets paid once you confirm your order has arrived.' },
+                { n: '4', icon: '📦', title: 'Pay and receive', desc: 'Accept the best quote and pay securely via Stripe. The maker gets paid once you confirm your order has arrived.' },
               ].map((s) => (
                 <div key={s.n} className="rounded-2xl border border-warm-200 bg-white p-5 relative">
                   <div className="absolute -top-3 left-5 h-6 w-6 rounded-full bg-gold-400 flex items-center justify-center text-[11px] font-black text-ink-950">

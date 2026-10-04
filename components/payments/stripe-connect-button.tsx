@@ -91,7 +91,7 @@ export function StripeConnectButton({ connected, detailsSubmitted, hasAccount, i
         )}
       </button>
       {error && <p className="text-xs text-red-600">{error}</p>}
-      <p className="text-xs text-warm-400">Stripe handles payouts directly to your bank. No PayPal needed.</p>
+      <p className="text-xs text-warm-400">Stripe handles payouts directly to your bank account.</p>
     </div>
   )
 }
