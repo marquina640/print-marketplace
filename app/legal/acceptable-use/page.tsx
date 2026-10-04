@@ -52,7 +52,34 @@ export default function AcceptableUsePage() {
         </SubSection>
       </Section>
 
-      <Section n="2" title="Prohibited Conduct">
+      <Section n="2" title="3D Model Licences and Commercial Use">
+        <p>
+          Many 3D models published on platforms such as Printables, Thingiverse, MyMiniFactory, and Cults3D are distributed under Creative Commons or similar licences. Several of these licences include a <strong>Non-Commercial (NC)</strong> restriction, which prohibits using the model for any commercial purpose.
+        </p>
+        <p>
+          <strong>Having a model manufactured on PrintMarketHub in exchange for payment constitutes commercial use.</strong> Submitting a job to produce prints of an NC-licensed model — even if you obtained the file for free — is likely a violation of that model's licence terms and may expose you to legal liability from the original creator.
+        </p>
+        <p>When submitting a job, you are responsible for ensuring that any model file you upload is either:</p>
+        <ul>
+          <li>Your own original design; or</li>
+          <li>Licensed under terms that explicitly permit commercial use.</li>
+        </ul>
+        <p>As a general guide:</p>
+        <Table rows={[
+          ['CC BY, CC BY-SA', 'Commercial use permitted'],
+          ['CC BY-NC, CC BY-NC-SA, CC BY-NC-ND', 'Commercial use prohibited — do not use on PrintMarketHub'],
+          ['All Rights Reserved / no licence stated', 'Assume no commercial use permitted'],
+          ['Explicitly marked "Commercial use OK" by creator', 'Commercial use permitted'],
+        ]} headers={['Licence', 'Commercial use status']} />
+        <p>
+          PrintMarketHub does not pre-screen uploaded files for licence compliance. If you believe a job on the Platform involves a model with a Non-Commercial or restrictive licence, please report it to <a href="mailto:admin@printmarkethub.com">admin@printmarkethub.com</a>. We will review and may remove the job.
+        </p>
+        <p>
+          Clients bear sole responsibility for ensuring licence compliance. PrintMarketHub accepts no liability for licence infringements arising from files uploaded or jobs placed by users.
+        </p>
+      </Section>
+
+      <Section n="4" title="Prohibited Conduct">
         <p>The following conduct is prohibited regardless of whether the associated content is otherwise permitted:</p>
         <ul>
           <li>Creating multiple accounts to evade a suspension or ban</li>
@@ -67,7 +94,7 @@ export default function AcceptableUsePage() {
         </ul>
       </Section>
 
-      <Section n="3" title="User-Generated Content">
+      <Section n="5" title="User-Generated Content">
         <p>All content posted on the Platform - including job descriptions, profile bios, images, messages, and reviews - must be accurate, lawful, and respectful. You must not post:</p>
         <ul>
           <li>Content that is defamatory, discriminatory, or promotes hatred based on race, gender, religion, nationality, sexual orientation, or disability</li>
@@ -78,7 +105,7 @@ export default function AcceptableUsePage() {
         <p>PrintMarketHub reserves the right to remove any content that violates this policy or that we determine, in our sole discretion, to be harmful, offensive, or contrary to the interests of the Platform community.</p>
       </Section>
 
-      <Section n="4" title="Intellectual Property Reporting">
+      <Section n="6" title="Intellectual Property Reporting">
         <p>If you believe a listing, file, or piece of content on the Platform infringes your intellectual property rights, please submit a report to <a href="mailto:admin@printmakerhub.com" className="text-ink-700 underline underline-offset-2 hover:text-gold-600">admin@printmakerhub.com</a> including:</p>
         <ul>
           <li>A description of the copyrighted work or trademark claimed to be infringed</li>
@@ -88,7 +115,7 @@ export default function AcceptableUsePage() {
         <p>We will review and respond to valid IP notices within 10 business days.</p>
       </Section>
 
-      <Section n="5" title="Enforcement">
+      <Section n="7" title="Enforcement">
         <p>Violations of this AUP may result in:</p>
         <ul>
           <li>Removal of the offending content or listing</li>
@@ -121,7 +148,7 @@ function Section({ n, title, children }: { n: string; title: string; children: R
         <span className="text-gold-500 font-mono text-sm">{n}.</span>
         {title}
       </h2>
-      <div className="space-y-4 text-sm text-warm-700 leading-relaxed [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:space-y-1 [&_strong]:text-ink-900">
+      <div className="space-y-4 text-sm text-warm-700 leading-relaxed [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:space-y-1 [&_strong]:text-ink-900 [&_a]:text-ink-700 [&_a]:underline [&_a]:underline-offset-2 [&_a:hover]:text-gold-600">
         {children}
       </div>
     </section>
@@ -133,6 +160,33 @@ function SubSection({ title, children }: { title: string; children: React.ReactN
     <div className="rounded-xl border border-warm-200 bg-white p-4">
       <p className="font-bold text-ink-800 text-xs uppercase tracking-wide mb-2">{title}</p>
       <div className="text-sm text-warm-700 [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:space-y-1">{children}</div>
+    </div>
+  )
+}
+
+function Table({ rows, headers }: { rows: string[][]; headers?: string[] }) {
+  return (
+    <div className="overflow-x-auto rounded-xl border border-warm-200 mt-2">
+      <table className="w-full text-xs">
+        {headers && (
+          <thead className="bg-warm-100">
+            <tr>
+              {headers.map((h) => (
+                <th key={h} className="px-4 py-2.5 text-left font-bold text-ink-700 border-b border-warm-200">{h}</th>
+              ))}
+            </tr>
+          </thead>
+        )}
+        <tbody className="divide-y divide-warm-100">
+          {rows.map((row, i) => (
+            <tr key={i} className="hover:bg-warm-50">
+              {row.map((cell, j) => (
+                <td key={j} className={`px-4 py-3 text-warm-700 ${j === 0 ? 'font-semibold text-ink-800 whitespace-nowrap' : ''}`}>{cell}</td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   )
 }
