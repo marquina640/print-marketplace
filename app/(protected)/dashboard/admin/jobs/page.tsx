@@ -4,6 +4,7 @@ import { StatusBadge } from '@/components/ui/badge'
 import { formatDate, formatCurrency } from '@/lib/utils'
 import Link from 'next/link'
 import { DeleteJobButton } from './delete-job-button'
+import { RelistJobButton } from './relist-job-button'
 
 export const metadata = { title: 'All Requests - Admin' }
 
@@ -60,7 +61,10 @@ export default async function AdminJobsPage() {
                     <td className="px-4 py-3"><StatusBadge status={effectiveStatus(j)} /></td>
                     <td className="px-4 py-3 text-sm text-warm-400">{formatDate(j.created_at)}</td>
                     <td className="px-4 py-3 text-sm">
-                      <DeleteJobButton jobId={j.id} title={j.title} />
+                      <div className="flex items-center gap-3">
+                        {effectiveStatus(j) === 'delisted' && <RelistJobButton jobId={j.id} />}
+                        <DeleteJobButton jobId={j.id} title={j.title} />
+                      </div>
                     </td>
                   </tr>
                 )
