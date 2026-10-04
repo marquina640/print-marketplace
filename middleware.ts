@@ -107,6 +107,13 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(url)
     }
 
+    // Block non-admins from admin routes at the middleware level
+    if (pathname.startsWith('/dashboard/admin') && profile?.role !== 'admin') {
+      const url = request.nextUrl.clone()
+      url.pathname = '/dashboard'
+      return NextResponse.redirect(url)
+    }
+
     // /dashboard → role-specific dashboard
     if (pathname === '/dashboard') {
       // Admin in preview mode routes to the previewed role's dashboard

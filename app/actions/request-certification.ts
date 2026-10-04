@@ -6,7 +6,7 @@ export async function submitCertificationRequest(
   requestedLevel: number,
   notes: string,
   photos: string[],
-  currentLevel: number,
+  _ignoredClientLevel: number, // kept for backwards compat but never trusted
 ) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -17,6 +17,12 @@ export async function submitCertificationRequest(
   if (profile?.role !== 'printer_owner' && profile?.role !== 'admin') throw new Error('Not a maker')
 
   if (requestedLevel < 1 || requestedLevel > 3) throw new Error('Invalid level')
+
+  // Always fetch current level from the DB — never trust the caller-supplied value
+  const { data: printerProfile } = await supabase
+    .from('printer_profiles').select('certification_level').eq('user_id', user.id).single()
+  const currentLevel = printerProfile?.certification_level ?? 0
+
   if (requestedLevel !== currentLevel + 1) throw new Error('Must apply for next level only')
 
   // Check no pending request exists

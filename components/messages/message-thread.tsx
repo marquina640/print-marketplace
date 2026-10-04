@@ -78,9 +78,8 @@ export function MessageThread({
     try {
       const { message, wasModified, removedTypes } = await sendMessage({
         jobId,
-        senderId:   currentUserId,
         receiverId,
-        content:    text,
+        content: text,
       })
 
       // Add filtered message to local state (realtime deduplicates)

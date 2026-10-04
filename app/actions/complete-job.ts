@@ -13,7 +13,7 @@ export async function completeJob(jobId: string) {
 
   if (!job) throw new Error('Job not found')
   if (job.client_id !== user.id) throw new Error('Only the client can mark a job complete')
-  if (!['accepted', 'in_progress'].includes(job.status)) throw new Error('Job is not in progress')
+  if (!['paid', 'shipped', 'in_progress'].includes(job.status)) throw new Error('Job is not in progress')
 
   const { error } = await supabase
     .from('jobs').update({ status: 'completed' }).eq('id', jobId)

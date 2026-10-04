@@ -1,8 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server'
 
+// Block private/internal hostnames to prevent SSRF
+function isSafeUrl(raw: string): boolean {
+  let parsed: URL
+  try { parsed = new URL(raw) } catch { return false }
+  if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') return false
+  const host = parsed.hostname.toLowerCase()
+  // Block localhost variants
+  if (host === 'localhost' || host === '127.0.0.1' || host === '::1') return false
+  // Block link-local / AWS metadata
+  if (host.startsWith('169.254.')) return false
+  // Block RFC-1918 private ranges
+  if (host.startsWith('10.')) return false
+  if (host.startsWith('192.168.')) return false
+  if (/^172\.(1[6-9]|2\d|3[01])\./.test(host)) return false
+  // Block .internal / .local / .localhost TLDs
+  if (host.endsWith('.internal') || host.endsWith('.local') || host.endsWith('.localhost')) return false
+  return true
+}
+
 export async function GET(req: NextRequest) {
   const url = req.nextUrl.searchParams.get('url')
   if (!url) return NextResponse.json({ imageUrl: null })
+
+  if (!isSafeUrl(url)) return NextResponse.json({ imageUrl: null })
 
   try {
     const res = await fetch(url, {

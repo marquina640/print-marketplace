@@ -7,12 +7,10 @@ import { notifyMessageReceived } from './notifications'
 
 export async function sendMessage({
   jobId,
-  senderId,
   receiverId,
   content,
 }: {
   jobId: string
-  senderId: string
   receiverId: string
   content: string
 }) {
@@ -26,7 +24,7 @@ export async function sendMessage({
     .from('messages')
     .insert({
       job_id:      jobId,
-      sender_id:   senderId,
+      sender_id:   user.id,   // always the authenticated user — never trust the caller
       receiver_id: receiverId,
       content:     filtered,
     })
@@ -36,7 +34,7 @@ export async function sendMessage({
   if (error) throw new Error(error.message)
 
   // Fire email notification to the receiver (non-blocking)
-  notifyMessageForReceiver({ jobId, senderId, receiverId, content: filtered }).catch(() => {})
+  notifyMessageForReceiver({ jobId, senderId: user.id, receiverId, content: filtered }).catch(() => {})
 
   return { message: data, wasModified, removedTypes }
 }

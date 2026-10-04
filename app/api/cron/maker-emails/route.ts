@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { timingSafeEqual } from 'crypto'
 import { createAdminClient } from '@/lib/supabase/admin'
 import {
   emailMakerAddMachine,
@@ -8,8 +9,14 @@ import {
 
 // Called daily by Vercel Cron. Protected by CRON_SECRET.
 export async function GET(req: NextRequest) {
-  const secret = req.headers.get('authorization')?.replace('Bearer ', '')
-  if (secret !== process.env.CRON_SECRET) {
+  const secret = req.headers.get('authorization')?.replace('Bearer ', '') ?? ''
+  const expected = process.env.CRON_SECRET ?? ''
+  const secretsMatch =
+    secret.length > 0 &&
+    expected.length > 0 &&
+    secret.length === expected.length &&
+    timingSafeEqual(Buffer.from(secret), Buffer.from(expected))
+  if (!secretsMatch) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 

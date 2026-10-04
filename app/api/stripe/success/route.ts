@@ -20,6 +20,13 @@ export async function GET(req: NextRequest) {
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
     const session = await stripe.checkout.sessions.retrieve(sessionId)
 
+    // Verify the jobId in the URL matches what Stripe recorded in session metadata.
+    // Without this check an attacker could reuse a valid session_id with a different jobId.
+    if (session.metadata?.jobId !== jobId) {
+      console.error(`Stripe success: jobId mismatch — URL=${jobId} metadata=${session.metadata?.jobId}`)
+      return NextResponse.redirect(`${appUrl}/dashboard/client`)
+    }
+
     if (session.payment_status === 'paid') {
       const admin = createAdminClient()
       await admin
