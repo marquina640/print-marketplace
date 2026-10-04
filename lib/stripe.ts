@@ -48,13 +48,19 @@ export async function createConnectedAccount(email: string): Promise<string> {
 }
 
 /**
- * Look up an existing connected account by email.
- * Returns the account ID if found, null otherwise.
+ * Look up an existing connected account by email (paginates all accounts).
+ * Returns the most recently created account ID if found, null otherwise.
  */
 export async function findConnectedAccountByEmail(email: string): Promise<string | null> {
-  const accounts = await stripe.accounts.list({ limit: 10 })
-  const match = accounts.data.find((a) => a.email === email)
-  return match?.id ?? null
+  let startingAfter: string | undefined
+  while (true) {
+    const page = await stripe.accounts.list({ limit: 100, starting_after: startingAfter })
+    const match = page.data.find((a) => a.email === email)
+    if (match) return match.id
+    if (!page.has_more) break
+    startingAfter = page.data[page.data.length - 1].id
+  }
+  return null
 }
 
 /**

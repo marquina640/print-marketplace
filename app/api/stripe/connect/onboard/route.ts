@@ -29,20 +29,21 @@ export async function POST(req: NextRequest) {
       accountId = existing ?? await createConnectedAccount(profile?.email ?? '')
 
       // Try to update an existing row first (avoids NOT NULL constraint on display_name/city)
-      const { error: updateErr, count } = await admin
+      const { data: updated } = await admin
         .from('printer_profiles')
         .update({ stripe_account_id: accountId } as any)
         .eq('user_id', user.id)
-        .select('user_id', { count: 'exact', head: true })
+        .select('user_id')
 
       // If no row exists yet, create a minimal one with required field placeholders
-      if (!updateErr && (count === 0 || count === null)) {
-        await admin.from('printer_profiles').insert({
-          user_id:      user.id,
-          display_name: (profile?.email ?? '').split('@')[0],
-          city:         '',
+      if (!updated || updated.length === 0) {
+        const { error: insertErr } = await admin.from('printer_profiles').insert({
+          user_id:           user.id,
+          display_name:      (profile?.email ?? '').split('@')[0],
+          city:              '',
           stripe_account_id: accountId,
         } as any)
+        if (insertErr) console.error('stripe onboard: failed to save stripe_account_id', insertErr.message)
       }
     }
 
