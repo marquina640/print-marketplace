@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Select } from '@/components/ui/select'
 import { MATERIALS, MATERIALS_DECORATIVE, COLORS, CURRENCIES, formatFileSize, JOB_TYPES, MANUFACTURING_PROCESSES } from '@/lib/utils'
+import { notifyNearbyMakers } from '@/app/actions/notify-nearby-makers'
 
 interface ClientLocation { address: string; lat: number | null; lng: number | null }
 
@@ -22,6 +23,7 @@ export function NewJobForm({ clientId, clientLocation, isGuest, makerProcesses, 
   const router = useRouter()
   const modelFileRef = useRef<HTMLInputElement>(null)
   const imageFileRef = useRef<HTMLInputElement>(null)
+  const refImagesRef = useRef<HTMLInputElement>(null)
 
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -32,6 +34,11 @@ export function NewJobForm({ clientId, clientLocation, isGuest, makerProcesses, 
   const [ogImageLoading, setOgImageLoading] = useState(false)
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
+  const [imageDragOver, setImageDragOver] = useState(false)
+  // Design-request mode: up to 3 reference photos instead of a model file
+  const [refImages, setRefImages] = useState<File[]>([])
+  const [refPreviews, setRefPreviews] = useState<string[]>([])
+  const [refDragOver, setRefDragOver] = useState(false)
 
   const [currency, setCurrency] = useState('CHF')
   const [form, setForm] = useState({
@@ -102,12 +109,10 @@ export function NewJobForm({ clientId, clientLocation, isGuest, makerProcesses, 
     setModelFiles((prev) => [...prev, ...valid])
   }
 
-  function handleImageFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]
-    if (!file) return
+  function applyImageFile(file: File) {
     const allowed = ['jpg', 'jpeg', 'png', 'webp', 'gif']
     const ext = file.name.split('.').pop()?.toLowerCase() ?? ''
-    if (!allowed.includes(ext)) {
+    if (!allowed.includes(ext) && !file.type.startsWith('image/')) {
       setError('Image must be JPG, PNG, WEBP, or GIF.')
       return
     }
@@ -119,19 +124,65 @@ export function NewJobForm({ clientId, clientLocation, isGuest, makerProcesses, 
     setImagePreview(URL.createObjectURL(file))
   }
 
+  function handleImageFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    applyImageFile(file)
+  }
+
+  function handleImageDrop(e: React.DragEvent<HTMLDivElement>) {
+    e.preventDefault()
+    setImageDragOver(false)
+    const file = e.dataTransfer.files?.[0]
+    if (file) applyImageFile(file)
+  }
+
+  function addRefImages(files: FileList | File[]) {
+    const allowed = ['jpg', 'jpeg', 'png', 'webp', 'gif']
+    const incoming = Array.from(files).filter((f) => {
+      const ext = f.name.split('.').pop()?.toLowerCase() ?? ''
+      return allowed.includes(ext) || f.type.startsWith('image/')
+    })
+    if (incoming.length === 0) return
+    setRefImages((prev) => {
+      const merged = [...prev, ...incoming].slice(0, 3)
+      setRefPreviews(merged.map((f) => URL.createObjectURL(f)))
+      return merged
+    })
+  }
+
+  function handleRefImagesDrop(e: React.DragEvent<HTMLDivElement>) {
+    e.preventDefault()
+    setRefDragOver(false)
+    if (refImages.length >= 3) return
+    addRefImages(e.dataTransfer.files)
+  }
+
+  function removeRefImage(i: number) {
+    setRefImages((prev) => {
+      const next = prev.filter((_, j) => j !== i)
+      setRefPreviews(next.map((f) => URL.createObjectURL(f)))
+      return next
+    })
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError(null)
 
     if (!form.material) { setError('Please select a material.'); return }
-    if (modelInputMode === 'file' && modelFiles.length === 0) { setError('Please upload at least one 3D model file (STL, 3MF, etc.).'); return }
-    if (modelInputMode === 'link' && !modelUrl.trim()) { setError('Please paste a link to your model on Thingiverse or MakerWorld.'); return }
-    if (modelInputMode === 'link') {
-      const validDomains = ['thingiverse.com', 'makerworld.com', 'printables.com', 'myminifactory.com', 'cults3d.com']
-      const isValidUrl = validDomains.some((d) => modelUrl.includes(d)) || modelUrl.startsWith('http')
-      if (!isValidUrl) { setError('Please enter a valid URL (e.g. a Thingiverse or MakerWorld link).'); return }
+    if (form.needs_design) {
+      if (refImages.length === 0) { setError('Please upload at least one reference photo so makers can understand what to design.'); return }
+    } else {
+      if (modelInputMode === 'file' && modelFiles.length === 0) { setError('Please upload at least one 3D model file (STL, 3MF, etc.).'); return }
+      if (modelInputMode === 'link' && !modelUrl.trim()) { setError('Please paste a link to your model on Thingiverse or MakerWorld.'); return }
+      if (modelInputMode === 'link') {
+        const validDomains = ['thingiverse.com', 'makerworld.com', 'printables.com', 'myminifactory.com', 'cults3d.com']
+        const isValidUrl = validDomains.some((d) => modelUrl.includes(d)) || modelUrl.startsWith('http')
+        if (!isValidUrl) { setError('Please enter a valid URL (e.g. a Thingiverse or MakerWorld link).'); return }
+      }
+      if (!imageFile && !ogImageUrl) { setError('Please upload a reference photo so makers can see what you need.'); return }
     }
-    if (!imageFile && !ogImageUrl) { setError('Please upload a reference photo so makers can see what you need.'); return }
 
     setLoading(true)
     const supabase = createClient()
@@ -140,10 +191,24 @@ export function NewJobForm({ clientId, clientLocation, isGuest, makerProcesses, 
 
     // lat/lng already set from address autocomplete selection
 
-    // Upload reference image (from file upload or auto-fetched og:image)
+    // Upload reference image(s)
     let imageUrl: string | null = null
 
-    if (imageFile) {
+    // Design mode: upload first ref photo as the cover, rest handled after job creation
+    if (form.needs_design && refImages.length > 0) {
+      const first = refImages[0]
+      const imagePath = `job-images/${clientId}/${Date.now()}-${first.name}`
+      const { error: imgUploadError } = await supabase.storage
+        .from('job-files')
+        .upload(imagePath, first, { contentType: first.type })
+      if (imgUploadError) {
+        setError(`Image upload failed: ${imgUploadError.message}`)
+        setLoading(false)
+        return
+      }
+      const { data: { publicUrl } } = supabase.storage.from('job-files').getPublicUrl(imagePath)
+      imageUrl = publicUrl
+    } else if (imageFile) {
       const imagePath = `job-images/${clientId}/${Date.now()}-${imageFile.name}`
       const { error: imgUploadError } = await supabase.storage
         .from('job-files')
@@ -208,8 +273,29 @@ export function NewJobForm({ clientId, clientLocation, isGuest, makerProcesses, 
       return
     }
 
-    // Upload 3D model files or save link
-    if (modelInputMode === 'link' && modelUrl.trim()) {
+    // Upload extra reference photos (design mode only — 2nd and 3rd)
+    if (form.needs_design && refImages.length > 1) {
+      for (const file of refImages.slice(1)) {
+        const path = `job-images/${clientId}/${Date.now()}-${file.name}`
+        const { data: uploadData } = await supabase.storage
+          .from('job-files')
+          .upload(path, file, { contentType: file.type })
+        if (uploadData) {
+          const { data: { publicUrl } } = supabase.storage.from('job-files').getPublicUrl(path)
+          await supabase.from('job_files').insert({
+            job_id: job.id,
+            uploaded_by: user.id,
+            file_name: file.name,
+            file_url: publicUrl,
+            file_size: file.size,
+            file_type: 'reference',
+          })
+        }
+      }
+    }
+
+    // Upload 3D model files or save link (skipped when maker will design it)
+    if (!form.needs_design && modelInputMode === 'link' && modelUrl.trim()) {
       // Extract a display name from the URL
       const urlObj = (() => { try { return new URL(modelUrl.trim()) } catch { return null } })()
       const displayName = urlObj
@@ -223,7 +309,7 @@ export function NewJobForm({ clientId, clientLocation, isGuest, makerProcesses, 
         file_size: 0,
         file_type: 'link',
       })
-    } else {
+    } else if (!form.needs_design) {
       for (const file of modelFiles) {
         const path = `${job.id}/${Date.now()}-${file.name}`
         const { data: uploadData, error: uploadError } = await supabase.storage
@@ -247,6 +333,16 @@ export function NewJobForm({ clientId, clientLocation, isGuest, makerProcesses, 
         })
       }
     }
+
+    // Notify nearby makers who have job alerts enabled (fire-and-forget)
+    notifyNearbyMakers({
+      jobId: job.id,
+      jobLat: form.lat,
+      jobLng: form.lng,
+      jobTitle: form.title,
+      jobMaterial: form.material,
+      jobType: form.job_type,
+    }).catch(() => {})
 
     // Auto-invite the maker if this request was posted from their profile
     if (makerId && user) {
@@ -579,8 +675,8 @@ export function NewJobForm({ clientId, clientLocation, isGuest, makerProcesses, 
           </div>
         </div>
 
-        {/* 3D Model files */}
-        <div className="card p-6 space-y-4">
+        {/* 3D Model files — hidden when maker will design it */}
+        {!form.needs_design && <div className="card p-6 space-y-4">
           <div>
             <h2 className="font-semibold text-ink-900">3D Model <span className="text-red-500">*</span></h2>
             <p className="text-sm text-warm-500 mt-0.5">Upload your model file, or paste a link from Thingiverse, MakerWorld, or Printables.</p>
@@ -700,8 +796,77 @@ export function NewJobForm({ clientId, clientLocation, isGuest, makerProcesses, 
           )}
         </div>
 
-        {/* Reference photo */}
-        <div className="card p-6 space-y-4">
+        }
+
+        {/* Design mode: multi-photo reference upload (up to 3) */}
+        {form.needs_design && (
+          <div className="card p-6 space-y-4">
+            <div>
+              <h2 className="font-semibold text-ink-900">Reference Photos <span className="text-red-500">*</span></h2>
+              <p className="text-sm text-warm-500 mt-0.5">Upload up to 3 photos so the maker understands what you need designed — sketches, inspiration images, or similar objects all work.</p>
+            </div>
+
+            {/* Existing previews */}
+            {refPreviews.length > 0 && (
+              <div className="grid grid-cols-3 gap-3">
+                {refPreviews.map((src, i) => (
+                  <div key={i} className="relative aspect-square rounded-xl overflow-hidden border border-warm-200">
+                    <img src={src} alt={`Reference ${i + 1}`} className="w-full h-full object-cover" />
+                    <button
+                      type="button"
+                      onClick={() => removeRefImage(i)}
+                      className="absolute top-1.5 right-1.5 rounded-full bg-ink-900/80 text-white h-6 w-6 flex items-center justify-center text-xs hover:bg-red-600 transition-colors"
+                    >×</button>
+                  </div>
+                ))}
+                {/* Empty slots */}
+                {Array.from({ length: 3 - refPreviews.length }).map((_, i) => (
+                  <button
+                    key={`empty-${i}`}
+                    type="button"
+                    onClick={() => refImagesRef.current?.click()}
+                    className="aspect-square rounded-xl border-2 border-dashed border-warm-200 hover:border-gold-400 hover:bg-gold-50/30 transition-colors flex items-center justify-center"
+                  >
+                    <span className="text-2xl text-warm-300">+</span>
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {/* Drop zone — only shown when no photos yet */}
+            {refPreviews.length === 0 && (
+              <div
+                onClick={() => refImagesRef.current?.click()}
+                onDragOver={(e) => { e.preventDefault(); setRefDragOver(true) }}
+                onDragEnter={(e) => { e.preventDefault(); setRefDragOver(true) }}
+                onDragLeave={() => setRefDragOver(false)}
+                onDrop={handleRefImagesDrop}
+                className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-colors ${
+                  refDragOver ? 'border-gold-400 bg-gold-50/60' : 'border-warm-300 hover:border-gold-400 hover:bg-gold-50/30'
+                }`}
+              >
+                <svg className="mx-auto h-10 w-10 text-warm-300 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <p className="text-sm text-warm-600 font-medium">Drag & drop or click to upload</p>
+                <p className="text-xs text-warm-400 mt-1">Up to 3 photos · JPG · PNG · WEBP</p>
+              </div>
+            )}
+
+            <input
+              ref={refImagesRef}
+              type="file"
+              accept=".jpg,.jpeg,.png,.webp"
+              multiple
+              onChange={(e) => { if (e.target.files) addRefImages(e.target.files) }}
+              className="hidden"
+            />
+          </div>
+        )}
+
+        {/* Reference photo — only shown when not in design mode */}
+        {!form.needs_design && <div className="card p-6 space-y-4">
           <div>
             <h2 className="font-semibold text-ink-900">
               Reference Photo <span className="text-red-500">*</span>
@@ -753,10 +918,16 @@ export function NewJobForm({ clientId, clientLocation, isGuest, makerProcesses, 
             </div>
           ) : (
             <div
-              onClick={() => imageFileRef.current?.click()}
+              onClick={() => !ogImageLoading && imageFileRef.current?.click()}
+              onDragOver={(e) => { e.preventDefault(); if (!ogImageLoading) setImageDragOver(true) }}
+              onDragEnter={(e) => { e.preventDefault(); if (!ogImageLoading) setImageDragOver(true) }}
+              onDragLeave={() => setImageDragOver(false)}
+              onDrop={handleImageDrop}
               className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-colors ${
                 ogImageLoading
                   ? 'border-warm-200 bg-warm-50 pointer-events-none'
+                  : imageDragOver
+                  ? 'border-gold-400 bg-gold-50/60 scale-[1.01]'
                   : 'border-warm-300 hover:border-gold-400 hover:bg-gold-50/30'
               }`}
             >
@@ -765,13 +936,21 @@ export function NewJobForm({ clientId, clientLocation, isGuest, makerProcesses, 
                   <div className="mx-auto h-10 w-10 rounded-full border-2 border-warm-200 border-t-gold-400 animate-spin mb-3" />
                   <p className="text-sm text-warm-500">Fetching preview from your link…</p>
                 </>
+              ) : imageDragOver ? (
+                <>
+                  <svg className="mx-auto h-10 w-10 text-gold-400 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  <p className="text-sm text-gold-600 font-semibold">Drop your photo here</p>
+                </>
               ) : (
                 <>
                   <svg className="mx-auto h-10 w-10 text-warm-300 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
                       d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
-                  <p className="text-sm text-warm-600 font-medium">Click to upload a reference photo</p>
+                  <p className="text-sm text-warm-600 font-medium">Drag & drop or click to upload</p>
                   <p className="text-xs text-warm-400 mt-1">JPG · PNG · WEBP - max 10 MB</p>
                 </>
               )}
@@ -784,7 +963,7 @@ export function NewJobForm({ clientId, clientLocation, isGuest, makerProcesses, 
             onChange={handleImageFileChange}
             className="hidden"
           />
-        </div>
+        </div>}
 
         {error && (
           <div className="rounded-lg bg-red-50 border border-red-200 p-3 text-sm text-red-700">

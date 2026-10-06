@@ -3,8 +3,20 @@
 import { useEffect, useRef } from 'react'
 import 'leaflet/dist/leaflet.css'
 
-// Zurich center
-const ZURICH: [number, number] = [47.3769, 8.5417]
+const EUROPE: [number, number] = [47.5, 8.5]
+const CACHE_KEY = 'pmh_user_location'
+
+function getCachedLocation(): { lat: number; lng: number } | null {
+  try {
+    const raw = localStorage.getItem(CACHE_KEY)
+    if (!raw) return null
+    return JSON.parse(raw)
+  } catch { return null }
+}
+
+function setCachedLocation(lat: number, lng: number) {
+  try { localStorage.setItem(CACHE_KEY, JSON.stringify({ lat, lng })) } catch {}
+}
 
 interface JobPin {
   id: string
@@ -51,7 +63,12 @@ export function LeafletMap({ jobs, printers, filter }: LeafletMapProps) {
         shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
       })
 
-      const map = L.map(mapRef.current!).setView(ZURICH, 5)
+      // Use cached location immediately if available, otherwise start at Europe overview
+      const cached = getCachedLocation()
+      const initialCenter: [number, number] = cached ? [cached.lat, cached.lng] : EUROPE
+      const initialZoom = cached ? 11 : 5
+
+      const map = L.map(mapRef.current!).setView(initialCenter, initialZoom)
       leafletRef.current = { map, L }
 
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -61,15 +78,17 @@ export function LeafletMap({ jobs, printers, filter }: LeafletMapProps) {
 
       renderMarkers({ map, L })
 
-      // Pan to user's location if available
+      // Request live location to update cache (and pan if no cache yet)
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
-          (pos) => { map.setView([pos.coords.latitude, pos.coords.longitude], 11) },
-          () => { map.setView(ZURICH, 12) },
-          { timeout: 5000 }
+          (pos) => {
+            const { latitude: lat, longitude: lng } = pos.coords
+            setCachedLocation(lat, lng)
+            if (!cached) map.setView([lat, lng], 11)
+          },
+          () => {},
+          { timeout: 6000 }
         )
-      } else {
-        map.setView(ZURICH, 12)
       }
     })
 

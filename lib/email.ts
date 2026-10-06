@@ -335,6 +335,44 @@ export function emailMakerSetupPayouts({ to, name }: { to: string; name: string 
   })
 }
 
+export function emailMakerNewJobNearby({
+  to, name, jobTitle, jobMaterial, jobType, distanceKm, jobUrl,
+}: {
+  to: string
+  name: string | null
+  jobTitle: string
+  jobMaterial: string
+  jobType: string
+  distanceKm: number
+  jobUrl: string
+}) {
+  const greeting = name ? `Hi ${name},` : 'Hi there,'
+  const distance = distanceKm < 5 ? 'less than 5 km' : `${Math.round(distanceKm)} km`
+  return sendEmail({
+    to,
+    subject: `New print request near you — "${jobTitle}"`,
+    html: `
+      <h2 style="margin:0 0 8px;font-size:20px;font-weight:800;color:#1a1625;">New job near you &#x1F4CD;</h2>
+      <p style="margin:0 0 20px;color:#6b6760;font-size:14px;line-height:1.6;">
+        ${greeting} A new print request was just posted <strong style="color:#1a1625;">${distance} from you</strong>.
+      </p>
+      <div style="background:#f5f4f0;border-radius:12px;padding:16px 20px;margin-bottom:20px;">
+        <p style="margin:0 0 6px;font-size:16px;font-weight:700;color:#1a1625;">${jobTitle}</p>
+        <p style="margin:0 0 4px;font-size:13px;color:#6b6760;">Material: <strong style="color:#1a1625;">${jobMaterial}</strong></p>
+        <p style="margin:0;font-size:13px;color:#6b6760;">Type: <strong style="color:#1a1625;">${jobType}</strong></p>
+      </div>
+      <p style="margin:0 0 20px;color:#6b6760;font-size:14px;line-height:1.6;">
+        Be the first to quote &mdash; clients often accept the first competitive offer they receive.
+      </p>
+      ${ctaButton('View Request &rarr;', `${APP_URL}${jobUrl}`)}
+      <p style="margin:24px 0 0;color:#9e9b94;font-size:12px;line-height:1.6;">
+        You&apos;re receiving this because you set up a job alert on your maker profile.
+        <a href="${APP_URL}/profile/setup" style="color:#9e9b94;text-decoration:underline;">Update your alert radius</a>.
+      </p>
+    `,
+  })
+}
+
 export function emailOnboardingReminder({ to, name }: { to: string; name: string | null }) {
   const greeting = name ? `Hi ${name},` : 'Hi there,'
   return sendEmail({

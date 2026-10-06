@@ -6,10 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { AddressAutocomplete, type AddressResult } from '@/components/ui/address-autocomplete'
-
-interface ClientProfileFormProps {
-  effectiveUserId: string
-}
+import { EmailChangeSection } from '@/components/profile/email-change-section'
 
 export function ClientProfileForm({ effectiveUserId }: ClientProfileFormProps) {
   const [loading, setLoading] = useState(true)
@@ -158,6 +155,10 @@ export function ClientProfileForm({ effectiveUserId }: ClientProfileFormProps) {
           Save Profile
         </Button>
       </form>
+
+      <div className="mt-5 space-y-5">
+        <EmailChangeSection />
+      </div>
 
       <div className="mt-8 pt-6 border-t border-warm-200 text-center">
         <a href="/profile/delete-account" className="text-xs text-warm-400 hover:text-red-500 transition-colors underline underline-offset-2">

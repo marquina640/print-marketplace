@@ -9,6 +9,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { MATERIALS_BY_LEVEL, COLORS } from '@/lib/utils'
 import { AddressAutocomplete } from '@/components/ui/address-autocomplete'
 import { StripeConnectButton } from '@/components/payments/stripe-connect-button'
+import { EmailChangeSection } from '@/components/profile/email-change-section'
 
 function MultiCheckbox({ label, options, selected, onChange }: {
   label: string; options: string[]; selected: string[]; onChange: (v: string[]) => void
@@ -127,6 +128,7 @@ export function ProfileSetupForm({ effectiveUserId }: { effectiveUserId: string 
     paypal_email: '', // kept for DB compat but no longer shown in UI
     lat: null as number | null,
     lng: null as number | null,
+    job_alert_radius_km: null as number | null,
   })
 
   useEffect(() => {
@@ -175,6 +177,7 @@ export function ProfileSetupForm({ effectiveUserId }: { effectiveUserId: string 
           paypal_email: (data as any).paypal_email ?? '',
           lat: data.latitude ?? null,
           lng: data.longitude ?? null,
+          job_alert_radius_km: (data as any).job_alert_radius_km ?? null,
         })
       } else if (clientProfile) {
         // Pre-fill from client profile if no maker profile yet
@@ -245,6 +248,7 @@ export function ProfileSetupForm({ effectiveUserId }: { effectiveUserId: string 
       paypal_email: form.paypal_email.trim() || null,
       latitude: form.lat,
       longitude: form.lng,
+      job_alert_radius_km: form.job_alert_radius_km,
     }
 
     const { error: upsertError } = await supabase
@@ -346,6 +350,47 @@ export function ProfileSetupForm({ effectiveUserId }: { effectiveUserId: string 
           </div>
         </div>
 
+        {/* Job alerts */}
+        <div className="card p-6 space-y-4">
+          <div>
+            <h2 className="font-semibold text-warm-900">Job Alerts</h2>
+            <p className="text-xs text-warm-500 mt-0.5">Get an email when a new print request is posted near you.</p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {([
+              { label: 'Off', value: null },
+              { label: '20 km', value: 20 },
+              { label: '50 km', value: 50 },
+              { label: '100 km', value: 100 },
+              { label: '250 km', value: 250 },
+              { label: 'Global', value: 9999 },
+            ] as { label: string; value: number | null }[]).map((opt) => {
+              const active = form.job_alert_radius_km === opt.value
+              return (
+                <button
+                  key={opt.label}
+                  type="button"
+                  onClick={() => setFormState((prev) => ({ ...prev, job_alert_radius_km: opt.value }))}
+                  className={`rounded-full border px-4 py-1.5 text-sm font-medium transition-all ${
+                    active
+                      ? 'bg-ink-900 text-white border-ink-900'
+                      : 'bg-white text-warm-600 border-warm-300 hover:border-ink-400'
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              )
+            })}
+          </div>
+          {form.job_alert_radius_km !== null && (
+            <p className="text-xs text-warm-400">
+              {form.job_alert_radius_km === 9999
+                ? 'You\'ll be notified about every new job posted on the platform.'
+                : `You'll be notified when a job is posted within ${form.job_alert_radius_km} km of your location.`}
+            </p>
+          )}
+        </div>
+
         {form.design_services && (
           <div className="card p-6 space-y-4">
             <h2 className="font-semibold text-warm-900">Design / Engineering Pricing (optional)</h2>
@@ -386,6 +431,10 @@ export function ProfileSetupForm({ effectiveUserId }: { effectiveUserId: string 
           Save Profile
         </Button>
       </form>
+
+      <div className="mt-5">
+        <EmailChangeSection />
+      </div>
 
       <div className="mt-8 pt-6 border-t border-warm-200 text-center">
         <a href="/profile/delete-account" className="text-xs text-warm-400 hover:text-red-500 transition-colors underline underline-offset-2">
