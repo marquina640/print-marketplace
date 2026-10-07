@@ -227,6 +227,10 @@ export function Navbar({ userEmail, userRole, unreadMessages = 0, notifications 
                 className="px-3 py-1.5 text-sm font-medium text-warm-600 hover:text-warm-900 hover:bg-warm-100 rounded-lg transition-colors">
                 How it works
               </Link>
+              <Link href="/makers"
+                className="px-3 py-1.5 text-sm font-medium text-warm-600 hover:text-warm-900 hover:bg-warm-100 rounded-lg transition-colors">
+                Browse makers
+              </Link>
               <Link href="/for-makers"
                 className="px-3 py-1.5 text-sm font-medium text-warm-600 hover:text-warm-900 hover:bg-warm-100 rounded-lg transition-colors">
                 For makers
@@ -234,6 +238,10 @@ export function Navbar({ userEmail, userRole, unreadMessages = 0, notifications 
               <Link href="/blog"
                 className="px-3 py-1.5 text-sm font-medium text-warm-600 hover:text-warm-900 hover:bg-warm-100 rounded-lg transition-colors">
                 Blog
+              </Link>
+              <Link href="/faq"
+                className="px-3 py-1.5 text-sm font-medium text-warm-600 hover:text-warm-900 hover:bg-warm-100 rounded-lg transition-colors">
+                FAQ
               </Link>
               <div className="w-px h-5 bg-warm-200 mx-1" />
               <Link href="/login">
