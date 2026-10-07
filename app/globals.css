@@ -13,6 +13,11 @@
   --pmh-muted:   #7A6F96;
   --pmh-ochre:   #D4A017;
   --pmh-purple:  #2B1B47;
+
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
 }
 
 html, body {
@@ -44,7 +49,7 @@ html, body {
 
   /* Card */
   .card {
-    @apply bg-white rounded-2xl border border-warm-200 shadow-card;
+    @apply bg-white rounded-xl border border-warm-200 shadow-card;
   }
 
   .card-hover {
@@ -85,6 +90,16 @@ html, body {
   .feed-card {
     @apply card overflow-hidden cursor-pointer transition-all duration-200
            hover:shadow-lift hover:-translate-y-1 hover:border-gold-500/40;
+  }
+
+  /* Section label */
+  .section-label {
+    @apply text-xs font-bold uppercase tracking-widest text-warm-500;
+  }
+
+  /* Divider */
+  .divider {
+    @apply border-t border-warm-200;
   }
 
   /* Pill nav tabs */

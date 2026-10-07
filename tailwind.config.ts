@@ -55,7 +55,7 @@ const config: Config = {
       },
       fontFamily: {
         sans: ['Satoshi', 'Inter', 'system-ui', 'sans-serif'],
-        mono: ['JetBrains Mono', 'monospace'],
+        mono: ['ui-monospace', 'SFMono-Regular', 'Consolas', 'monospace'],
       },
       borderRadius: {
         'xl':  '0.75rem',
