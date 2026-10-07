@@ -1,5 +1,6 @@
 ﻿import type { Metadata } from 'next'
 import Link from 'next/link'
+import { Button } from '@/components/ui/button'
 import { EarningsCalculator } from './earnings-calculator'
 
 export const metadata: Metadata = {
@@ -8,19 +9,19 @@ export const metadata: Metadata = {
 }
 
 const benefits = [
-  { icon: '🆓', title: 'Free to join', desc: 'No subscription, no listing fee. A commission applies only when a job is successfully completed — no upfront costs, ever.' },
-  { icon: '💸', title: 'You set your prices', desc: 'Quote whatever you think is fair. There\'s no floor or ceiling - the market finds the right price.' },
-  { icon: '🔒', title: 'Always get paid', desc: 'The client pays securely at checkout. Once they confirm delivery, your payment is sent directly to your bank account via Stripe.' },
-  { icon: '📅', title: 'Work your schedule', desc: 'Only quote on jobs you want to take. Busy this week? Simply don\'t quote. No penalties, no minimums.' },
-  { icon: '⭐', title: 'Build a reputation', desc: 'Every completed job adds a verified review to your profile. A strong rating unlocks higher-value engineering jobs.' },
-  { icon: '🗺️', title: 'Community-first', desc: 'Your profile is shown to clients near you first - faster turnaround, easier pickups, and clients who value finding someone local.' },
+  { title: 'Free to join', desc: 'No subscription, no listing fee. A commission applies only when a job is successfully completed — no upfront costs, ever.' },
+  { title: 'You set your prices', desc: 'Quote whatever you think is fair. There\'s no floor or ceiling - the market finds the right price.' },
+  { title: 'Always get paid', desc: 'The client pays securely at checkout. Once they confirm delivery, your payment is sent directly to your bank account via Stripe.' },
+  { title: 'Work your schedule', desc: 'Only quote on jobs you want to take. Busy this week? Simply don\'t quote. No penalties, no minimums.' },
+  { title: 'Build a reputation', desc: 'Every completed job adds a verified review to your profile. A strong rating unlocks higher-value engineering jobs.' },
+  { title: 'Community-first', desc: 'Your profile is shown to clients near you first - faster turnaround, easier pickups, and clients who value finding someone local.' },
 ]
 
 const requirements = [
-  { icon: '🖨️', text: 'A working 3D printer (any type - FDM, resin)' },
-  { icon: '📦', text: 'Ability to ship to your customers (or offer local pickup)' },
-  { icon: '💳', text: 'A bank account for receiving payouts via Stripe (free to connect)' },
-  { icon: '📸', text: 'A completed profile with photos of your setup and past work' },
+  { text: 'A working 3D printer (any type - FDM, resin)' },
+  { text: 'Ability to ship to your customers (or offer local pickup)' },
+  { text: 'A bank account for receiving payouts via Stripe (free to connect)' },
+  { text: 'A completed profile with photos of your setup and past work' },
 ]
 
 const steps = [
@@ -35,36 +36,33 @@ export default function ForMakersPage() {
     <div className="max-w-3xl mx-auto py-8 space-y-16">
 
       {/* Hero */}
-      <div className="text-center space-y-5">
-        <div className="inline-flex items-center gap-2 rounded-full bg-emerald-50 border border-emerald-200 px-4 py-1.5 text-sm font-semibold text-emerald-700">
-          🖨️ For makers
+      <div className="space-y-5">
+        <div className="inline-flex items-center gap-2 rounded-full bg-warm-100 border border-warm-200 px-4 py-1.5 text-sm font-semibold text-warm-600">
+          For makers
         </div>
         <h1 className="text-3xl sm:text-4xl font-black text-ink-900 tracking-tight leading-tight">
           Your printer is already earning money.<br />
-          <span className="text-[#D4A017]">You just need the jobs.</span>
+          <span className="text-gold-500">You just need the jobs.</span>
         </h1>
-        <p className="text-warm-500 text-base max-w-xl mx-auto leading-relaxed">
+        <p className="text-warm-500 text-base max-w-xl leading-relaxed">
           PrintMarketHub connects you with people in your community who need things printed - and can&apos;t do it themselves. No ads, no bidding wars. Just real jobs from real people nearby.
         </p>
-        <div className="flex gap-3 justify-center flex-wrap">
-          <Link href="/signup"
-            className="rounded-xl bg-[#D4A017] text-[#1a1535] font-bold px-6 py-3 text-sm hover:bg-[#c49015] transition-colors shadow-sm">
-            Start earning for free →
+        <div className="flex gap-3 flex-wrap">
+          <Link href="/signup">
+            <Button variant="primary" size="lg">Start earning for free</Button>
           </Link>
-          <Link href="/how-it-works"
-            className="rounded-xl border border-warm-300 bg-white text-ink-700 font-semibold px-6 py-3 text-sm hover:bg-warm-50 transition-colors">
-            How it works
+          <Link href="/how-it-works">
+            <Button variant="outline" size="lg">How it works</Button>
           </Link>
         </div>
       </div>
 
       {/* Benefits grid */}
       <div>
-        <h2 className="text-xl font-black text-ink-900 text-center mb-8">Why makers choose PrintMarketHub</h2>
+        <h2 className="text-xl font-black text-ink-900 mb-8">Why makers choose PrintMarketHub</h2>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {benefits.map((b) => (
-            <div key={b.title} className="rounded-2xl border border-warm-200 bg-white p-5 space-y-2 hover:border-ink-300 transition-colors">
-              <div className="text-2xl">{b.icon}</div>
+            <div key={b.title} className="rounded-xl border border-warm-200 bg-white p-5 space-y-2 hover:border-ink-300 transition-colors">
               <p className="font-bold text-ink-900 text-sm">{b.title}</p>
               <p className="text-sm text-warm-500 leading-relaxed">{b.desc}</p>
             </div>
@@ -91,11 +89,11 @@ export default function ForMakersPage() {
 
       {/* How to get started */}
       <div>
-        <h2 className="text-xl font-black text-ink-900 text-center mb-8">Get started in 4 steps</h2>
+        <h2 className="text-xl font-black text-ink-900 mb-8">Get started in 4 steps</h2>
         <div className="space-y-3">
           {steps.map((step) => (
-            <div key={step.n} className="flex items-start gap-4 rounded-2xl border border-warm-200 bg-white p-5">
-              <div className="w-9 h-9 rounded-full bg-[#1a1535] text-white text-sm font-black flex items-center justify-center flex-shrink-0">
+            <div key={step.n} className="flex items-start gap-4 rounded-xl border border-warm-200 bg-white p-5">
+              <div className="w-9 h-9 rounded-full bg-ink-900 text-white text-sm font-black flex items-center justify-center flex-shrink-0">
                 {step.n}
               </div>
               <div>
@@ -108,12 +106,12 @@ export default function ForMakersPage() {
       </div>
 
       {/* Requirements */}
-      <div className="rounded-2xl bg-warm-50 border border-warm-200 p-6 space-y-4">
+      <div className="rounded-xl bg-warm-50 border border-warm-200 p-6 space-y-4">
         <h3 className="font-bold text-ink-900">What you need to get started</h3>
         <ul className="space-y-3">
           {requirements.map((r) => (
             <li key={r.text} className="flex items-start gap-3 text-sm text-warm-700">
-              <span className="text-base flex-shrink-0 mt-0.5">{r.icon}</span>
+              <span className="text-warm-400 flex-shrink-0 mt-0.5">—</span>
               {r.text}
             </li>
           ))}
@@ -124,20 +122,19 @@ export default function ForMakersPage() {
       </div>
 
       {/* Final CTA */}
-      <div className="rounded-2xl bg-[#1a1535] text-white p-8 text-center space-y-4">
+      <div className="rounded-xl bg-ink-950 text-white p-8 space-y-4">
         <p className="text-2xl font-black">Ready to turn prints into income?</p>
-        <p className="text-[#CEC8E4] text-sm max-w-md mx-auto">
+        <p className="text-warm-400 text-sm max-w-md">
           Join other makers already earning on PrintMarketHub. Free to join, no commitment required.
         </p>
-        <Link href="/signup"
-          className="inline-block rounded-xl bg-[#D4A017] text-[#1a1535] font-bold px-8 py-3 text-sm hover:bg-[#c49015] transition-colors">
-          Create your free maker profile →
+        <Link href="/signup">
+          <Button variant="primary">Create your free maker profile</Button>
         </Link>
-        <p className="text-xs text-[#6b6580] pt-2">
+        <p className="text-xs text-warm-600 pt-2">
           Have questions?{' '}
-          <Link href="/faq#makers" className="underline text-[#9d97c4] hover:text-white">Read the maker FAQ</Link>
+          <Link href="/faq#makers" className="underline text-warm-400 hover:text-white">Read the maker FAQ</Link>
           {' '}or{' '}
-          <a href="mailto:admin@printmarkethub.com" className="underline text-[#9d97c4] hover:text-white">email us</a>.
+          <a href="mailto:admin@printmarkethub.com" className="underline text-warm-400 hover:text-white">email us</a>.
         </p>
       </div>
 

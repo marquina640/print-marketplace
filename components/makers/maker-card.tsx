@@ -58,7 +58,7 @@ export function MakerCard({ maker }: MakerCardProps) {
 
   return (
     <Link href={`/makers/${maker.user_id}`} className="block group">
-      <article className="rounded-2xl overflow-hidden border border-warm-200 bg-white hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200">
+      <article className="rounded-xl overflow-hidden border border-warm-200 bg-white hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200">
 
         {/* Cover */}
         <div className="relative h-44 overflow-hidden">

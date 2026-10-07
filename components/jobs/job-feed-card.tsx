@@ -34,7 +34,7 @@ export function JobFeedCard({ job }: { job: Job }) {
 
   return (
     <Link href={`/jobs/${job.id}`} className="block group">
-      <article className="rounded-2xl overflow-hidden border border-warm-200 bg-white hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200">
+      <article className="rounded-xl overflow-hidden border border-warm-200 bg-white hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200">
 
         {/* Cover image or gradient */}
         <div className="relative h-48 overflow-hidden">
@@ -78,7 +78,7 @@ export function JobFeedCard({ job }: { job: Job }) {
             <MaterialBadge material={job.material} />
             {(job as any).job_type && <JobTypeBadge type={(job as any).job_type} />}
             {(job as any).needs_design && (
-              <span className="inline-flex items-center gap-1 rounded-full border border-indigo-200 bg-indigo-50 px-2 py-0.5 text-xs font-medium text-indigo-700">
+              <span className="inline-flex items-center gap-1 rounded-full border border-ink-200 bg-ink-50 px-2 py-0.5 text-xs font-medium text-ink-700">
                 <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                 </svg>

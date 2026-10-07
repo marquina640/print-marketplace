@@ -29,15 +29,15 @@ function AccordionItem({ q, a }: FAQItem) {
 
 interface FAQSectionProps {
   title: string
-  icon: string
+  icon?: string
   items: FAQItem[]
 }
 
-export function FAQSection({ title, icon, items }: FAQSectionProps) {
+export function FAQSection({ title, items }: FAQSectionProps) {
   return (
     <div>
-      <h2 className="flex items-center gap-2 text-lg font-bold text-ink-900 mb-4">
-        <span>{icon}</span> {title}
+      <h2 className="text-lg font-bold text-ink-900 mb-4">
+        {title}
       </h2>
       <div className="space-y-2">
         {items.map((item, i) => (

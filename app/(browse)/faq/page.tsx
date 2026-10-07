@@ -1,5 +1,6 @@
 ﻿import type { Metadata } from 'next'
 import Link from 'next/link'
+import { Button } from '@/components/ui/button'
 import { FAQSection } from './faq-accordion'
 
 export const metadata: Metadata = {
@@ -128,21 +129,19 @@ export default function FAQPage() {
         </p>
       </div>
 
-      <FAQSection title="For clients" icon="🛒" items={clientFAQ} />
-      <FAQSection title="For makers" icon="🖨️" items={makerFAQ} />
+      <FAQSection title="For clients" items={clientFAQ} />
+      <FAQSection title="For makers" items={makerFAQ} />
 
       {/* CTA */}
-      <div className="rounded-2xl bg-[#1a1535] text-white p-8 text-center space-y-4">
+      <div className="rounded-xl bg-ink-950 text-white p-8 space-y-4">
         <p className="text-xl font-bold">Ready to get started?</p>
-        <p className="text-[#CEC8E4] text-sm">Join for free - no credit card required.</p>
-        <div className="flex gap-3 justify-center flex-wrap">
-          <Link href="/signup?role=client"
-            className="rounded-xl bg-[#D4A017] text-[#1a1535] font-bold px-5 py-2.5 text-sm hover:bg-[#c49015] transition-colors">
-            I need something printed →
+        <p className="text-warm-400 text-sm">Join for free - no credit card required.</p>
+        <div className="flex gap-3 flex-wrap">
+          <Link href="/signup?role=client">
+            <Button variant="primary">I need something printed</Button>
           </Link>
-          <Link href="/signup?role=maker"
-            className="rounded-xl border border-white/20 text-white font-semibold px-5 py-2.5 text-sm hover:bg-white/10 transition-colors">
-            I have a printer
+          <Link href="/signup?role=maker">
+            <Button className="bg-transparent text-white border border-white/20 hover:bg-white/10">I have a printer</Button>
           </Link>
         </div>
       </div>

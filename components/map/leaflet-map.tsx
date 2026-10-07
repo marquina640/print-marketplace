@@ -113,7 +113,7 @@ export function LeafletMap({ jobs, printers, filter }: LeafletMapProps) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   function renderMarkers({ map, L }: { map: any; L: any }) {
     const jobIcon = L.divIcon({
-      html: `<div style="background:#4f46e5;color:white;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:bold;border:2px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.3)">J</div>`,
+      html: `<div style="background:#3D2878;color:white;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:bold;border:2px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.3)">J</div>`,
       className: '',
       iconSize: [28, 28],
       iconAnchor: [14, 14],
@@ -133,8 +133,8 @@ export function LeafletMap({ jobs, printers, filter }: LeafletMapProps) {
             <div style="font-family:sans-serif;min-width:160px">
               <p style="font-weight:600;margin:0 0 4px">${job.title}</p>
               <p style="color:#6b7280;font-size:12px;margin:0 0 2px">${job.material}</p>
-              <p style="color:#4f46e5;font-size:12px;font-weight:600;margin:0">CHF ${job.budget.toFixed(0)}</p>
-              <a href="/jobs/${job.id}" style="display:inline-block;margin-top:8px;font-size:12px;color:#4f46e5">View request →</a>
+              <p style="color:#3D2878;font-size:12px;font-weight:600;margin:0">CHF ${job.budget.toFixed(0)}</p>
+              <a href="/jobs/${job.id}" style="display:inline-block;margin-top:8px;font-size:12px;color:#3D2878">View request →</a>
             </div>
           `)
         markersRef.current.push(m)
@@ -153,7 +153,7 @@ export function LeafletMap({ jobs, printers, filter }: LeafletMapProps) {
               <p style="font-weight:600;margin:0 0 4px">${name}</p>
               ${printer.city ? `<p style="color:#6b7280;font-size:12px;margin:0 0 2px">📍 ${printer.city}</p>` : ''}
               <p style="color:#ca8a04;font-size:11px;margin:0">★ ${certLabel}</p>
-              <a href="/makers/${printer.id}" style="display:inline-block;margin-top:8px;font-size:12px;color:#4f46e5">View profile →</a>
+              <a href="/makers/${printer.id}" style="display:inline-block;margin-top:8px;font-size:12px;color:#3D2878">View profile →</a>
             </div>
           `)
         markersRef.current.push(m)
