@@ -158,7 +158,7 @@ export function Navbar({ userEmail, userRole, unreadMessages = 0, notifications 
                 </button>
 
                 {bellOpen && (
-                  <div className="absolute right-0 top-full mt-1 w-80 bg-warm-100 rounded-2xl border border-warm-200 shadow-lift overflow-hidden z-50">
+                  <div className="absolute right-0 top-full mt-1 w-80 bg-warm-100 rounded-xl border border-warm-200 shadow-lift overflow-hidden z-50">
                     <div className="px-4 py-3 border-b border-warm-200">
                       <p className="text-sm font-semibold text-warm-900">Notifications</p>
                     </div>
