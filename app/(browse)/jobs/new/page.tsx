@@ -31,11 +31,6 @@ export default async function NewJobPage({ searchParams }: PageProps) {
       : viewMode === 'maker' ? 'printer_owner'
       : profile?.role
 
-    // Makers in maker mode cannot post requests, send them to their client dashboard
-    if (effectiveRole === 'printer_owner') {
-      redirect('/dashboard/client')
-    }
-
     const previewUserId = profile?.role === 'admin'
       ? cookieStore.get('admin_preview_user_id')?.value
       : undefined
