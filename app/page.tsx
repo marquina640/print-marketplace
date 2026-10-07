@@ -26,7 +26,7 @@ export default async function LandingPage() {
     { count: completedCount },
   ] = await Promise.all([
     supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'printer_owner'),
-    supabase.from('jobs').select('*', { count: 'exact', head: true }),
+    supabase.from('jobs').select('*', { count: 'exact', head: true }).eq('status', 'open'),
     supabase.from('jobs').select('*', { count: 'exact', head: true }).eq('status', 'completed'),
   ])
 
@@ -187,7 +187,7 @@ export default async function LandingPage() {
             {(jobCount ?? 0) > 0 && (
               <div>
                 <p className="text-4xl font-black text-ink-950">{jobCount}<span className="text-gold-500">+</span></p>
-                <p className="text-sm text-warm-500 mt-1 font-medium">Requests posted</p>
+                <p className="text-sm text-warm-500 mt-1 font-medium">Open requests</p>
               </div>
             )}
             {(completedCount ?? 0) > 0 && (
