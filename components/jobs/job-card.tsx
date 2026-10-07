@@ -11,15 +11,15 @@ type Job = Database['public']['Tables']['jobs']['Row'] & {
 export function JobCard({ job }: { job: Job }) {
   return (
     <Link href={`/jobs/${job.id}`} className="block group">
-      <div className="card p-5 hover:border-indigo-300 hover:shadow-md transition-all">
+      <div className="card p-5 hover:border-ink-200 hover:shadow-md transition-all">
         <div className="flex items-start justify-between gap-3 mb-3">
-          <h3 className="font-semibold text-gray-900 group-hover:text-indigo-600 transition-colors line-clamp-2">
+          <h3 className="font-semibold text-ink-900 group-hover:text-ink-700 transition-colors line-clamp-2">
             {job.title}
           </h3>
           <StatusBadge status={job.status} />
         </div>
 
-        <p className="text-sm text-gray-500 line-clamp-2 mb-4">{job.description}</p>
+        <p className="text-sm text-warm-500 line-clamp-2 mb-4">{job.description}</p>
 
         <div className="flex flex-wrap gap-2 mb-4">
           <Badge variant="info">{job.material}</Badge>
@@ -28,10 +28,10 @@ export function JobCard({ job }: { job: Job }) {
           <Badge>Qty: {job.quantity}</Badge>
         </div>
 
-        <div className="flex items-center justify-between text-xs text-gray-400">
+        <div className="flex items-center justify-between text-xs text-warm-400">
           <div className="flex items-center gap-3">
             {job.budget && (
-              <span className="font-medium text-gray-700">{formatCurrency(job.budget)}</span>
+              <span className="font-medium text-warm-700">{formatCurrency(job.budget)}</span>
             )}
             {job.deadline && (
               <span>Due {formatDate(job.deadline)}</span>
@@ -47,7 +47,7 @@ export function JobCard({ job }: { job: Job }) {
               </span>
             )}
           </div>
-          <span className="text-gray-400">{formatDate(job.created_at)}</span>
+          <span className="text-warm-400">{formatDate(job.created_at)}</span>
         </div>
       </div>
     </Link>
