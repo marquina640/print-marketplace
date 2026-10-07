@@ -177,19 +177,25 @@ export default async function LandingPage() {
       {/* Platform stats */}
       <section className="py-12 bg-white border-b border-warm-200">
         <div className="page-container">
-          <div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto text-center">
-            <div>
-              <p className="text-4xl font-black text-ink-950">{makerCount ?? 0}<span className="text-gold-500">+</span></p>
-              <p className="text-sm text-warm-500 mt-1 font-medium">Makers ready</p>
-            </div>
-            <div>
-              <p className="text-4xl font-black text-ink-950">{jobCount ?? 0}<span className="text-gold-500">+</span></p>
-              <p className="text-sm text-warm-500 mt-1 font-medium">Requests posted</p>
-            </div>
-            <div>
-              <p className="text-4xl font-black text-ink-950">{completedCount ?? 0}<span className="text-gold-500">+</span></p>
-              <p className="text-sm text-warm-500 mt-1 font-medium">Orders completed</p>
-            </div>
+          <div className={`grid gap-8 max-w-2xl mx-auto text-center ${[makerCount, jobCount, completedCount].filter(n => (n ?? 0) > 0).length === 1 ? 'grid-cols-1' : [makerCount, jobCount, completedCount].filter(n => (n ?? 0) > 0).length === 2 ? 'grid-cols-2' : 'grid-cols-3'}`}>
+            {(makerCount ?? 0) > 0 && (
+              <div>
+                <p className="text-4xl font-black text-ink-950">{makerCount}<span className="text-gold-500">+</span></p>
+                <p className="text-sm text-warm-500 mt-1 font-medium">Makers ready</p>
+              </div>
+            )}
+            {(jobCount ?? 0) > 0 && (
+              <div>
+                <p className="text-4xl font-black text-ink-950">{jobCount}<span className="text-gold-500">+</span></p>
+                <p className="text-sm text-warm-500 mt-1 font-medium">Requests posted</p>
+              </div>
+            )}
+            {(completedCount ?? 0) > 0 && (
+              <div>
+                <p className="text-4xl font-black text-ink-950">{completedCount}<span className="text-gold-500">+</span></p>
+                <p className="text-sm text-warm-500 mt-1 font-medium">Orders completed</p>
+              </div>
+            )}
           </div>
         </div>
       </section>
