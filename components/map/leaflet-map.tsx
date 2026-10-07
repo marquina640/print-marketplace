@@ -68,7 +68,10 @@ export function LeafletMap({ jobs, printers, filter }: LeafletMapProps) {
       const initialCenter: [number, number] = cached ? [cached.lat, cached.lng] : EUROPE
       const initialZoom = cached ? 11 : 5
 
-      const map = L.map(mapRef.current!).setView(initialCenter, initialZoom)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const container = mapRef.current! as any
+      if (container._leaflet_id) return
+      const map = L.map(container).setView(initialCenter, initialZoom)
       leafletRef.current = { map, L }
 
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
