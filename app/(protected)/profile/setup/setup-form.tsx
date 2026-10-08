@@ -110,6 +110,7 @@ export function ProfileSetupForm({ effectiveUserId }: { effectiveUserId: string 
 
   const [stripeStatus, setStripeStatus] = useState<{ connected: boolean; detailsSubmitted: boolean; hasAccount: boolean } | null>(null)
   const [certLevel, setCertLevel] = useState(0)
+  const [isNewProfile, setIsNewProfile] = useState(false)
   const searchParams = useSearchParams()
   const stripeReturn = searchParams.get('stripe')
 
@@ -160,6 +161,8 @@ export function ProfileSetupForm({ effectiveUserId }: { effectiveUserId: string 
       }
 
       if (clientProfile?.avatar_url) setAvatarPreview(clientProfile.avatar_url)
+
+      setIsNewProfile(!data)
 
       if (data) {
         setCertLevel(data.certification_level ?? 0)
@@ -255,10 +258,26 @@ export function ProfileSetupForm({ effectiveUserId }: { effectiveUserId: string 
       job_alert_radius_km: form.job_alert_radius_km,
     }
 
+    // Apply referral code for first-time profiles
+    let referralCode: string | null = null
+    if (isNewProfile) {
+      try { referralCode = localStorage.getItem('pmh_ref') } catch {}
+    }
+    if (referralCode) (payload as any).referred_by = referralCode
+
     const { error: upsertError } = await supabase
       .from('printer_profiles').upsert(payload, { onConflict: 'user_id' })
 
     if (upsertError) { setError(upsertError.message); setSaving(false); return }
+
+    // Increment referral code uses counter
+    if (referralCode) {
+      try {
+        const { data: rc } = await supabase.from('referral_codes').select('uses').eq('code', referralCode).single()
+        if (rc) await supabase.from('referral_codes').update({ uses: (rc as any).uses + 1 }).eq('code', referralCode)
+        localStorage.removeItem('pmh_ref')
+      } catch {}
+    }
 
     // Sync location and display name back to shared profiles table
     await supabase.from('profiles')

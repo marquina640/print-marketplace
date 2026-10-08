@@ -93,8 +93,9 @@ export async function transferToMaker(
   connectedAccountId: string,
   jobId:            string,
   jobTitle:         string,
+  feePercent:       number = PLATFORM_FEE_PERCENT,
 ): Promise<string> {
-  const makerShare = Math.round(toCents(amountChf) * (1 - PLATFORM_FEE_PERCENT))
+  const makerShare = Math.round(toCents(amountChf) * (1 - feePercent))
   const transfer = await stripe.transfers.create({
     amount:      makerShare,
     currency:    'chf',

@@ -1,5 +1,6 @@
 ﻿import type { Metadata } from 'next'
 import { Analytics } from '@vercel/analytics/next'
+import { ReferralCapture } from '@/components/referral-capture'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -18,6 +19,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body className="min-h-screen">
+        <ReferralCapture />
         {children}
         <Analytics />
       </body>

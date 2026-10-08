@@ -96,14 +96,17 @@ export async function confirmJobDelivery(jobId: string) {
     })
 
     const { data: printerPayoutProfile } = await adminClient
-      .from('printer_profiles').select('stripe_account_id').eq('user_id', acceptedQuote.printer_id).single()
+      .from('printer_profiles').select('stripe_account_id, fee_waiver_until').eq('user_id', acceptedQuote.printer_id).single()
 
     const stripeAccountId = (printerPayoutProfile as any)?.stripe_account_id as string | null
 
     if (acceptedQuote.price && stripeAccountId) {
-      const makerShareStr = (acceptedQuote.price * (1 - PLATFORM_FEE_PERCENT)).toFixed(2)
+      const feeWaiverUntil = (printerPayoutProfile as any)?.fee_waiver_until as string | null
+      const hasWaiver = feeWaiverUntil && new Date(feeWaiverUntil) > new Date()
+      const effectiveFee = hasWaiver ? 0 : PLATFORM_FEE_PERCENT
+      const makerShareStr = (acceptedQuote.price * (1 - effectiveFee)).toFixed(2)
       try {
-        await transferToMaker(acceptedQuote.price, stripeAccountId, jobId, job.title)
+        await transferToMaker(acceptedQuote.price, stripeAccountId, jobId, job.title, effectiveFee)
 
         await adminClient.from('jobs').update({
           payout_at: new Date().toISOString(),
@@ -145,14 +148,17 @@ export async function markPayoutSent(jobId: string) {
   if (!acceptedQuote) throw new Error('No accepted quote found')
 
   const { data: printerPayoutProfile } = await admin
-    .from('printer_profiles').select('stripe_account_id').eq('user_id', acceptedQuote.printer_id).single()
+    .from('printer_profiles').select('stripe_account_id, fee_waiver_until').eq('user_id', acceptedQuote.printer_id).single()
 
   const stripeAccountId = (printerPayoutProfile as any)?.stripe_account_id as string | null
   if (!stripeAccountId) throw new Error('Maker has no Stripe account connected')
 
-  const makerShare = (acceptedQuote.price * (1 - PLATFORM_FEE_PERCENT)).toFixed(2)
+  const feeWaiverUntil = (printerPayoutProfile as any)?.fee_waiver_until as string | null
+  const hasWaiver = feeWaiverUntil && new Date(feeWaiverUntil) > new Date()
+  const effectiveFee = hasWaiver ? 0 : PLATFORM_FEE_PERCENT
+  const makerShare = (acceptedQuote.price * (1 - effectiveFee)).toFixed(2)
 
-  await transferToMaker(acceptedQuote.price, stripeAccountId, jobId, job.title)
+  await transferToMaker(acceptedQuote.price, stripeAccountId, jobId, job.title, effectiveFee)
 
   await admin.from('jobs').update({
     payout_at: new Date().toISOString(),

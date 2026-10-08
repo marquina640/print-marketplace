@@ -5,6 +5,7 @@ import { formatDate, formatCurrency } from '@/lib/utils'
 import Link from 'next/link'
 import { AdminPreviewButtons } from './preview-buttons'
 import { CertificationPanel } from './certification-panel'
+import { ReferralPanel } from './referral-panel'
 import { MarkPayoutButton } from '@/app/(protected)/jobs/[id]/mark-payout-button'
 
 export const metadata = { title: 'Admin Dashboard' }
@@ -42,6 +43,7 @@ export default async function AdminDashboardPage() {
     { data: previewClients },
     { data: previewMakers },
     { data: pendingPayouts },
+    { data: referralCodes },
   ] = await Promise.all([
     supabase.from('profiles').select('*', { count: 'exact', head: true }),
     supabase.from('jobs').select('*', { count: 'exact', head: true }),
@@ -63,6 +65,7 @@ export default async function AdminDashboardPage() {
       .is('payout_at', null)
       .eq('quotes.status', 'accepted')
       .order('delivered_at', { ascending: true }),
+    supabase.from('referral_codes').select('*').order('created_at', { ascending: false }),
   ])
 
   const roleCounts = {
@@ -293,6 +296,20 @@ export default async function AdminDashboardPage() {
               ))}
             </tbody>
           </table>
+        </div>
+      </section>
+
+      {/* Referral Codes */}
+      <section>
+        <div className="mb-4">
+          <h2 className="text-lg font-semibold text-gray-900">Referral Codes</h2>
+          <p className="text-xs text-warm-500 mt-0.5">Create codes for influencers. Activate a waiver once they post (story = 1mo, post = 2mo, reel = 4mo free fees).</p>
+        </div>
+        <div className="card">
+          <ReferralPanel
+            codes={referralCodes ?? []}
+            appUrl={process.env.NEXT_PUBLIC_APP_URL ?? 'https://printmarkethub.com'}
+          />
         </div>
       </section>
     </div>
