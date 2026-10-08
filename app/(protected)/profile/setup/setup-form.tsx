@@ -263,7 +263,10 @@ export function ProfileSetupForm({ effectiveUserId }: { effectiveUserId: string 
     if (isNewProfile) {
       try { referralCode = localStorage.getItem('pmh_ref') } catch {}
     }
-    if (referralCode) (payload as any).referred_by = referralCode
+    if (referralCode) {
+      (payload as any).referred_by = referralCode
+      ;(payload as any).referral_free_jobs_remaining = 3
+    }
 
     const { error: upsertError } = await supabase
       .from('printer_profiles').upsert(payload, { onConflict: 'user_id' })
