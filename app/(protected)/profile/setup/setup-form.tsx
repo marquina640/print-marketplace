@@ -117,6 +117,7 @@ export function ProfileSetupForm({ effectiveUserId }: { effectiveUserId: string 
     display_name: '',
     city: '',
     location: '',
+    country: '',
     materials: [] as string[],
     colors: [] as string[],
     design_services: false,
@@ -166,6 +167,7 @@ export function ProfileSetupForm({ effectiveUserId }: { effectiveUserId: string 
           display_name: data.display_name,
           city: data.city,
           location: data.location ?? '',
+          country: (data as any).country ?? '',
           materials: data.materials,
           colors: data.colors,
           design_services: data.design_services,
@@ -212,6 +214,7 @@ export function ProfileSetupForm({ effectiveUserId }: { effectiveUserId: string 
     setError(null)
     if (!form.display_name.trim()) { setError('Display name is required.'); return }
     if (!form.city.trim()) { setError('City is required.'); return }
+    if (!form.country.trim()) { setError('Country is required.'); return }
     if (form.materials.length === 0) { setError('Select at least one material.'); return }
 
     setSaving(true)
@@ -236,6 +239,7 @@ export function ProfileSetupForm({ effectiveUserId }: { effectiveUserId: string 
       user_id: effectiveUserId,
       display_name: form.display_name.trim(),
       city: form.city.trim(),
+      country: form.country.trim() || null,
       location: form.location.trim() || null,
       materials: form.materials,
       colors: form.colors,
@@ -328,6 +332,64 @@ export function ProfileSetupForm({ effectiveUserId }: { effectiveUserId: string 
               }))
             }}
           />
+
+          <div>
+            <p className="form-label">Country *</p>
+            <select
+              required
+              value={form.country}
+              onChange={(e) => set('country', e.target.value)}
+              className="mt-1 block w-full rounded-xl border border-warm-300 bg-warm-50 px-3 py-2 text-sm text-ink-900 focus:border-gold-500 focus:outline-none focus:ring-2 focus:ring-gold-500/20"
+            >
+              <option value="">Select your country…</option>
+              <option value="AU">Australia</option>
+              <option value="AT">Austria</option>
+              <option value="BE">Belgium</option>
+              <option value="BR">Brazil</option>
+              <option value="BG">Bulgaria</option>
+              <option value="CA">Canada</option>
+              <option value="HR">Croatia</option>
+              <option value="CY">Cyprus</option>
+              <option value="CZ">Czech Republic</option>
+              <option value="DK">Denmark</option>
+              <option value="EE">Estonia</option>
+              <option value="FI">Finland</option>
+              <option value="FR">France</option>
+              <option value="DE">Germany</option>
+              <option value="GI">Gibraltar</option>
+              <option value="GR">Greece</option>
+              <option value="HK">Hong Kong</option>
+              <option value="HU">Hungary</option>
+              <option value="IN">India</option>
+              <option value="ID">Indonesia</option>
+              <option value="IE">Ireland</option>
+              <option value="IT">Italy</option>
+              <option value="JP">Japan</option>
+              <option value="LV">Latvia</option>
+              <option value="LI">Liechtenstein</option>
+              <option value="LT">Lithuania</option>
+              <option value="LU">Luxembourg</option>
+              <option value="MT">Malta</option>
+              <option value="MX">Mexico</option>
+              <option value="NL">Netherlands</option>
+              <option value="NZ">New Zealand</option>
+              <option value="NO">Norway</option>
+              <option value="PL">Poland</option>
+              <option value="PT">Portugal</option>
+              <option value="RO">Romania</option>
+              <option value="SG">Singapore</option>
+              <option value="SK">Slovakia</option>
+              <option value="SI">Slovenia</option>
+              <option value="ES">Spain</option>
+              <option value="SE">Sweden</option>
+              <option value="CH">Switzerland</option>
+              <option value="TH">Thailand</option>
+              <option value="AE">United Arab Emirates</option>
+              <option value="GB">United Kingdom</option>
+              <option value="US">United States</option>
+            </select>
+            <p className="mt-1 text-xs text-warm-400">Used to set up your Stripe payout account in the correct country.</p>
+          </div>
         </div>
 
         <div className="card p-6 space-y-4">

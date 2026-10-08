@@ -35,11 +35,14 @@ export async function createConnectOnboardingLink(
 
 /**
  * Create a new Stripe Express connected account for a maker.
+ * country should be an ISO 3166-1 alpha-2 code (e.g. 'CH', 'DE', 'EE').
+ * Defaults to the platform country (CH) if not provided.
  */
-export async function createConnectedAccount(email: string): Promise<string> {
+export async function createConnectedAccount(email: string, country = 'CH'): Promise<string> {
   const account = await stripe.accounts.create({
     type:  'express',
     email,
+    country,
     capabilities: {
       transfers: { requested: true },
     },

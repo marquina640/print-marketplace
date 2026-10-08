@@ -17,14 +17,15 @@ export async function POST(req: NextRequest) {
     // Get or create connected account
     const { data: printerProfile } = await admin
       .from('printer_profiles')
-      .select('stripe_account_id')
+      .select('stripe_account_id, country')
       .eq('user_id', user.id)
       .single()
 
     let accountId = (printerProfile as any)?.stripe_account_id as string | null
+    const country = ((printerProfile as any)?.country as string | null) ?? 'CH'
 
     if (!accountId) {
-      accountId = await createConnectedAccount(profile?.email ?? '')
+      accountId = await createConnectedAccount(profile?.email ?? '', country)
 
       // Save to DB BEFORE redirecting — if this fails, abort so we don't lose the link
       const { data: updated } = await admin
