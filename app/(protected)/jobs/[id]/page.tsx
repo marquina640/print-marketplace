@@ -72,9 +72,14 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
     : []
 
   const canSeeFiles = isOwner || isAdmin || (isPrinter && effectiveUserId === acceptedPrinter)
-  const { data: files } = canSeeFiles
+  const canSeeLinks = isOwner || isAdmin || isPrinter
+
+  const { data: fetchedFiles } = canSeeFiles
     ? await supabase.from('job_files').select('*').eq('job_id', id)
+    : canSeeLinks
+    ? await supabase.from('job_files').select('*').eq('job_id', id).eq('file_type', 'link')
     : { data: [] }
+  const files = fetchedFiles ?? []
 
   const now = new Date()
   function isExpired(q: { status: string; expires_at?: string | null }) {
@@ -262,7 +267,7 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
       </div>
 
       {/* File warning for makers */}
-      {isPrinter && canSeeFiles && files && files.length > 0 && (
+      {isPrinter && canSeeFiles && files.filter(f => f.file_type !== 'link').length > 0 && (
         <div className="rounded-xl bg-amber-50 border border-amber-200 p-4 flex gap-3">
           <svg className="h-5 w-5 text-amber-500 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
@@ -278,7 +283,7 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
       )}
 
       {/* Files */}
-      {canSeeFiles && files && files.filter((f) => f.file_type !== 'pre_ship_photo' && f.file_type !== 'delivery_photo').length > 0 && (
+      {(canSeeFiles || canSeeLinks) && files.filter((f) => f.file_type !== 'pre_ship_photo' && f.file_type !== 'delivery_photo').length > 0 && (
         <div className="card p-6">
           <h2 className="font-semibold text-warm-900 mb-4">Attached Files</h2>
           <ul className="space-y-2">

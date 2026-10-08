@@ -165,8 +165,7 @@ export default async function AdminDashboardPage() {
       {/* Users Table */}
       <section>
         <h2 className="text-lg font-semibold text-gray-900 mb-4">Recent Users</h2>
-        <div className="card overflow-hidden">
-          <div className="overflow-x-auto">
+        <div className="card overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
@@ -194,15 +193,13 @@ export default async function AdminDashboardPage() {
                 ))}
               </tbody>
             </table>
-          </div>
         </div>
       </section>
 
       {/* Jobs Table */}
       <section>
         <h2 className="text-lg font-semibold text-gray-900 mb-4">Recent Requests</h2>
-        <div className="card overflow-hidden">
-          <div className="overflow-x-auto">
+        <div className="card overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
@@ -229,15 +226,13 @@ export default async function AdminDashboardPage() {
                 ))}
               </tbody>
             </table>
-          </div>
         </div>
       </section>
 
       {/* Quotes Table */}
       <section>
         <h2 className="text-lg font-semibold text-gray-900 mb-4">Recent Quotes</h2>
-        <div className="card overflow-hidden">
-          <div className="overflow-x-auto">
+        <div className="card overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
@@ -269,14 +264,13 @@ export default async function AdminDashboardPage() {
                 })}
               </tbody>
             </table>
-          </div>
         </div>
       </section>
 
       {/* Platform Settings */}
       <section>
         <h2 className="text-lg font-semibold text-gray-900 mb-4">Platform Settings</h2>
-        <div className="card overflow-hidden">
+        <div className="card overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
