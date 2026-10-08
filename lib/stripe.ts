@@ -1,6 +1,8 @@
 import Stripe from 'stripe'
 
 export const PLATFORM_FEE_PERCENT = 0.12
+export const REFERRAL_FEE_PERCENT = 0.08       // maker pays 8% on commission jobs
+export const REFERRAL_COMMISSION_PERCENT = 0.05 // influencer earns 5% of job value
 
 export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-06-30.basil',

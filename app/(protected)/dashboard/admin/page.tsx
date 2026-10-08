@@ -44,6 +44,7 @@ export default async function AdminDashboardPage() {
     { data: previewMakers },
     { data: pendingPayouts },
     { data: referralCodes },
+    { data: pendingCommissions },
   ] = await Promise.all([
     supabase.from('profiles').select('*', { count: 'exact', head: true }),
     supabase.from('jobs').select('*', { count: 'exact', head: true }),
@@ -66,7 +67,18 @@ export default async function AdminDashboardPage() {
       .eq('quotes.status', 'accepted')
       .order('delivered_at', { ascending: true }),
     supabase.from('referral_codes').select('*').order('created_at', { ascending: false }),
+    (supabase as any).from('referral_commissions')
+      .select('referral_code, commission_chf')
+      .eq('paid_out', false),
   ])
+
+  const commissionsByCode = (pendingCommissions ?? []).reduce((acc: Record<string, { pending_chf: number; pending_count: number }>, c: any) => {
+    if (!acc[c.referral_code]) acc[c.referral_code] = { pending_chf: 0, pending_count: 0 }
+    acc[c.referral_code].pending_chf += Number(c.commission_chf)
+    acc[c.referral_code].pending_count += 1
+    return acc
+  }, {})
+  const pendingCommissionsList = Object.entries(commissionsByCode).map(([referral_code, v]) => ({ referral_code, ...v }))
 
   const roleCounts = {
     client: recentUsers?.filter((u) => u.role === 'client').length ?? 0,
@@ -309,6 +321,7 @@ export default async function AdminDashboardPage() {
           <ReferralPanel
             codes={referralCodes ?? []}
             appUrl={process.env.NEXT_PUBLIC_APP_URL ?? 'https://printmarkethub.com'}
+            pendingCommissions={pendingCommissionsList}
           />
         </div>
       </section>

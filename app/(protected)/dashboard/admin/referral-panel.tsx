@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { createReferralCode, activateReferralWaiver } from '@/app/actions/referrals'
+import { createReferralCode, activateReferralWaiver, payOutCommissions } from '@/app/actions/referrals'
 
 interface ReferralCode {
   id: string
@@ -16,11 +16,19 @@ interface ReferralCode {
   active: boolean
 }
 
+interface PendingCommission {
+  referral_code: string
+  pending_chf: number
+  pending_count: number
+}
+
 const TIER_MONTHS: Record<string, number> = { story: 1, post: 2, reel: 4 }
 
-export function ReferralPanel({ codes, appUrl }: { codes: ReferralCode[]; appUrl: string }) {
+export function ReferralPanel({ codes, appUrl, pendingCommissions }: { codes: ReferralCode[]; appUrl: string; pendingCommissions: PendingCommission[] }) {
   const [, startTransition] = useTransition()
   const [localCodes, setLocalCodes] = useState<ReferralCode[]>(codes)
+  const [localCommissions, setLocalCommissions] = useState<PendingCommission[]>(pendingCommissions)
+  const [payingOut, setPayingOut] = useState<string | null>(null)
   const [creating, setCreating] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
@@ -47,6 +55,21 @@ export function ReferralPanel({ codes, appUrl }: { codes: ReferralCode[]; appUrl
         setTimeout(() => setSuccess(null), 3000)
       }
       setCreating(false)
+    })
+  }
+
+  function handlePayOut(code: string, name: string) {
+    setPayingOut(code)
+    setError(null)
+    startTransition(async () => {
+      const result = await payOutCommissions(code)
+      if (result.error) { setError(result.error) }
+      else {
+        setLocalCommissions((prev) => prev.filter((c) => c.referral_code !== code))
+        setSuccess(`Paid CHF ${result.amountPaid?.toFixed(2)} to ${name}.`)
+        setTimeout(() => setSuccess(null), 5000)
+      }
+      setPayingOut(null)
     })
   }
 
@@ -128,13 +151,16 @@ export function ReferralPanel({ codes, appUrl }: { codes: ReferralCode[]; appUrl
             <tr className="border-b border-warm-200 text-left text-xs uppercase tracking-wider text-warm-400">
               <th className="pb-2 pr-4">Code / Link</th>
               <th className="pb-2 pr-4">Influencer</th>
-              <th className="pb-2 pr-4">Uses</th>
+              <th className="pb-2 pr-4">Signups</th>
+              <th className="pb-2 pr-4">Commissions</th>
               <th className="pb-2 pr-4">Waiver</th>
-              <th className="pb-2">Activate</th>
+              <th className="pb-2">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-warm-100">
-            {localCodes.map((rc) => (
+            {localCodes.map((rc) => {
+              const pending = localCommissions.find((c) => c.referral_code === rc.code)
+              return (
               <tr key={rc.id} className="py-2">
                 <td className="py-3 pr-4">
                   <p className="font-mono font-semibold text-ink-800">{rc.code}</p>
@@ -147,7 +173,23 @@ export function ReferralPanel({ codes, appUrl }: { codes: ReferralCode[]; appUrl
                 </td>
                 <td className="py-3 pr-4">
                   <span className="font-semibold text-ink-800">{rc.uses}</span>
-                  <span className="text-warm-400 ml-1">signups</span>
+                </td>
+                <td className="py-3 pr-4">
+                  {pending ? (
+                    <div>
+                      <p className="font-semibold text-amber-700">CHF {Number(pending.pending_chf).toFixed(2)} pending</p>
+                      <p className="text-xs text-warm-400">{pending.pending_count} job{pending.pending_count !== 1 ? 's' : ''}</p>
+                      <button
+                        onClick={() => handlePayOut(rc.code, rc.influencer_name)}
+                        disabled={payingOut === rc.code}
+                        className="mt-1 px-3 py-1 rounded-lg bg-green-600 text-white text-xs font-medium hover:bg-green-700 disabled:opacity-50"
+                      >
+                        {payingOut === rc.code ? 'Paying…' : 'Pay out'}
+                      </button>
+                    </div>
+                  ) : (
+                    <span className="text-xs text-warm-400">No pending</span>
+                  )}
                 </td>
                 <td className="py-3 pr-4">
                   {rc.waiver_activated ? (
@@ -160,7 +202,7 @@ export function ReferralPanel({ codes, appUrl }: { codes: ReferralCode[]; appUrl
                 </td>
                 <td className="py-3">
                   {!rc.waiver_activated && (
-                    <div className="flex gap-1">
+                    <div className="flex gap-1 flex-wrap">
                       {(['story', 'post', 'reel'] as const).map((tier) => (
                         <button
                           key={tier}
@@ -174,7 +216,8 @@ export function ReferralPanel({ codes, appUrl }: { codes: ReferralCode[]; appUrl
                   )}
                 </td>
               </tr>
-            ))}
+              )
+            })}
             {localCodes.length === 0 && (
               <tr>
                 <td colSpan={5} className="py-6 text-center text-sm text-warm-400">No referral codes yet.</td>

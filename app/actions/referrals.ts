@@ -3,6 +3,8 @@
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { revalidatePath } from 'next/cache'
+import { stripe } from '@/lib/stripe'
+import { toCents } from '@/lib/stripe'
 
 async function assertAdmin() {
   const supabase = await createClient()
@@ -75,6 +77,59 @@ export async function activateReferralWaiver(
 
     revalidatePath('/dashboard/admin')
     return {}
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : 'Unknown error' }
+  }
+}
+
+export async function payOutCommissions(
+  referralCode: string,
+): Promise<{ error?: string; amountPaid?: number }> {
+  try {
+    await assertAdmin()
+    const admin = createAdminClient()
+
+    // Get all unpaid commissions for this code
+    const { data: commissions } = await admin
+      .from('referral_commissions' as any)
+      .select('*')
+      .eq('referral_code', referralCode)
+      .eq('paid_out', false)
+
+    if (!commissions || commissions.length === 0) return { error: 'No pending commissions for this code.' }
+
+    const totalChf = (commissions as any[]).reduce((sum, c) => sum + Number(c.commission_chf), 0)
+    if (totalChf <= 0) return { error: 'Total commission is zero.' }
+
+    // Find the influencer's Stripe account via their email
+    const { data: rc } = await admin.from('referral_codes').select('influencer_email').eq('code', referralCode).single()
+    if (!(rc as any)?.influencer_email) return { error: 'No email on this referral code.' }
+
+    const { data: influencerProfile } = await admin
+      .from('profiles').select('user_id').eq('email', (rc as any).influencer_email).single()
+    if (!influencerProfile) return { error: 'Influencer has no account on the platform yet.' }
+
+    const { data: influencerPrinterProfile } = await admin
+      .from('printer_profiles').select('stripe_account_id').eq('user_id', influencerProfile.user_id).single()
+    const stripeAccountId = (influencerPrinterProfile as any)?.stripe_account_id as string | null
+    if (!stripeAccountId) return { error: 'Influencer has not connected Stripe yet.' }
+
+    // Transfer total commission to influencer
+    const transfer = await stripe.transfers.create({
+      amount:      toCents(totalChf),
+      currency:    'chf',
+      destination: stripeAccountId,
+      metadata:    { referralCode, type: 'affiliate_commission' },
+    })
+
+    // Mark all as paid
+    const ids = (commissions as any[]).map((c) => c.id)
+    await admin.from('referral_commissions' as any)
+      .update({ paid_out: true, paid_out_at: new Date().toISOString(), stripe_transfer_id: transfer.id })
+      .in('id', ids)
+
+    revalidatePath('/dashboard/admin')
+    return { amountPaid: totalChf }
   } catch (err) {
     return { error: err instanceof Error ? err.message : 'Unknown error' }
   }
