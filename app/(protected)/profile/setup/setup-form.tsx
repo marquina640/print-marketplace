@@ -264,8 +264,22 @@ export function ProfileSetupForm({ effectiveUserId }: { effectiveUserId: string 
       try { referralCode = localStorage.getItem('pmh_ref') } catch {}
     }
     if (referralCode) {
-      (payload as any).referred_by = referralCode
+      const { data: rc } = await supabase
+        .from('referral_codes')
+        .select('referred_maker_commission_months')
+        .eq('code', referralCode)
+        .single()
+      const months = (rc as any)?.referred_maker_commission_months as number | null
+      ;(payload as any).referred_by = referralCode
+      // Makers always get 8% fee on their first 3 jobs
       ;(payload as any).referral_free_jobs_remaining = 3
+      // If the influencer has a custom commission window, also set the date so their
+      // commission keeps flowing beyond those 3 jobs
+      if (months && months > 0) {
+        const commissionUntil = new Date()
+        commissionUntil.setMonth(commissionUntil.getMonth() + months)
+        ;(payload as any).referral_commission_until = commissionUntil.toISOString()
+      }
     }
 
     const { error: upsertError } = await supabase
@@ -502,6 +516,7 @@ export function ProfileSetupForm({ effectiveUserId }: { effectiveUserId: string 
               detailsSubmitted={stripeStatus.detailsSubmitted}
               hasAccount={stripeStatus.hasAccount}
               isReturn={stripeReturn === 'success'}
+              countrySelected={!!form.country}
             />
           )}
 
