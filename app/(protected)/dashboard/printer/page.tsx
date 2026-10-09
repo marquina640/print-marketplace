@@ -9,6 +9,7 @@ import { EmptyState } from '@/components/ui/empty-state'
 import { formatCurrency, formatDate, getCertificationLevel, CERTIFICATION_LEVELS } from '@/lib/utils'
 import { CertificationBadge } from '@/components/ui/badge'
 import { ProfileCompletenessBanner } from '@/components/dashboard/profile-completeness-banner'
+import { STRIPE_CONNECT_COUNTRIES } from '@/lib/stripe'
 
 export const metadata = { title: 'Printer Dashboard' }
 
@@ -90,7 +91,7 @@ export default async function PrinterDashboardPage({ searchParams }: PageProps) 
     { label: 'At least one material', done: (mp?.materials?.length ?? 0) > 0, href: '/profile/setup', group: 'core' as const },
     { label: 'At least one color', done: (mp?.colors?.length ?? 0) > 0, href: '/profile/setup', group: 'core' as const },
     { label: 'Printer added', done: hasMachines, href: '/profile/machines', group: 'core' as const },
-    { label: 'Stripe connected', done: !!mp?.stripe_account_id && !!mp?.stripe_onboarding_complete, href: '/profile/setup', group: 'core' as const },
+    { label: usesPayPalByDesign ? 'PayPal email set' : 'Stripe connected', done: usesPayPalByDesign ? !!mp?.paypal_email : (!!mp?.stripe_account_id && !!mp?.stripe_onboarding_complete), href: '/profile/setup', group: 'core' as const },
     { label: 'Profile photo', done: !!(profile as any)?.avatar_url, href: '/profile/setup', group: 'visibility' as const },
     { label: 'About / description', done: !!mp?.description, href: '/profile/setup', group: 'visibility' as const },
     { label: 'At least one service enabled', done: hasService, href: '/profile/setup', group: 'visibility' as const },
@@ -134,7 +135,9 @@ export default async function PrinterDashboardPage({ searchParams }: PageProps) 
   const nextCert         = certLevel < 3 ? CERTIFICATION_LEVELS[certLevel + 1] : null
   const stripeAccountId  = (makerProfile as any)?.stripe_account_id as string | null
   const paypalEmail      = (makerProfile as any)?.paypal_email as string | null
-  const needsPaypalMigration = !!paypalEmail && !stripeAccountId
+  const makerCountry     = (makerProfile as any)?.country as string | null
+  const usesPayPalByDesign = !!makerCountry && !STRIPE_CONNECT_COUNTRIES.has(makerCountry)
+  const needsPaypalMigration = !!paypalEmail && !stripeAccountId && !usesPayPalByDesign
   const isAdminPreview   = !!previewUserId
 
   // Earnings: sum of accepted quote prices for delivered/completed jobs

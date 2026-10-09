@@ -1,6 +1,14 @@
 import Stripe from 'stripe'
 
 export const PLATFORM_FEE_PERCENT = 0.12
+
+// Countries where Stripe Express Connect is available for maker payouts.
+// Makers in any other country use PayPal instead.
+export const STRIPE_CONNECT_COUNTRIES = new Set([
+  'AU','AT','BE','BG','CA','HR','CY','CZ','DK','EE','FI','FR','DE',
+  'GI','GR','HK','HU','IN','IE','IT','JP','LV','LI','LT','LU','MT',
+  'NL','NZ','NO','PL','PT','RO','SG','SK','SI','ES','SE','CH','AE','GB','US',
+])
 export const REFERRAL_FEE_PERCENT = 0.08       // maker pays 8% on commission jobs
 export const REFERRAL_COMMISSION_PERCENT = 0.05 // influencer earns 5% of job value
 

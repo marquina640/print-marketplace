@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { createNotification, notifyJobShipped, notifyDeliveryConfirmed } from './notifications'
 import { transferToMaker, PLATFORM_FEE_PERCENT, REFERRAL_FEE_PERCENT, REFERRAL_COMMISSION_PERCENT } from '@/lib/stripe'
+import { sendPayPalPayout } from '@/lib/paypal'
 
 export interface ShippingDetails {
   inPerson: boolean
@@ -155,23 +156,35 @@ export async function confirmJobDelivery(jobId: string) {
 
     const { data: printerPayoutProfile } = await adminClient
       .from('printer_profiles')
-      .select('stripe_account_id, fee_waiver_until, referral_commission_until, referral_free_jobs_remaining')
+      .select('stripe_account_id, paypal_email, fee_waiver_until, referral_commission_until, referral_free_jobs_remaining')
       .eq('user_id', acceptedQuote.printer_id)
       .single()
 
     const stripeAccountId = (printerPayoutProfile as any)?.stripe_account_id as string | null
-    const quoteCurrency = (acceptedQuote as any).currency as string ?? 'CHF'
+    const paypalEmail     = (printerPayoutProfile as any)?.paypal_email as string | null
+    const quoteCurrency   = (acceptedQuote as any).currency as string ?? 'CHF'
 
-    if (acceptedQuote.price && stripeAccountId) {
+    if (acceptedQuote.price && (stripeAccountId || paypalEmail)) {
       const effectiveFee = resolveEffectiveFee(
         (printerPayoutProfile as any)?.fee_waiver_until,
         (printerPayoutProfile as any)?.referral_commission_until,
         (printerPayoutProfile as any)?.referral_free_jobs_remaining,
       )
-      const makerShareStr = (acceptedQuote.price * (1 - effectiveFee)).toFixed(2)
+      const makerShare    = acceptedQuote.price * (1 - effectiveFee)
+      const makerShareStr = makerShare.toFixed(2)
 
       try {
-        await transferToMaker(acceptedQuote.price, stripeAccountId, jobId, job.title, effectiveFee, quoteCurrency)
+        if (stripeAccountId) {
+          await transferToMaker(acceptedQuote.price, stripeAccountId, jobId, job.title, effectiveFee, quoteCurrency)
+        } else if (paypalEmail) {
+          await sendPayPalPayout({
+            recipientEmail: paypalEmail,
+            amount:         makerShareStr,
+            currency:       quoteCurrency,
+            jobId,
+            jobTitle:       job.title,
+          })
+        }
 
         // Record commission if this was a referral commission job (8% fee tier)
         if (effectiveFee === REFERRAL_FEE_PERCENT) {
@@ -187,14 +200,14 @@ export async function confirmJobDelivery(jobId: string) {
           userId: acceptedQuote.printer_id,
           type:   'payout_sent',
           title:  'Payment sent!',
-          body:   `${quoteCurrency} ${makerShareStr} for "${job.title}" has been sent to your bank account.`,
+          body:   `${quoteCurrency} ${makerShareStr} for "${job.title}" has been sent to your ${stripeAccountId ? 'bank account' : 'PayPal'}.`,
           link:   `/jobs/${jobId}`,
         })
       } catch (err) {
         console.error('Auto-payout failed for job', jobId, err)
       }
     }
-    // If no Stripe account, job stays at 'delivered' → visible in admin Pending Payouts
+    // If no payout method, job stays at 'delivered' → visible in admin Pending Payouts
   }
 
   revalidatePath(`/jobs/${jobId}`)
@@ -219,12 +232,13 @@ export async function markPayoutSent(jobId: string) {
 
   const { data: printerPayoutProfile } = await admin
     .from('printer_profiles')
-    .select('stripe_account_id, fee_waiver_until, referral_commission_until, referral_free_jobs_remaining')
+    .select('stripe_account_id, paypal_email, fee_waiver_until, referral_commission_until, referral_free_jobs_remaining')
     .eq('user_id', acceptedQuote.printer_id)
     .single()
 
   const stripeAccountId = (printerPayoutProfile as any)?.stripe_account_id as string | null
-  if (!stripeAccountId) throw new Error('Maker has no Stripe account connected')
+  const paypalEmail     = (printerPayoutProfile as any)?.paypal_email as string | null
+  if (!stripeAccountId && !paypalEmail) throw new Error('Maker has no payout method connected')
 
   const quoteCurrency = (acceptedQuote as any).currency as string ?? 'CHF'
   const effectiveFee = resolveEffectiveFee(
@@ -234,7 +248,17 @@ export async function markPayoutSent(jobId: string) {
   )
   const makerShare = (acceptedQuote.price * (1 - effectiveFee)).toFixed(2)
 
-  await transferToMaker(acceptedQuote.price, stripeAccountId, jobId, job.title, effectiveFee, quoteCurrency)
+  if (stripeAccountId) {
+    await transferToMaker(acceptedQuote.price, stripeAccountId, jobId, job.title, effectiveFee, quoteCurrency)
+  } else if (paypalEmail) {
+    await sendPayPalPayout({
+      recipientEmail: paypalEmail,
+      amount:         makerShare,
+      currency:       quoteCurrency,
+      jobId,
+      jobTitle:       job.title,
+    })
+  }
 
   if (effectiveFee === REFERRAL_FEE_PERCENT) {
     await applyReferralCommission(admin, acceptedQuote.printer_id, jobId, acceptedQuote.price, quoteCurrency)
@@ -249,7 +273,7 @@ export async function markPayoutSent(jobId: string) {
     userId: acceptedQuote.printer_id,
     type:   'payout_sent',
     title:  'Payment sent!',
-    body:   `${quoteCurrency} ${makerShare} for "${job.title}" has been sent to your bank account.`,
+    body:   `${quoteCurrency} ${makerShare} for "${job.title}" has been sent to your ${stripeAccountId ? 'bank account' : 'PayPal'}.`,
     link:   `/jobs/${jobId}`,
   })
 

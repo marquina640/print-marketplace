@@ -10,6 +10,7 @@ import { MATERIALS_BY_LEVEL, COLORS } from '@/lib/utils'
 import { AddressAutocomplete } from '@/components/ui/address-autocomplete'
 import { StripeConnectButton } from '@/components/payments/stripe-connect-button'
 import { EmailChangeSection } from '@/components/profile/email-change-section'
+import { STRIPE_CONNECT_COUNTRIES } from '@/lib/stripe'
 
 function MultiCheckbox({ label, options, selected, onChange }: {
   label: string; options: string[]; selected: string[]; onChange: (v: string[]) => void
@@ -510,14 +511,34 @@ export function ProfileSetupForm({ effectiveUserId }: { effectiveUserId: string 
             <p className="text-xs text-warm-500 mt-0.5">Where we send your payment after delivery is confirmed.</p>
           </div>
 
-          {stripeStatus !== null && (
-            <StripeConnectButton
-              connected={stripeStatus.connected}
-              detailsSubmitted={stripeStatus.detailsSubmitted}
-              hasAccount={stripeStatus.hasAccount}
-              isReturn={stripeReturn === 'success'}
-              countrySelected={!!form.country}
-            />
+          {form.country && !STRIPE_CONNECT_COUNTRIES.has(form.country) ? (
+            <div className="space-y-3">
+              <div className="rounded-xl bg-blue-50 border border-blue-200 px-4 py-3 text-sm text-blue-800">
+                <p className="font-semibold">PayPal payouts</p>
+                <p className="text-xs mt-0.5 text-blue-700">Stripe is not available in your country. We'll send your earnings to your PayPal account after each delivery.</p>
+              </div>
+              <div>
+                <label className="form-label">PayPal email *</label>
+                <input
+                  type="email"
+                  value={form.paypal_email}
+                  onChange={(e) => set('paypal_email', e.target.value)}
+                  placeholder="your@paypal.com"
+                  className="mt-1 block w-full rounded-xl border border-warm-300 bg-warm-50 px-3 py-2 text-sm text-ink-900 focus:border-gold-500 focus:outline-none focus:ring-2 focus:ring-gold-500/20"
+                />
+                <p className="mt-1 text-xs text-warm-400">Make sure this matches your PayPal account email exactly.</p>
+              </div>
+            </div>
+          ) : (
+            stripeStatus !== null && (
+              <StripeConnectButton
+                connected={stripeStatus.connected}
+                detailsSubmitted={stripeStatus.detailsSubmitted}
+                hasAccount={stripeStatus.hasAccount}
+                isReturn={stripeReturn === 'success'}
+                countrySelected={!!form.country}
+              />
+            )
           )}
 
         </div>
