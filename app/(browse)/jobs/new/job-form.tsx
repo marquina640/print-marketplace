@@ -41,6 +41,26 @@ export function NewJobForm({ clientId, clientLocation, isGuest, makerProcesses, 
   const [refDragOver, setRefDragOver] = useState(false)
 
   const [currency, setCurrency] = useState('CHF')
+
+  // Auto-detect local currency from browser locale on first render
+  useEffect(() => {
+    try {
+      const locale = navigator.language || 'en-CH'
+      const country = locale.split('-')[1]?.toUpperCase()
+      const map: Record<string, string> = {
+        US: 'USD', GB: 'GBP', AU: 'AUD', CA: 'CAD',
+        DE: 'EUR', FR: 'EUR', IT: 'EUR', ES: 'EUR', NL: 'EUR',
+        AT: 'EUR', BE: 'EUR', PT: 'EUR', IE: 'EUR', FI: 'EUR',
+        GR: 'EUR', SK: 'EUR', SI: 'EUR', EE: 'EUR', LV: 'EUR',
+        LT: 'EUR', LU: 'EUR', MT: 'EUR', CY: 'EUR',
+        CH: 'CHF', LI: 'CHF',
+        SE: 'SEK', NO: 'NOK', DK: 'DKK',
+        JP: 'JPY', MX: 'MXN',
+      }
+      const detected = country ? map[country] : null
+      if (detected) setCurrency(detected)
+    } catch {}
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
   const [form, setForm] = useState({
     title: '',
     description: '',
