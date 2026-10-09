@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/ui/empty-state'
 import { formatCurrency, formatDate, getCertificationLevel, CERTIFICATION_LEVELS } from '@/lib/utils'
 import { CertificationBadge } from '@/components/ui/badge'
+import { ProfileCompletenessBanner } from '@/components/dashboard/profile-completeness-banner'
 
 export const metadata = { title: 'Printer Dashboard' }
 
@@ -22,7 +23,7 @@ export default async function PrinterDashboardPage({ searchParams }: PageProps) 
   if (!user) redirect('/login')
 
   const { data: profile } = await supabase
-    .from('profiles').select('role, display_name').eq('user_id', user.id).single()
+    .from('profiles').select('role, display_name, avatar_url').eq('user_id', user.id).single()
 
   const cookieStore = await cookies()
   const viewMode = cookieStore.get('view_mode')?.value
@@ -50,6 +51,7 @@ export default async function PrinterDashboardPage({ searchParams }: PageProps) 
     { data: recentJobs },
     { data: makerProfile },
     { count: machineCount },
+    { count: activePortfolioCount },
   ] = await Promise.all([
     supabase
       .from('quotes')
@@ -61,16 +63,41 @@ export default async function PrinterDashboardPage({ searchParams }: PageProps) 
       : recentJobsQuery,
     supabase
       .from('printer_profiles')
-      .select('certification_level, display_name, stripe_account_id, paypal_email')
+      .select('certification_level, display_name, stripe_account_id, stripe_onboarding_complete, paypal_email, country, city, materials, colors, design_services, shipping, local_delivery, pickup, hourly_rate, description, service_radius_km')
       .eq('user_id', effectiveUserId)
       .single(),
     supabase
       .from('machines')
       .select('*', { count: 'exact', head: true })
+      .eq('maker_id', effectiveUserId)
+      .eq('is_active', true),
+    supabase
+      .from('portfolio_items')
+      .select('*', { count: 'exact', head: true })
       .eq('maker_id', effectiveUserId),
   ])
 
   const hasMachines = (machineCount ?? 0) > 0
+
+  const mp = makerProfile as any
+  const hasService = !!(mp?.shipping || mp?.pickup || mp?.local_delivery || mp?.design_services)
+  const needsHourlyRate = !!mp?.design_services
+
+  const completenessItems = [
+    { label: 'Display name', done: !!mp?.display_name, href: '/profile/setup', group: 'core' as const },
+    { label: 'Country', done: !!mp?.country, href: '/profile/setup', group: 'core' as const },
+    { label: 'City', done: !!mp?.city, href: '/profile/setup', group: 'core' as const },
+    { label: 'At least one material', done: (mp?.materials?.length ?? 0) > 0, href: '/profile/setup', group: 'core' as const },
+    { label: 'At least one color', done: (mp?.colors?.length ?? 0) > 0, href: '/profile/setup', group: 'core' as const },
+    { label: 'Printer added', done: hasMachines, href: '/profile/machines', group: 'core' as const },
+    { label: 'Stripe connected', done: !!mp?.stripe_account_id && !!mp?.stripe_onboarding_complete, href: '/profile/setup', group: 'core' as const },
+    { label: 'Profile photo', done: !!(profile as any)?.avatar_url, href: '/profile/setup', group: 'visibility' as const },
+    { label: 'About / description', done: !!mp?.description, href: '/profile/setup', group: 'visibility' as const },
+    { label: 'At least one service enabled', done: hasService, href: '/profile/setup', group: 'visibility' as const },
+    { label: 'Portfolio photo', done: (activePortfolioCount ?? 0) > 0, href: '/profile/portfolio', group: 'visibility' as const },
+    { label: 'Job alert radius set', done: (mp?.service_radius_km ?? 0) > 0, href: '/profile/setup', group: 'trust' as const },
+    ...(needsHourlyRate ? [{ label: 'Hourly rate (design services)', done: !!mp?.hourly_rate, href: '/profile/setup', group: 'trust' as const }] : []),
+  ]
 
   // Fetch job details separately (avoid inner-join RLS issue where accepted jobs are filtered out)
   const quotedJobIds = [...new Set(allMyQuotes?.map((q) => q.job_id) ?? [])]
@@ -154,6 +181,9 @@ export default async function PrinterDashboardPage({ searchParams }: PageProps) 
         </div>
         <Link href="/jobs"><Button variant="gold">Browse Requests</Button></Link>
       </div>
+
+      {/* Profile completeness */}
+      <ProfileCompletenessBanner items={completenessItems} />
 
       {/* Payout panel */}
       {stripeAccountId ? (
