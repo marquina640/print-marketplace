@@ -12,9 +12,12 @@ export function platformFee(amount: number): number {
   return Math.round(amount * PLATFORM_FEE_PERCENT)
 }
 
-/** Amount in smallest currency unit (rappen for CHF) */
-export function toCents(chf: number): number {
-  return Math.round(chf * 100)
+const ZERO_DECIMAL_CURRENCIES = new Set(['JPY', 'KRW', 'VND', 'BIF', 'CLP', 'GNF', 'MGA', 'PYG', 'RWF', 'UGX', 'XAF', 'XOF'])
+
+/** Amount in smallest currency unit (e.g. cents for USD/CHF, whole units for JPY) */
+export function toCents(amount: number, currency = 'CHF'): number {
+  if (ZERO_DECIMAL_CURRENCIES.has(currency.toUpperCase())) return Math.round(amount)
+  return Math.round(amount * 100)
 }
 
 /**
@@ -91,16 +94,17 @@ export async function createPaymentIntent(
  * Called when customer confirms receipt.
  */
 export async function transferToMaker(
-  amountChf:        number,
+  amount:             number,
   connectedAccountId: string,
-  jobId:            string,
-  jobTitle:         string,
-  feePercent:       number = PLATFORM_FEE_PERCENT,
+  jobId:              string,
+  jobTitle:           string,
+  feePercent:         number = PLATFORM_FEE_PERCENT,
+  currency:           string = 'CHF',
 ): Promise<string> {
-  const makerShare = Math.round(toCents(amountChf) * (1 - feePercent))
+  const makerShare = Math.round(toCents(amount, currency) * (1 - feePercent))
   const transfer = await stripe.transfers.create({
     amount:      makerShare,
-    currency:    'chf',
+    currency:    currency.toLowerCase(),
     destination: connectedAccountId,
     metadata:    { jobId, jobTitle },
   })

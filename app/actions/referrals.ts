@@ -19,6 +19,7 @@ export async function createReferralCode(input: {
   influencer_name: string
   influencer_email: string | null
   instagram_handle: string | null
+  referred_maker_commission_months: number | null
 }): Promise<{ error?: string; code?: any }> {
   try {
     await assertAdmin()
@@ -98,9 +99,6 @@ export async function payOutCommissions(
 
     if (!commissions || commissions.length === 0) return { error: 'No pending commissions for this code.' }
 
-    const totalChf = (commissions as any[]).reduce((sum, c) => sum + Number(c.commission_chf), 0)
-    if (totalChf <= 0) return { error: 'Total commission is zero.' }
-
     // Find the influencer's Stripe account via their email
     const { data: rc } = await admin.from('referral_codes').select('influencer_email').eq('code', referralCode).single()
     if (!(rc as any)?.influencer_email) return { error: 'No email on this referral code.' }
@@ -114,22 +112,37 @@ export async function payOutCommissions(
     const stripeAccountId = (influencerPrinterProfile as any)?.stripe_account_id as string | null
     if (!stripeAccountId) return { error: 'Influencer has not connected Stripe yet.' }
 
-    // Transfer total commission to influencer
-    const transfer = await stripe.transfers.create({
-      amount:      toCents(totalChf),
-      currency:    'chf',
-      destination: stripeAccountId,
-      metadata:    { referralCode, type: 'affiliate_commission' },
-    })
+    // Group commissions by currency and make one transfer per currency
+    const byCurrency = (commissions as any[]).reduce<Record<string, { total: number; ids: string[] }>>((acc, c) => {
+      const cur = (c.currency as string | null) ?? 'CHF'
+      const amount = Number(c.commission_amount ?? c.commission_chf)
+      if (!acc[cur]) acc[cur] = { total: 0, ids: [] }
+      acc[cur].total += amount
+      acc[cur].ids.push(c.id)
+      return acc
+    }, {})
 
-    // Mark all as paid
-    const ids = (commissions as any[]).map((c) => c.id)
-    await admin.from('referral_commissions' as any)
-      .update({ paid_out: true, paid_out_at: new Date().toISOString(), stripe_transfer_id: transfer.id })
-      .in('id', ids)
+    let totalPaid = 0
+    const now = new Date().toISOString()
+
+    for (const [currency, { total, ids }] of Object.entries(byCurrency)) {
+      if (total <= 0) continue
+      const transfer = await stripe.transfers.create({
+        amount:      toCents(total, currency),
+        currency:    currency.toLowerCase(),
+        destination: stripeAccountId,
+        metadata:    { referralCode, type: 'affiliate_commission', currency },
+      })
+      await admin.from('referral_commissions' as any)
+        .update({ paid_out: true, paid_out_at: now, stripe_transfer_id: transfer.id })
+        .in('id', ids)
+      totalPaid += total
+    }
+
+    if (totalPaid <= 0) return { error: 'Total commission is zero.' }
 
     revalidatePath('/dashboard/admin')
-    return { amountPaid: totalChf }
+    return { amountPaid: totalPaid }
   } catch (err) {
     return { error: err instanceof Error ? err.message : 'Unknown error' }
   }

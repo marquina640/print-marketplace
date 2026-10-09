@@ -10,6 +10,7 @@ import { notifyClientOfNewQuote } from '@/app/actions/submit-quote'
 
 interface QuoteFormProps {
   jobId: string
+  jobCurrency?: string
   printerId?: string
   shippingRequired?: boolean
   existingQuote?: {
@@ -21,7 +22,7 @@ interface QuoteFormProps {
   } | null
 }
 
-export function QuoteForm({ jobId, printerId: printerIdProp, shippingRequired, existingQuote }: QuoteFormProps) {
+export function QuoteForm({ jobId, jobCurrency = 'CHF', printerId: printerIdProp, shippingRequired, existingQuote }: QuoteFormProps) {
   const router = useRouter()
   const fileRef = useRef<HTMLInputElement>(null)
   const [loading, setLoading] = useState(false)
@@ -52,8 +53,8 @@ export function QuoteForm({ jobId, printerId: printerIdProp, shippingRequired, e
       setError('Please upload a photo of the model or your print preview.')
       return
     }
-    if (!price || parseFloat(price) < 10) {
-      setError('Minimum quote price is CHF 10.00.')
+    if (!price || parseFloat(price) < 1) {
+      setError(`Minimum quote price is 1 ${jobCurrency}.`)
       return
     }
     if (!leadTime || parseInt(leadTime) < 1) {
@@ -108,6 +109,7 @@ export function QuoteForm({ jobId, printerId: printerIdProp, shippingRequired, e
       job_id: jobId,
       printer_id: effectivePrinterId,
       price: parseFloat(price),
+      currency: jobCurrency,
       lead_time_days: parseInt(leadTime),
       message: message.trim() || null,
       price_justification: justification.trim() || null,
@@ -208,9 +210,9 @@ export function QuoteForm({ jobId, printerId: printerIdProp, shippingRequired, e
 
       <div className="grid grid-cols-2 gap-4">
         <Input
-          label={shippingRequired ? 'Your price incl. shipping (CHF)' : 'Your price (CHF)'}
+          label={shippingRequired ? `Your price incl. shipping (${jobCurrency})` : `Your price (${jobCurrency})`}
           type="number" min="0" step="0.01" required
-          value={price} onChange={(e) => setPrice(e.target.value)} placeholder="49.00" min="10"
+          value={price} onChange={(e) => setPrice(e.target.value)} placeholder="49.00"
         />
         <Input label="Lead time (days)" type="number" min="1" required
           value={leadTime} onChange={(e) => setLeadTime(e.target.value)} placeholder="7" />

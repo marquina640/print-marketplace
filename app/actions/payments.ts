@@ -64,41 +64,56 @@ async function applyReferralCommission(
   makerId: string,
   jobId: string,
   jobPrice: number,
+  currency: string = 'CHF',
 ) {
   const { data: pp } = await admin
     .from('printer_profiles')
-    .select('referred_by, referral_free_jobs_remaining')
+    .select('referred_by, referral_commission_until, referral_free_jobs_remaining')
     .eq('user_id', makerId)
     .single()
 
   const referralCode = (pp as any)?.referred_by as string | null
+  const commissionUntil = (pp as any)?.referral_commission_until as string | null
   const jobsLeft = (pp as any)?.referral_free_jobs_remaining as number | null
 
-  if (!referralCode || !jobsLeft || jobsLeft <= 0) return null
+  if (!referralCode) return null
 
-  const commissionChf = Math.round(jobPrice * REFERRAL_COMMISSION_PERCENT * 100) / 100
+  // Decrement job counter regardless — this drives the maker's 8% fee window
+  if (jobsLeft != null && jobsLeft > 0) {
+    await admin.from('printer_profiles')
+      .update({ referral_free_jobs_remaining: jobsLeft - 1 } as any)
+      .eq('user_id', makerId)
+  }
+
+  // Earn commission if within the influencer's window (date-based) or the default 3-job window
+  const withinDateWindow = commissionUntil && new Date(commissionUntil) > new Date()
+  const withinJobWindow  = jobsLeft != null && jobsLeft > 0
+
+  if (!withinDateWindow && !withinJobWindow) return null
+
+  const commissionAmount = Math.round(jobPrice * REFERRAL_COMMISSION_PERCENT * 100) / 100
 
   await admin.from('referral_commissions' as any).insert({
     referral_code:     referralCode,
     referred_maker_id: makerId,
     job_id:            jobId,
-    job_amount_chf:    jobPrice,
-    commission_chf:    commissionChf,
+    job_amount_chf:    jobPrice,   // kept for backwards compat
+    commission_chf:    commissionAmount,
+    currency,
+    commission_amount: commissionAmount,
   })
 
-  await admin.from('printer_profiles')
-    .update({ referral_free_jobs_remaining: jobsLeft - 1 } as any)
-    .eq('user_id', makerId)
-
-  return commissionChf
+  return commissionAmount
 }
 
 function resolveEffectiveFee(
   feeWaiverUntil: string | null,
-  commissionJobsLeft: number | null,
+  commissionUntil: string | null,
+  freeJobsRemaining: number | null,
 ): number {
   if (feeWaiverUntil && new Date(feeWaiverUntil) > new Date()) return 0
-  if (commissionJobsLeft != null && commissionJobsLeft > 0) return REFERRAL_FEE_PERCENT
+  if (commissionUntil && new Date(commissionUntil) > new Date()) return REFERRAL_FEE_PERCENT
+  if (freeJobsRemaining != null && freeJobsRemaining > 0) return REFERRAL_FEE_PERCENT
   return PLATFORM_FEE_PERCENT
 }
 
@@ -125,7 +140,7 @@ export async function confirmJobDelivery(jobId: string) {
   if (deliveryError) throw new Error(deliveryError.message)
 
   const { data: acceptedQuote } = await adminClient
-    .from('quotes').select('printer_id, price').eq('job_id', jobId).eq('status', 'accepted').single()
+    .from('quotes').select('printer_id, price, currency').eq('job_id', jobId).eq('status', 'accepted').single()
 
   if (acceptedQuote) {
     const { data: printerProfile } = await adminClient
@@ -140,25 +155,27 @@ export async function confirmJobDelivery(jobId: string) {
 
     const { data: printerPayoutProfile } = await adminClient
       .from('printer_profiles')
-      .select('stripe_account_id, fee_waiver_until, referral_free_jobs_remaining')
+      .select('stripe_account_id, fee_waiver_until, referral_commission_until, referral_free_jobs_remaining')
       .eq('user_id', acceptedQuote.printer_id)
       .single()
 
     const stripeAccountId = (printerPayoutProfile as any)?.stripe_account_id as string | null
+    const quoteCurrency = (acceptedQuote as any).currency as string ?? 'CHF'
 
     if (acceptedQuote.price && stripeAccountId) {
       const effectiveFee = resolveEffectiveFee(
         (printerPayoutProfile as any)?.fee_waiver_until,
+        (printerPayoutProfile as any)?.referral_commission_until,
         (printerPayoutProfile as any)?.referral_free_jobs_remaining,
       )
       const makerShareStr = (acceptedQuote.price * (1 - effectiveFee)).toFixed(2)
 
       try {
-        await transferToMaker(acceptedQuote.price, stripeAccountId, jobId, job.title, effectiveFee)
+        await transferToMaker(acceptedQuote.price, stripeAccountId, jobId, job.title, effectiveFee, quoteCurrency)
 
         // Record commission if this was a referral commission job (8% fee tier)
         if (effectiveFee === REFERRAL_FEE_PERCENT) {
-          await applyReferralCommission(adminClient, acceptedQuote.printer_id, jobId, acceptedQuote.price)
+          await applyReferralCommission(adminClient, acceptedQuote.printer_id, jobId, acceptedQuote.price, quoteCurrency)
         }
 
         await adminClient.from('jobs').update({
@@ -170,7 +187,7 @@ export async function confirmJobDelivery(jobId: string) {
           userId: acceptedQuote.printer_id,
           type:   'payout_sent',
           title:  'Payment sent!',
-          body:   `CHF ${makerShareStr} for "${job.title}" has been sent to your bank account.`,
+          body:   `${quoteCurrency} ${makerShareStr} for "${job.title}" has been sent to your bank account.`,
           link:   `/jobs/${jobId}`,
         })
       } catch (err) {
@@ -197,28 +214,30 @@ export async function markPayoutSent(jobId: string) {
   if (!job || !['delivered', 'completed'].includes((job as any).status)) throw new Error('Job not delivered')
 
   const { data: acceptedQuote } = await admin
-    .from('quotes').select('printer_id, price').eq('job_id', jobId).eq('status', 'accepted').single()
+    .from('quotes').select('printer_id, price, currency').eq('job_id', jobId).eq('status', 'accepted').single()
   if (!acceptedQuote) throw new Error('No accepted quote found')
 
   const { data: printerPayoutProfile } = await admin
     .from('printer_profiles')
-    .select('stripe_account_id, fee_waiver_until, referral_free_jobs_remaining')
+    .select('stripe_account_id, fee_waiver_until, referral_commission_until, referral_free_jobs_remaining')
     .eq('user_id', acceptedQuote.printer_id)
     .single()
 
   const stripeAccountId = (printerPayoutProfile as any)?.stripe_account_id as string | null
   if (!stripeAccountId) throw new Error('Maker has no Stripe account connected')
 
+  const quoteCurrency = (acceptedQuote as any).currency as string ?? 'CHF'
   const effectiveFee = resolveEffectiveFee(
     (printerPayoutProfile as any)?.fee_waiver_until,
+    (printerPayoutProfile as any)?.referral_commission_until,
     (printerPayoutProfile as any)?.referral_free_jobs_remaining,
   )
   const makerShare = (acceptedQuote.price * (1 - effectiveFee)).toFixed(2)
 
-  await transferToMaker(acceptedQuote.price, stripeAccountId, jobId, job.title, effectiveFee)
+  await transferToMaker(acceptedQuote.price, stripeAccountId, jobId, job.title, effectiveFee, quoteCurrency)
 
   if (effectiveFee === REFERRAL_FEE_PERCENT) {
-    await applyReferralCommission(admin, acceptedQuote.printer_id, jobId, acceptedQuote.price)
+    await applyReferralCommission(admin, acceptedQuote.printer_id, jobId, acceptedQuote.price, quoteCurrency)
   }
 
   await admin.from('jobs').update({
@@ -230,7 +249,7 @@ export async function markPayoutSent(jobId: string) {
     userId: acceptedQuote.printer_id,
     type:   'payout_sent',
     title:  'Payment sent!',
-    body:   `CHF ${makerShare} for "${job.title}" has been sent to your bank account.`,
+    body:   `${quoteCurrency} ${makerShare} for "${job.title}" has been sent to your bank account.`,
     link:   `/jobs/${jobId}`,
   })
 

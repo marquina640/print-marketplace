@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { createClient } from '@/lib/supabase/server'
 import { cookies } from 'next/headers'
-import { PLATFORM_FEE_PERCENT } from '@/lib/stripe'
+import { PLATFORM_FEE_PERCENT, toCents } from '@/lib/stripe'
 
 export async function POST(req: NextRequest) {
   try {
@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
 
   const { data: job } = await supabase
     .from('jobs')
-    .select('id, title, client_id')
+    .select('id, title, client_id, currency')
     .eq('id', jobId)
     .eq('status', 'accepted')
     .single()
@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
   // Find the accepted quote (include printer_id for Connect payout)
   const { data: quote } = await supabase
     .from('quotes')
-    .select('id, price, printer_id')
+    .select('id, price, printer_id, currency')
     .eq('job_id', jobId)
     .eq('status', 'accepted')
     .single()
@@ -63,7 +63,8 @@ export async function POST(req: NextRequest) {
   }
 
   const appUrl        = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'
-  const totalCents    = Math.round(quote.price * 100)
+  const currency      = ((quote as any).currency ?? (job as any).currency ?? 'CHF') as string
+  const totalCents    = toCents(quote.price, currency)
   const feeCents      = Math.round(totalCents * PLATFORM_FEE_PERCENT)
 
   const session = await stripe.checkout.sessions.create({
@@ -71,7 +72,7 @@ export async function POST(req: NextRequest) {
     payment_method_types: ['card'],
     line_items: [{
       price_data: {
-        currency: 'chf',
+        currency: currency.toLowerCase(),
         product_data: { name: job.title },
         unit_amount: totalCents,
       },
