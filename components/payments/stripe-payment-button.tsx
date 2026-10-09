@@ -11,7 +11,7 @@ function getStripe() {
   return stripePromise
 }
 
-export function StripePaymentButton({ jobId, amount }: { jobId: string; amount: number }) {
+export function StripePaymentButton({ jobId, amount, currency = 'CHF' }: { jobId: string; amount: number; currency?: string }) {
   const [loading,       setLoading]       = useState(true)
   const [error,         setError]         = useState<string | null>(null)
   const [paying,        setPaying]        = useState(false)
@@ -102,7 +102,7 @@ export function StripePaymentButton({ jobId, amount }: { jobId: string; amount: 
           disabled={paying || !stripe || !elements}
           className="w-full rounded-xl bg-[#1a1535] text-white font-bold py-3 text-sm hover:bg-[#2d2845] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {paying ? 'Processing…' : `Pay CHF ${amount.toFixed(2)}`}
+          {paying ? 'Processing…' : `Pay ${currency} ${amount.toFixed(2)}`}
         </button>
       )}
     </div>

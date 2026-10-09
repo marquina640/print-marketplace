@@ -10,6 +10,8 @@ import { AcceptQuoteButton } from './accept-quote-button'
 import { countUnreviewedJobs } from '@/app/actions/review-gate'
 import { ReviewForm } from './review-form'
 import { StripePaymentButton } from '@/components/payments/stripe-payment-button'
+import { PayPalPaymentButton } from '@/components/payments/paypal-payment-button'
+import { STRIPE_CONNECT_COUNTRIES } from '@/lib/stripe'
 import { MarkShippedButton } from './mark-shipped-button'
 import { ConfirmReceiptButton } from './confirm-receipt-button'
 import { MarkPayoutButton } from './mark-payout-button'
@@ -64,6 +66,14 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
   const myQuote         = isPrinter ? (quotes?.find((q) => q.printer_id === effectiveUserId) ?? null) : null
   const acceptedQuote   = quotes?.find((q) => q.status === 'accepted') ?? null
   const acceptedPrinter = acceptedQuote?.printer_id
+
+  // Determine which payment method to show based on the accepted maker's country
+  const { data: acceptedMakerProfile } = acceptedPrinter
+    ? await supabase.from('printer_profiles').select('country, paypal_email, stripe_account_id, stripe_onboarding_complete').eq('user_id', acceptedPrinter).single()
+    : { data: null }
+  const makerCountry  = (acceptedMakerProfile as any)?.country as string | null
+  const usePayPal     = !!makerCountry && !STRIPE_CONNECT_COUNTRIES.has(makerCountry)
+  const jobCurrency   = (job as any).currency ?? (acceptedQuote as any)?.currency ?? 'CHF'
 
   const visibleQuotes = isOwner || isAdmin
     ? quotes ?? []
@@ -168,6 +178,11 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
       {payment === 'cancelled' && (
         <div className="rounded-xl bg-amber-50 border border-amber-200 px-5 py-4">
           <p className="text-sm font-medium text-amber-800">Payment was cancelled. You can try again whenever you&apos;re ready.</p>
+        </div>
+      )}
+      {payment === 'failed' && (
+        <div className="rounded-xl bg-red-50 border border-red-200 px-5 py-4">
+          <p className="text-sm font-medium text-red-800">Payment failed. Please try again or contact support if the problem persists.</p>
         </div>
       )}
       {payment === 'pending' && (
@@ -451,7 +466,11 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
                         <div className="rounded-xl border border-gold-300 bg-gold-50 p-4">
                           <p className="text-sm font-semibold text-ink-900 mb-1">Confirm your order</p>
                           <p className="text-xs text-warm-600 mb-3">Pay now to secure your order. The maker gets paid once you confirm delivery.</p>
-                          <StripePaymentButton jobId={job.id} amount={q.price} />
+                          {usePayPal ? (
+                            <PayPalPaymentButton jobId={job.id} amount={q.price} currency={jobCurrency} />
+                          ) : (
+                            <StripePaymentButton jobId={job.id} amount={q.price} currency={jobCurrency} />
+                          )}
                         </div>
                       )}
 
