@@ -1,6 +1,7 @@
 ﻿'use client'
 
 import { useState, useRef } from 'react'
+import { PriceCalculator } from './price-calculator'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
@@ -217,6 +218,11 @@ export function QuoteForm({ jobId, jobCurrency = 'CHF', printerId: printerIdProp
         <Input label="Lead time (days)" type="number" min="1" required
           value={leadTime} onChange={(e) => setLeadTime(e.target.value)} placeholder="7" />
       </div>
+
+      <PriceCalculator
+        currency={jobCurrency}
+        onUsePrice={(p) => setPrice(p.toFixed(2))}
+      />
 
       <Textarea label="Message to client *" value={message}
         onChange={(e) => setMessage(e.target.value)} rows={3}
