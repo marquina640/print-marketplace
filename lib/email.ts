@@ -335,6 +335,26 @@ export function emailMakerSetupPayouts({ to, name }: { to: string; name: string 
   })
 }
 
+export function emailQuoteSubmitted({
+  to, jobTitle, price, currency, jobUrl,
+}: { to: string; jobTitle: string; price: number; currency: string; jobUrl: string }) {
+  return sendEmail({
+    to,
+    subject: `Your quote for "${jobTitle}" was submitted`,
+    html: `
+      <h2 style="margin:0 0 8px;font-size:20px;font-weight:800;color:#1a1625;">Quote submitted &#x2705;</h2>
+      <p style="margin:0 0 20px;color:#6b6760;font-size:14px;line-height:1.6;">
+        Your quote of <strong style="color:#1a1625;">${currency} ${price.toFixed(2)}</strong> for
+        <em>${jobTitle}</em> has been sent to the client. You&apos;ll be notified if it&apos;s accepted.
+      </p>
+      <p style="margin:0;color:#6b6760;font-size:14px;">
+        Keep an eye on your messages &mdash; the client may have questions before accepting.
+      </p>
+      ${ctaButton('View Job &rarr;', `${APP_URL}${jobUrl}`)}
+    `,
+  })
+}
+
 export function emailMakerNewJobNearby({
   to, name, jobTitle, jobMaterial, jobType, distanceKm, jobUrl,
 }: {

@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import {
   emailNewQuote,
+  emailQuoteSubmitted,
   emailQuoteAccepted,
   emailJobPaid,
   emailJobShipped,
@@ -42,33 +43,48 @@ export async function createNotification({
 // ─── Quote submitted ─────────────────────────────────────────────────────────
 
 export async function notifyNewQuote({
-  jobId, jobTitle, makerName, clientId, clientEmail, price,
+  jobId, jobTitle, makerName, clientId, clientEmail, price, currency = 'CHF',
 }: {
   jobId: string; jobTitle: string; makerName: string
-  clientId: string; clientEmail: string; price: number
+  clientId: string; clientEmail: string; price: number; currency?: string
 }) {
   await createNotification({
     userId: clientId,
     type:   'new_quote',
     title:  `New quote for "${jobTitle}"`,
-    body:   `${makerName} quoted CHF ${price.toFixed(2)}`,
+    body:   `${makerName} quoted ${currency} ${price.toFixed(2)}`,
     link:   `/jobs/${jobId}`,
   })
   await emailNewQuote({ to: clientEmail, jobTitle, makerName, price, jobUrl: `/jobs/${jobId}` })
 }
 
+export async function notifyMakerQuoteSubmitted({
+  jobId, jobTitle, makerId, makerEmail, price, currency = 'CHF',
+}: {
+  jobId: string; jobTitle: string; makerId: string; makerEmail: string; price: number; currency?: string
+}) {
+  await createNotification({
+    userId: makerId,
+    type:   'quote_submitted',
+    title:  'Quote submitted',
+    body:   `Your ${currency} ${price.toFixed(2)} quote for "${jobTitle}" was sent to the client.`,
+    link:   `/jobs/${jobId}`,
+  })
+  await emailQuoteSubmitted({ to: makerEmail, jobTitle, price, currency, jobUrl: `/jobs/${jobId}` })
+}
+
 // ─── Quote accepted ──────────────────────────────────────────────────────────
 
 export async function notifyQuoteAccepted({
-  jobId, jobTitle, printerId, printerEmail, price,
+  jobId, jobTitle, printerId, printerEmail, price, currency = 'CHF',
 }: {
-  jobId: string; jobTitle: string; printerId: string; printerEmail: string; price: number
+  jobId: string; jobTitle: string; printerId: string; printerEmail: string; price: number; currency?: string
 }) {
   await createNotification({
     userId: printerId,
     type:   'quote_accepted',
     title:  'Your quote was accepted!',
-    body:   `CHF ${price.toFixed(2)} - ${jobTitle}`,
+    body:   `${currency} ${price.toFixed(2)} - ${jobTitle}`,
     link:   `/jobs/${jobId}`,
   })
   await emailQuoteAccepted({ to: printerEmail, jobTitle, price, jobUrl: `/jobs/${jobId}` })

@@ -64,7 +64,7 @@ export default async function PrinterDashboardPage({ searchParams }: PageProps) 
       : recentJobsQuery,
     supabase
       .from('printer_profiles')
-      .select('certification_level, display_name, stripe_account_id, stripe_onboarding_complete, paypal_email, country, city, materials, colors, design_services, shipping, local_delivery, pickup, hourly_rate, description, service_radius_km')
+      .select('certification_level, display_name, stripe_account_id, stripe_onboarding_complete, paypal_email, country, city, materials, colors, design_services, shipping, local_delivery, pickup, hourly_rate, description, service_radius_km, job_alert_radius_km')
       .eq('user_id', effectiveUserId)
       .single(),
     supabase
@@ -96,7 +96,7 @@ export default async function PrinterDashboardPage({ searchParams }: PageProps) 
     { label: 'About / description', done: !!mp?.description, href: '/profile/setup', group: 'visibility' as const },
     { label: 'At least one service enabled', done: hasService, href: '/profile/setup', group: 'visibility' as const },
     { label: 'Portfolio photo', done: (activePortfolioCount ?? 0) > 0, href: '/profile/portfolio', group: 'visibility' as const },
-    { label: 'Job alert radius set', done: (mp?.service_radius_km ?? 0) > 0, href: '/profile/setup', group: 'trust' as const },
+    { label: 'Job alert radius set', done: (mp?.job_alert_radius_km ?? 0) > 0, href: '/profile/setup', group: 'trust' as const },
     ...(needsHourlyRate ? [{ label: 'Hourly rate (design services)', done: !!mp?.hourly_rate, href: '/profile/setup', group: 'trust' as const }] : []),
   ]
 

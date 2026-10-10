@@ -126,7 +126,7 @@ export function QuoteForm({ jobId, jobCurrency = 'CHF', printerId: printerIdProp
     if (dbError) { setError(dbError.message) }
     else {
       if (!existingQuote) {
-        await notifyClientOfNewQuote(jobId, parseFloat(price))
+        await notifyClientOfNewQuote(jobId, parseFloat(price), jobCurrency)
       }
       setSuccess(true)
       router.refresh()
