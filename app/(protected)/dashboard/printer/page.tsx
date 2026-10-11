@@ -81,6 +81,8 @@ export default async function PrinterDashboardPage({ searchParams }: PageProps) 
   const hasMachines = (machineCount ?? 0) > 0
 
   const mp = makerProfile as any
+  const makerCountry       = mp?.country as string | null
+  const usesPayPalByDesign = !!makerCountry && !STRIPE_CONNECT_COUNTRIES.has(makerCountry)
   const hasService = !!(mp?.shipping || mp?.pickup || mp?.local_delivery || mp?.design_services)
   const needsHourlyRate = !!mp?.design_services
 
@@ -133,10 +135,8 @@ export default async function PrinterDashboardPage({ searchParams }: PageProps) 
   const certLevel        = makerProfile?.certification_level ?? 0
   const cert             = getCertificationLevel(certLevel)
   const nextCert         = certLevel < 3 ? CERTIFICATION_LEVELS[certLevel + 1] : null
-  const stripeAccountId  = (makerProfile as any)?.stripe_account_id as string | null
-  const paypalEmail      = (makerProfile as any)?.paypal_email as string | null
-  const makerCountry     = (makerProfile as any)?.country as string | null
-  const usesPayPalByDesign = !!makerCountry && !STRIPE_CONNECT_COUNTRIES.has(makerCountry)
+  const stripeAccountId  = mp?.stripe_account_id as string | null
+  const paypalEmail      = mp?.paypal_email as string | null
   const needsPaypalMigration = !!paypalEmail && !stripeAccountId && !usesPayPalByDesign
   const isAdminPreview   = !!previewUserId
 
