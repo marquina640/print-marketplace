@@ -283,6 +283,25 @@ export function Navbar({ userEmail, userRole, unreadMessages = 0, notifications 
         <div className="lg:hidden border-t border-warm-200 bg-warm-100 px-4 py-3 space-y-0.5 max-h-[80vh] overflow-y-auto">
           {userEmail ? (
             <>
+              {/* Role switcher */}
+              {(userRole !== 'admin' || isPreview) && (
+                <div className="flex items-center rounded-full border border-warm-200 bg-warm-50 p-0.5 gap-0.5 mb-3">
+                  <form action={isPreview ? switchPreviewToClient : switchToClient} className="flex-1">
+                    <button type="submit" className={`w-full px-3 py-1.5 text-xs font-semibold rounded-full transition-all ${
+                      userRole === 'client' ? 'bg-gold-500 text-ink-950' : 'text-warm-500 hover:text-warm-800'
+                    }`}>
+                      Customer
+                    </button>
+                  </form>
+                  <form action={isPreview ? switchPreviewToMaker : switchToMaker} className="flex-1">
+                    <button type="submit" className={`w-full px-3 py-1.5 text-xs font-semibold rounded-full transition-all ${
+                      userRole === 'printer_owner' ? 'bg-gold-500 text-ink-950' : 'text-warm-500 hover:text-warm-800'
+                    }`}>
+                      Maker
+                    </button>
+                  </form>
+                </div>
+              )}
               {mobileNav.map((item) => {
                 const isMessages = item.href === '/messages'
                 const active = pathname === item.href || pathname.startsWith(item.href + '/')
