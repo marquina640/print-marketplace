@@ -151,7 +151,7 @@ export default async function MakerProfilePage({ params }: PageProps) {
               <div key={m.id} className="card overflow-hidden">
                 {(m as any).photo_url && (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={(m as any).photo_url} alt={`${m.brand} ${m.model}`} className="w-full h-40 object-cover" />
+                  <img src={(m as any).photo_url} alt={`${m.brand} ${m.model}`} className="w-full object-contain bg-warm-50" />
                 )}
                 <div className="p-4">
                 <div className="flex items-start justify-between gap-2">
