@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
@@ -18,5 +19,13 @@ export default async function ProfileSetupPage() {
 
   const effectiveUserId = previewUserId ?? user.id
 
-  return <ProfileSetupForm effectiveUserId={effectiveUserId} />
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="animate-spin h-8 w-8 rounded-full border-4 border-ink-600 border-t-transparent" />
+      </div>
+    }>
+      <ProfileSetupForm effectiveUserId={effectiveUserId} />
+    </Suspense>
+  )
 }
