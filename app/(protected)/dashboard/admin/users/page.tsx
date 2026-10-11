@@ -65,7 +65,7 @@ export default async function AdminUsersPage() {
     if (!pp?.materials || (pp.materials as string[]).length === 0) return true
     if (!hasMachines.has(uid)) return true
     const usesPayPal = !!pp?.country && !STRIPE_CONNECT_COUNTRIES.has(pp.country as string)
-    const hasPayment = usesPayPal ? !!pp?.paypal_email : (!!pp?.stripe_account_id && !!pp?.stripe_onboarding_complete)
+    const hasPayment = usesPayPal ? !!pp?.paypal_email : !!pp?.stripe_account_id
     if (!hasPayment) return true
     return false
   }).length

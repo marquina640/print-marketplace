@@ -57,7 +57,7 @@ export async function sendProfileReminderEmails(): Promise<{ sent: number; skipp
     const usesPayPal = !!pp?.country && !STRIPE_CONNECT_COUNTRIES.has(pp.country as string)
     const hasPayment = usesPayPal
       ? !!pp?.paypal_email
-      : !!pp?.stripe_account_id && !!pp?.stripe_onboarding_complete
+      : !!pp?.stripe_account_id
     if (!hasPayment) {
       missingItems.push(usesPayPal ? 'PayPal email for payouts' : 'Stripe account for payouts')
     }
