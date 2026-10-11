@@ -158,7 +158,7 @@ function UserTable({ title, users, highlight, hasProfile, hasMachines, showRemin
       {users.length === 0 ? (
         <div className="card p-6 text-center text-sm text-warm-400">No {title.toLowerCase()} yet.</div>
       ) : (
-        <div className="card overflow-hidden">
+        <div className="card overflow-x-auto">
           <table className="min-w-full divide-y divide-warm-100">
             <thead className="bg-warm-50">
               <tr>
