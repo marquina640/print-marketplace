@@ -8,6 +8,8 @@ import { DeleteUserButton } from './delete-user-button'
 import { RemindButton } from './remind-button'
 import { MapClient } from '@/components/map/map-client'
 import { PaypalMigrationButton } from './paypal-migration-button'
+import { ProfileReminderButton } from './profile-reminder-button'
+import { STRIPE_CONNECT_COUNTRIES } from '@/lib/stripe'
 
 export const metadata = { title: 'Users - Admin' }
 
@@ -46,6 +48,27 @@ export default async function AdminUsersPage() {
     .not('paypal_email', 'is', null)
     .is('stripe_account_id', null)
   const paypalMigrationCount = paypalMakers?.length ?? 0
+
+  // Count onboarded makers with incomplete core profiles
+  const onboardedMakerIds = (users ?? []).filter((u) => u.role === 'printer_owner' && u.onboarding_complete).map((u) => u.user_id)
+  const { data: completenessRows } = onboardedMakerIds.length > 0
+    ? await supabase
+        .from('printer_profiles')
+        .select('user_id, display_name, country, materials, stripe_account_id, stripe_onboarding_complete, paypal_email')
+        .in('user_id', onboardedMakerIds)
+    : { data: [] }
+  const ppByUser = Object.fromEntries((completenessRows ?? []).map((p) => [p.user_id, p]))
+  const incompleteCount = onboardedMakerIds.filter((uid) => {
+    const pp = ppByUser[uid]
+    if (!pp?.display_name) return true
+    if (!pp?.country) return true
+    if (!pp?.materials || (pp.materials as string[]).length === 0) return true
+    if (!hasMachines.has(uid)) return true
+    const usesPayPal = !!pp?.country && !STRIPE_CONNECT_COUNTRIES.has(pp.country as string)
+    const hasPayment = usesPayPal ? !!pp?.paypal_email : (!!pp?.stripe_account_id && !!pp?.stripe_onboarding_complete)
+    if (!hasPayment) return true
+    return false
+  }).length
 
   // Build map pins for makers with coordinates
   const makerPins = (printerProfileRows ?? [])
@@ -87,6 +110,9 @@ export default async function AdminUsersPage() {
 
       {/* PayPal migration blast */}
       <PaypalMigrationButton count={paypalMigrationCount} />
+
+      {/* Profile completion reminder blast */}
+      <ProfileReminderButton count={incompleteCount} />
 
       {/* Create user form */}
       <CreateUserForm />

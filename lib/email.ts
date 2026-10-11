@@ -393,6 +393,33 @@ export function emailMakerNewJobNearby({
   })
 }
 
+export function emailProfileIncomplete({
+  to, name, missingItems,
+}: { to: string; name: string | null; missingItems: string[] }) {
+  const greeting = name ? `Hi ${name},` : 'Hi there,'
+  const list = missingItems
+    .map((item) => `<li style="margin:0 0 6px;color:#1a1625;">${item}</li>`)
+    .join('')
+  return sendEmail({
+    to,
+    subject: 'Your maker profile is incomplete',
+    html: `
+      <h2 style="margin:0 0 8px;font-size:20px;font-weight:800;color:#1a1625;">Your profile is almost ready</h2>
+      <p style="margin:0 0 16px;color:#6b6760;font-size:14px;line-height:1.6;">
+        ${greeting} A few things are still missing from your PrintMarketHub maker profile.
+        Complete them to appear in search results and start receiving job requests.
+      </p>
+      <ul style="margin:0 0 20px;padding-left:20px;font-size:14px;line-height:1.8;">
+        ${list}
+      </ul>
+      <p style="margin:0;color:#6b6760;font-size:14px;line-height:1.6;">
+        It only takes a few minutes. Makers with complete profiles are already quoting jobs near you.
+      </p>
+      ${ctaButton('Complete my profile &rarr;', `${APP_URL}/profile/setup`)}
+    `,
+  })
+}
+
 export function emailOnboardingReminder({ to, name }: { to: string; name: string | null }) {
   const greeting = name ? `Hi ${name},` : 'Hi there,'
   return sendEmail({
