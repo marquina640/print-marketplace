@@ -10,7 +10,7 @@ import { MATERIALS_BY_LEVEL, COLORS } from '@/lib/utils'
 import { AddressAutocomplete } from '@/components/ui/address-autocomplete'
 import { StripeConnectButton } from '@/components/payments/stripe-connect-button'
 import { EmailChangeSection } from '@/components/profile/email-change-section'
-import { STRIPE_CONNECT_COUNTRIES } from '@/lib/stripe'
+import { STRIPE_CONNECT_COUNTRIES } from '@/lib/stripe-countries'
 
 function MultiCheckbox({ label, options, selected, onChange }: {
   label: string; options: string[]; selected: string[]; onChange: (v: string[]) => void
