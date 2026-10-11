@@ -148,7 +148,12 @@ export default async function MakerProfilePage({ params }: PageProps) {
           <h2 className="text-lg font-bold text-ink-900 mb-4">Equipment</h2>
           <div className="grid sm:grid-cols-2 gap-3">
             {machines.map((m) => (
-              <div key={m.id} className="card p-4">
+              <div key={m.id} className="card overflow-hidden">
+                {(m as any).photo_url && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={(m as any).photo_url} alt={`${m.brand} ${m.model}`} className="w-full h-40 object-cover" />
+                )}
+                <div className="p-4">
                 <div className="flex items-start justify-between gap-2">
                   <div>
                     <p className="font-semibold text-ink-900">{m.brand} {m.model}</p>
@@ -172,6 +177,7 @@ export default async function MakerProfilePage({ params }: PageProps) {
                   )}
                 </div>
                 {m.notes && <p className="mt-2 text-xs text-warm-400 italic">{m.notes}</p>}
+                </div>
               </div>
             ))}
           </div>
