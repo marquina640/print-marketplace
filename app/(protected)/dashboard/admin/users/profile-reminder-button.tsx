@@ -1,12 +1,31 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { sendProfileReminderEmails } from '@/app/actions/send-profile-reminder-emails'
+
+const LS_KEY = 'profile_reminder_last_sent'
+
+function formatRelative(iso: string): string {
+  const diff = Date.now() - new Date(iso).getTime()
+  const mins = Math.floor(diff / 60000)
+  const hours = Math.floor(diff / 3600000)
+  const days = Math.floor(diff / 86400000)
+  if (mins < 1) return 'just now'
+  if (mins < 60) return `${mins}m ago`
+  if (hours < 24) return `${hours}h ago`
+  if (days < 7) return `${days}d ago`
+  return new Date(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
+}
 
 export function ProfileReminderButton({ count }: { count: number }) {
   const [status, setStatus] = useState<'idle' | 'sending' | 'done' | 'error'>('idle')
   const [result, setResult] = useState<{ sent: number; skipped: number; errors: string[] } | null>(null)
+  const [lastSent, setLastSent] = useState<string | null>(null)
+
+  useEffect(() => {
+    try { setLastSent(localStorage.getItem(LS_KEY)) } catch {}
+  }, [])
 
   if (count === 0) return null
 
@@ -15,6 +34,9 @@ export function ProfileReminderButton({ count }: { count: number }) {
     setStatus('sending')
     try {
       const r = await sendProfileReminderEmails()
+      const now = new Date().toISOString()
+      try { localStorage.setItem(LS_KEY, now) } catch {}
+      setLastSent(now)
       setResult(r)
       setStatus('done')
     } catch (err) {
@@ -32,6 +54,9 @@ export function ProfileReminderButton({ count }: { count: number }) {
           </p>
           <p className="text-xs text-amber-700 mt-0.5">
             Missing display name, country, materials, a machine, or a payout method.
+            {lastSent && status !== 'done' && (
+              <span className="ml-1 text-amber-500">Last sent {formatRelative(lastSent)}.</span>
+            )}
             {status === 'done' && result && (
               <span className="ml-1 text-emerald-700 font-medium">
                 ✓ Sent {result.sent}, skipped {result.skipped} (already complete).
