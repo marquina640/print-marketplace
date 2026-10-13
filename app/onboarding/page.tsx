@@ -85,6 +85,8 @@ export default function OnboardingPage() {
       return
     }
 
+    window.rdt?.('track', 'SignUp')
+
     if (selectedRole === 'client') {
       router.push('/dashboard/client')
     } else {
