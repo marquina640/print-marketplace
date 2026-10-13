@@ -8,19 +8,19 @@ export const metadata: Metadata = {
 }
 
 const benefits = [
-  { icon: '🆓', title: 'Free to join', desc: 'No subscription, no listing fee. A commission applies only when a job is successfully completed — no upfront costs, ever.' },
-  { icon: '💸', title: 'You set your prices', desc: 'Quote whatever you think is fair. There\'s no floor or ceiling - the market finds the right price.' },
-  { icon: '🔒', title: 'Always get paid', desc: 'The client pays securely at checkout. Once they confirm delivery, your payment is sent directly to your bank account via Stripe.' },
-  { icon: '📅', title: 'Work your schedule', desc: 'Only quote on jobs you want to take. Busy this week? Simply don\'t quote. No penalties, no minimums.' },
-  { icon: '⭐', title: 'Build a reputation', desc: 'Every completed job adds a verified review to your profile. A strong rating unlocks higher-value engineering jobs.' },
-  { icon: '🗺️', title: 'Community-first', desc: 'Your profile is shown to clients near you first - faster turnaround, easier pickups, and clients who value finding someone local.' },
+  { title: 'Free to join', desc: 'No subscription, no listing fee. A commission applies only when a job is successfully completed — no upfront costs, ever.' },
+  { title: 'You set your prices', desc: 'Quote whatever you think is fair. There\'s no floor or ceiling - the market finds the right price.' },
+  { title: 'Always get paid', desc: 'The client pays securely at checkout. Once they confirm delivery, your payment is sent directly to your bank account via Stripe.' },
+  { title: 'Work your schedule', desc: 'Only quote on jobs you want to take. Busy this week? Simply don\'t quote. No penalties, no minimums.' },
+  { title: 'Build a reputation', desc: 'Every completed job adds a verified review to your profile. A strong rating unlocks higher-value engineering jobs.' },
+  { title: 'Community-first', desc: 'Your profile is shown to clients near you first - faster turnaround, easier pickups, and clients who value finding someone local.' },
 ]
 
 const requirements = [
-  { icon: '🖨️', text: 'A working 3D printer (any type - FDM, resin)' },
-  { icon: '📦', text: 'Ability to ship to your customers (or offer local pickup)' },
-  { icon: '💳', text: 'A bank account for receiving payouts via Stripe (free to connect)' },
-  { icon: '📸', text: 'A completed profile with photos of your setup and past work' },
+  'A working 3D printer (any type - FDM, resin)',
+  'Ability to ship to your customers (or offer local pickup)',
+  'A bank account for receiving payouts via Stripe (free to connect)',
+  'A completed profile with photos of your setup and past work',
 ]
 
 const steps = [
@@ -37,7 +37,7 @@ export default function ForMakersPage() {
       {/* Hero */}
       <div className="text-center space-y-5">
         <div className="inline-flex items-center gap-2 rounded-full bg-emerald-50 border border-emerald-200 px-4 py-1.5 text-sm font-semibold text-emerald-700">
-          🖨️ For makers
+          For makers
         </div>
         <h1 className="text-3xl sm:text-4xl font-black text-ink-900 tracking-tight leading-tight">
           Your printer is already earning money.<br />
@@ -64,7 +64,6 @@ export default function ForMakersPage() {
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {benefits.map((b) => (
             <div key={b.title} className="rounded-2xl border border-warm-200 bg-white p-5 space-y-2 hover:border-ink-300 transition-colors">
-              <div className="text-2xl">{b.icon}</div>
               <p className="font-bold text-ink-900 text-sm">{b.title}</p>
               <p className="text-sm text-warm-500 leading-relaxed">{b.desc}</p>
             </div>
@@ -112,9 +111,9 @@ export default function ForMakersPage() {
         <h3 className="font-bold text-ink-900">What you need to get started</h3>
         <ul className="space-y-3">
           {requirements.map((r) => (
-            <li key={r.text} className="flex items-start gap-3 text-sm text-warm-700">
-              <span className="text-base flex-shrink-0 mt-0.5">{r.icon}</span>
-              {r.text}
+            <li key={r} className="text-sm text-warm-700 flex items-start gap-2">
+              <span className="text-warm-400 flex-shrink-0">—</span>
+              {r}
             </li>
           ))}
         </ul>
