@@ -38,12 +38,16 @@ export async function GET(req: NextRequest) {
 
     const html = await res.text()
 
-    // Try multiple og:image meta tag patterns
+    // Try og:image and twitter:image meta tag patterns
     const patterns = [
       /<meta\s+property=["']og:image["']\s+content=["']([^"']+)["']/i,
       /<meta\s+content=["']([^"']+)["']\s+property=["']og:image["']/i,
       /<meta\s+name=["']og:image["']\s+content=["']([^"']+)["']/i,
       /<meta\s+content=["']([^"']+)["']\s+name=["']og:image["']/i,
+      /<meta\s+name=["']twitter:image["']\s+content=["']([^"']+)["']/i,
+      /<meta\s+content=["']([^"']+)["']\s+name=["']twitter:image["']/i,
+      /<meta\s+property=["']twitter:image["']\s+content=["']([^"']+)["']/i,
+      /<meta\s+content=["']([^"']+)["']\s+property=["']twitter:image["']/i,
     ]
 
     let imageUrl: string | null = null

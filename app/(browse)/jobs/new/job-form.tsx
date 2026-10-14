@@ -783,9 +783,15 @@ export function NewJobForm({ clientId, clientLocation, isGuest, makerProcesses, 
           ) : (
             <div className="space-y-3">
               <input
-                type="url"
+                type="text"
+                inputMode="url"
+                autoComplete="url"
                 value={modelUrl}
                 onChange={(e) => setModelUrl(e.target.value)}
+                onPaste={(e) => {
+                  const pasted = e.clipboardData.getData('text')
+                  if (pasted) setModelUrl(pasted)
+                }}
                 placeholder="https://www.thingiverse.com/thing:... or https://makerworld.com/..."
                 className="w-full rounded-xl border border-warm-300 bg-white px-4 py-3 text-sm text-ink-900 placeholder-warm-400 focus:border-ink-500 focus:outline-none focus:ring-2 focus:ring-ink-200 transition"
               />
