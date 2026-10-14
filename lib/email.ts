@@ -372,7 +372,7 @@ export function emailMakerNewJobNearby({
     to,
     subject: `New print request near you — "${jobTitle}"`,
     html: `
-      <h2 style="margin:0 0 8px;font-size:20px;font-weight:800;color:#1a1625;">New job near you &#x1F4CD;</h2>
+      <h2 style="margin:0 0 8px;font-size:20px;font-weight:800;color:#1a1625;">New job near you</h2>
       <p style="margin:0 0 20px;color:#6b6760;font-size:14px;line-height:1.6;">
         ${greeting} A new print request was just posted <strong style="color:#1a1625;">${distance} from you</strong>.
       </p>
@@ -386,8 +386,8 @@ export function emailMakerNewJobNearby({
       </p>
       ${ctaButton('View Request &rarr;', `${APP_URL}${jobUrl}`)}
       <p style="margin:24px 0 0;color:#9e9b94;font-size:12px;line-height:1.6;">
-        You&apos;re receiving this because you set up a job alert on your maker profile.
-        <a href="${APP_URL}/profile/setup" style="color:#9e9b94;text-decoration:underline;">Update your alert radius</a>.
+        You&apos;re receiving this because job alerts are enabled on your maker profile.
+        <a href="${APP_URL}/profile/setup" style="color:#9e9b94;text-decoration:underline;">Adjust your notification distance</a>.
       </p>
     `,
   })

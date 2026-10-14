@@ -131,7 +131,7 @@ export function ProfileSetupForm({ effectiveUserId }: { effectiveUserId: string 
     paypal_email: '', // kept for DB compat but no longer shown in UI
     lat: null as number | null,
     lng: null as number | null,
-    job_alert_radius_km: null as number | null,
+    job_alert_radius_km: 9999 as number | null,
   })
 
   useEffect(() => {
@@ -183,7 +183,7 @@ export function ProfileSetupForm({ effectiveUserId }: { effectiveUserId: string 
           paypal_email: (data as any).paypal_email ?? '',
           lat: data.latitude ?? null,
           lng: data.longitude ?? null,
-          job_alert_radius_km: (data as any).job_alert_radius_km ?? null,
+          job_alert_radius_km: (data as any).job_alert_radius_km ?? 9999,
         })
       } else if (clientProfile) {
         // Pre-fill from client profile if no maker profile yet
