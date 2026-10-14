@@ -11,6 +11,7 @@ interface ReferralCode {
   instagram_handle: string | null
   tier: string | null
   fee_waiver_months: number | null
+  referred_maker_commission_months: number | null
   uses: number
   waiver_activated: boolean
   active: boolean
@@ -33,7 +34,7 @@ export function ReferralPanel({ codes, appUrl, pendingCommissions }: { codes: Re
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
 
-  const [newCode, setNewCode] = useState({ code: '', name: '', email: '', instagram: '' })
+  const [newCode, setNewCode] = useState({ code: '', name: '', email: '', instagram: '', commissionMonths: '' })
 
   function handleCreate(e: React.FormEvent) {
     e.preventDefault()
@@ -46,11 +47,12 @@ export function ReferralPanel({ codes, appUrl, pendingCommissions }: { codes: Re
         influencer_name: newCode.name.trim(),
         influencer_email: newCode.email.trim() || null,
         instagram_handle: newCode.instagram.trim() || null,
+        referred_maker_commission_months: newCode.commissionMonths ? parseInt(newCode.commissionMonths, 10) : null,
       })
       if (result.error) { setError(result.error) }
       else {
         setLocalCodes((prev) => [result.code!, ...prev])
-        setNewCode({ code: '', name: '', email: '', instagram: '' })
+        setNewCode({ code: '', name: '', email: '', instagram: '', commissionMonths: '' })
         setSuccess(`Code "${result.code!.code}" created.`)
         setTimeout(() => setSuccess(null), 3000)
       }
@@ -134,6 +136,18 @@ export function ReferralPanel({ codes, appUrl, pendingCommissions }: { codes: Re
               onChange={(e) => setNewCode((p) => ({ ...p, email: e.target.value }))}
             />
           </div>
+          <div>
+            <label className="form-label">Referred maker commission window (months)</label>
+            <input
+              type="number"
+              min="0"
+              className="mt-1 block w-full rounded-xl border border-warm-300 bg-white px-3 py-2 text-sm focus:border-gold-500 focus:outline-none focus:ring-2 focus:ring-gold-500/20"
+              placeholder="e.g. 12"
+              value={newCode.commissionMonths}
+              onChange={(e) => setNewCode((p) => ({ ...p, commissionMonths: e.target.value }))}
+            />
+            <p className="mt-0.5 text-xs text-warm-400">Referred makers pay 8% instead of 12% for this many months. Leave blank for default (no commission deal).</p>
+          </div>
         </div>
         <button
           type="submit"
@@ -152,6 +166,7 @@ export function ReferralPanel({ codes, appUrl, pendingCommissions }: { codes: Re
               <th className="pb-2 pr-4">Code / Link</th>
               <th className="pb-2 pr-4">Influencer</th>
               <th className="pb-2 pr-4">Signups</th>
+              <th className="pb-2 pr-4">Maker deal</th>
               <th className="pb-2 pr-4">Commissions</th>
               <th className="pb-2 pr-4">Waiver</th>
               <th className="pb-2">Actions</th>
@@ -173,6 +188,15 @@ export function ReferralPanel({ codes, appUrl, pendingCommissions }: { codes: Re
                 </td>
                 <td className="py-3 pr-4">
                   <span className="font-semibold text-ink-800">{rc.uses}</span>
+                </td>
+                <td className="py-3 pr-4">
+                  {rc.referred_maker_commission_months ? (
+                    <span className="inline-flex items-center text-xs font-medium text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full">
+                      8% for {rc.referred_maker_commission_months}mo
+                    </span>
+                  ) : (
+                    <span className="text-xs text-warm-400">Standard 12%</span>
+                  )}
                 </td>
                 <td className="py-3 pr-4">
                   {pending ? (

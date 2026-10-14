@@ -128,8 +128,8 @@ export default function FAQPage() {
         </p>
       </div>
 
-      <FAQSection title="For clients" icon="🛒" items={clientFAQ} />
-      <FAQSection title="For makers" icon="🖨️" items={makerFAQ} />
+      <FAQSection title="For clients" icon="" items={clientFAQ} />
+      <FAQSection title="For makers" icon="" items={makerFAQ} />
 
       {/* CTA */}
       <div className="rounded-2xl bg-[#1a1535] text-white p-8 text-center space-y-4">

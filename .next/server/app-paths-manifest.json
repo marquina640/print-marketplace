@@ -1,1 +1,4 @@
-{}
+{
+  "/page": "app/page.js",
+  "/(browse)/makers/[id]/page": "app/(browse)/makers/[id]/page.js"
+}

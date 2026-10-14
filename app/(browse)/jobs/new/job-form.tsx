@@ -389,7 +389,6 @@ export function NewJobForm({ clientId, clientLocation, isGuest, makerProcesses, 
 
       {isGuest && (
         <div className="mb-6 rounded-xl border border-[#D4A017]/40 bg-[#D4A017]/10 px-4 py-3 flex items-start gap-3">
-          <span className="text-[#D4A017] text-lg mt-0.5">👀</span>
           <p className="text-sm text-[#CEC8E4]">
             You're previewing the form as a guest. Fill in your details, then{' '}
             <a href="/signup" className="font-semibold text-[#D4A017] hover:underline">create a free account</a>
@@ -649,7 +648,6 @@ export function NewJobForm({ clientId, clientLocation, isGuest, makerProcesses, 
             </label>
             {form.shipping_required && (
               <div className="ml-7 flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2.5">
-                <span className="text-base flex-shrink-0">📦</span>
                 <p className="text-xs text-amber-800 leading-relaxed">
                   <span className="font-semibold">Quote will include shipping.</span> Makers will add the shipping cost to their quote price - no separate shipping charge.
                 </p>

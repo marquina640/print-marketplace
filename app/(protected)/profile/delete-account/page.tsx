@@ -39,7 +39,6 @@ export default function DeleteAccountPage() {
   if (done) {
     return (
       <div className="max-w-lg mx-auto py-16 text-center">
-        <div className="text-5xl mb-4">👋</div>
         <h2 className="text-2xl font-bold text-warm-900 mb-2">Account deleted</h2>
         <p className="text-warm-500 text-sm">Your account and all associated data have been permanently removed. Redirecting you to the homepage…</p>
       </div>

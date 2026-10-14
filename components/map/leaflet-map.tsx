@@ -154,7 +154,7 @@ export function LeafletMap({ jobs, printers, filter }: LeafletMapProps) {
           .bindPopup(`
             <div style="font-family:sans-serif;min-width:140px">
               <p style="font-weight:600;margin:0 0 4px">${name}</p>
-              ${printer.city ? `<p style="color:#6b7280;font-size:12px;margin:0 0 2px">📍 ${printer.city}</p>` : ''}
+              ${printer.city ? `<p style="color:#6b7280;font-size:12px;margin:0 0 2px">${printer.city}</p>` : ''}
               <p style="color:#ca8a04;font-size:11px;margin:0">★ ${certLabel}</p>
               <a href="/makers/${printer.id}" style="display:inline-block;margin-top:8px;font-size:12px;color:#4f46e5">View profile →</a>
             </div>

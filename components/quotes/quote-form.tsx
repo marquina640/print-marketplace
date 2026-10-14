@@ -186,7 +186,6 @@ export function QuoteForm({ jobId, jobCurrency = 'CHF', printerId: printerIdProp
       {shippingRequired && (
         <div className="space-y-3">
           <div className="flex items-start gap-2.5 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
-            <span className="text-lg flex-shrink-0">📦</span>
             <div>
               <p className="text-sm font-semibold text-amber-800">This client wants shipping</p>
               <p className="text-xs text-amber-700 mt-0.5 leading-relaxed">

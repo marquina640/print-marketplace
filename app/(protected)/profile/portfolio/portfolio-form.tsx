@@ -207,7 +207,6 @@ export function PortfolioForm({ effectiveUserId }: { effectiveUserId: string }) 
 
       {items.length === 0 ? (
         <div className="card p-12 text-center">
-          <p className="text-4xl mb-3">📷</p>
           <p className="font-semibold text-warm-900 mb-1">No portfolio items yet</p>
           <p className="text-sm text-warm-500">Upload photos of your best work to attract clients.</p>
         </div>

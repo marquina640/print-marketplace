@@ -68,7 +68,6 @@ export default function SignupPage() {
     return (
       <div className="w-full max-w-sm">
         <div className="card p-8 text-center">
-          <div className="text-4xl mb-4">📧</div>
           <h2 className="text-xl font-bold text-ink-900 mb-2">Check your email</h2>
           <p className="text-sm text-warm-500">
             We sent a confirmation link to <strong>{email}</strong>.

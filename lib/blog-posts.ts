@@ -5,7 +5,6 @@ export interface BlogPost {
   date: string
   readTime: string
   category: string
-  coverIcon: string
   coverBg: string
 }
 
@@ -17,7 +16,6 @@ export const BLOG_POSTS: BlogPost[] = [
     date: '2025-05-20',
     readTime: '5 min read',
     category: 'Guide',
-    coverIcon: '🖨️',
     coverBg: 'from-blue-600 to-indigo-700',
   },
   {
@@ -27,7 +25,6 @@ export const BLOG_POSTS: BlogPost[] = [
     date: '2025-05-27',
     readTime: '4 min read',
     category: 'Pricing',
-    coverIcon: '💰',
     coverBg: 'from-emerald-500 to-teal-600',
   },
   {
@@ -37,7 +34,6 @@ export const BLOG_POSTS: BlogPost[] = [
     date: '2025-06-01',
     readTime: '4 min read',
     category: 'Tutorial',
-    coverIcon: '📦',
     coverBg: 'from-orange-500 to-amber-600',
   },
   {
@@ -47,7 +43,6 @@ export const BLOG_POSTS: BlogPost[] = [
     date: '2025-06-08',
     readTime: '5 min read',
     category: 'Guide',
-    coverIcon: '🔧',
     coverBg: 'from-violet-600 to-purple-700',
   },
 ]

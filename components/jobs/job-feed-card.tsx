@@ -5,12 +5,6 @@ import type { Database } from '@/lib/types/database'
 
 type Job = Database['public']['Tables']['jobs']['Row']
 
-const JOB_TYPE_ICONS: Record<string, string> = {
-  decorative:  '🎨',
-  functional:  '⚙️',
-  engineering: '🔧',
-  production:  '🏭',
-}
 
 const MATERIAL_GRADIENTS: Record<string, string> = {
   'PLA':              'from-emerald-400 to-teal-500',
@@ -30,7 +24,6 @@ function isNew(createdAt: string) {
 
 export function JobFeedCard({ job }: { job: Job }) {
   const gradient = MATERIAL_GRADIENTS[job.material] ?? 'from-ink-600 to-ink-800'
-  const jobTypeIcon = (job as any).job_type ? JOB_TYPE_ICONS[(job as any).job_type] : '📦'
 
   return (
     <Link href={`/jobs/${job.id}`} className="block group">
@@ -47,7 +40,6 @@ export function JobFeedCard({ job }: { job: Job }) {
             />
           ) : (
             <div className={`w-full h-full bg-gradient-to-br ${gradient} flex items-center justify-center`}>
-              <span className="text-5xl opacity-80">{jobTypeIcon}</span>
             </div>
           )}
 

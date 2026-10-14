@@ -1,6 +1,7 @@
 ﻿'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import { Lock } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { CERTIFICATION_LEVELS, BENCHMARK_REQUIREMENTS } from '@/lib/utils'
@@ -182,7 +183,7 @@ export function CertificationForm({ effectiveUserId }: { effectiveUserId: string
                       ? 'bg-warm-100 border-warm-300 text-warm-400'
                       : 'bg-warm-100 border-warm-200 text-warm-300'
                 }`}>
-                  {unlocked ? c.icon : <span className="text-base">🔒</span>}
+                  {unlocked ? c.icon : <Lock className="h-4 w-4" />}
                 </div>
 
                 {/* Content */}
@@ -342,7 +343,6 @@ export function CertificationForm({ effectiveUserId }: { effectiveUserId: string
           <form onSubmit={handleSubmit} className="card p-6 space-y-5">
             {benchmarks && benchmarks.extras.filter((e) => e.startsWith('Download')).length > 0 && (
               <div className="rounded-xl bg-warm-50 border border-warm-200 p-4 flex items-start gap-3">
-                <span className="text-xl flex-shrink-0">🖨️</span>
                 <div>
                   <p className="text-sm font-semibold text-ink-900">Download the benchmark models</p>
                   <div className="mt-1.5 space-y-1.5">

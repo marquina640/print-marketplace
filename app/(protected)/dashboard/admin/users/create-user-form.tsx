@@ -78,8 +78,8 @@ export function CreateUserForm() {
             <p className="form-label mb-2">Account type</p>
             <div className="flex gap-3">
               {[
-                { value: 'client', label: '👤 Customer', desc: 'Posts requests and hires makers' },
-                { value: 'printer_owner', label: '🖨 Maker', desc: 'Takes jobs and prints parts' },
+                { value: 'client', label: 'Customer', desc: 'Posts requests and hires makers' },
+                { value: 'printer_owner', label: 'Maker', desc: 'Takes jobs and prints parts' },
               ].map((opt) => (
                 <button
                   key={opt.value}

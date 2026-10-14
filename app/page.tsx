@@ -164,11 +164,11 @@ export default async function LandingPage() {
         <div className="page-container py-3">
           <div className="flex flex-wrap items-center justify-center gap-x-10 gap-y-2 text-xs font-semibold text-[#1C1829] uppercase tracking-wider">
             {[
-              '🔒 Secure payments',
-              '🏅 Certified makers',
-              '📦 Ship or pickup locally',
-              '💳 Card & bank transfer',
-              '⭐ Mutual review system',
+              'Secure payments',
+              'Certified makers',
+              'Ship or pickup locally',
+              'Card & bank transfer',
+              'Mutual review system',
             ].map(item => <span key={item}>{item}</span>)}
           </div>
         </div>
@@ -278,17 +278,16 @@ export default async function LandingPage() {
             <p className="text-xs font-bold uppercase tracking-widest text-warm-400 mb-6 text-center">For customers</p>
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {[
-                { n: '1', icon: '📁', title: 'Find or upload your model', desc: 'Browse MakerWorld or Thingiverse, or upload your own STL or STEP file.' },
-                { n: '2', icon: '📋', title: 'Post your request', desc: 'Describe material, color, quantity, deadline, and budget. Takes 2 minutes.' },
-                { n: '3', icon: '💬', title: 'Compare quotes and choose', desc: 'Get multiple quotes from local makers. Compare prices, ratings, and timelines. Ask questions before deciding.' },
-                { n: '4', icon: '📦', title: 'Pay and receive', desc: 'Accept the best quote and pay securely via Stripe. The maker gets paid once you confirm your order has arrived.' },
+                { n: '1', title: 'Find or upload your model', desc: 'Browse MakerWorld or Thingiverse, or upload your own STL or STEP file.' },
+                { n: '2', title: 'Post your request', desc: 'Describe material, color, quantity, deadline, and budget. Takes 2 minutes.' },
+                { n: '3', title: 'Compare quotes and choose', desc: 'Get multiple quotes from local makers. Compare prices, ratings, and timelines. Ask questions before deciding.' },
+                { n: '4', title: 'Pay and receive', desc: 'Accept the best quote and pay securely via Stripe. The maker gets paid once you confirm your order has arrived.' },
               ].map((s) => (
                 <div key={s.n} className="rounded-2xl border border-warm-200 bg-white p-5 relative">
                   <div className="absolute -top-3 left-5 h-6 w-6 rounded-full bg-gold-400 flex items-center justify-center text-[11px] font-black text-ink-950">
                     {s.n}
                   </div>
-                  <p className="text-2xl mb-3 mt-2">{s.icon}</p>
-                  <p className="font-bold text-warm-900 text-sm mb-1">{s.title}</p>
+                  <p className="font-bold text-warm-900 text-sm mb-1 mt-4">{s.title}</p>
                   <p className="text-xs text-warm-600 leading-relaxed">{s.desc}</p>
                 </div>
               ))}
@@ -313,16 +312,15 @@ export default async function LandingPage() {
             <p className="text-xs font-bold uppercase tracking-widest text-warm-400 mb-6 text-center">For makers</p>
             <div className="grid sm:grid-cols-3 gap-4 max-w-3xl mx-auto">
               {[
-                { n: '1', icon: '🖨️', title: 'Set up your profile', desc: 'List your machines, materials, and capabilities. Certification levels build trust.' },
-                { n: '2', icon: '🔍', title: 'Browse open requests', desc: 'Filter by material, process, and location. Find requests that match your setup.' },
-                { n: '3', icon: '💰', title: 'Submit quotes and earn', desc: 'Send a quote with your price and lead time. Get paid into your account on delivery.' },
+                { n: '1', title: 'Set up your profile', desc: 'List your machines, materials, and capabilities. Certification levels build trust.' },
+                { n: '2', title: 'Browse open requests', desc: 'Filter by material, process, and location. Find requests that match your setup.' },
+                { n: '3', title: 'Submit quotes and earn', desc: 'Send a quote with your price and lead time. Get paid into your account on delivery.' },
               ].map((s) => (
                 <div key={s.n} className="rounded-2xl border border-warm-200 bg-white p-5 relative">
                   <div className="absolute -top-3 left-5 h-6 w-6 rounded-full bg-gold-400 flex items-center justify-center text-[11px] font-black text-ink-950">
                     {s.n}
                   </div>
-                  <p className="text-2xl mb-3 mt-2">{s.icon}</p>
-                  <p className="font-bold text-warm-900 text-sm mb-1">{s.title}</p>
+                  <p className="font-bold text-warm-900 text-sm mb-1 mt-4">{s.title}</p>
                   <p className="text-xs text-warm-600 leading-relaxed">{s.desc}</p>
                 </div>
               ))}
@@ -399,16 +397,16 @@ export default async function LandingPage() {
           </div>
           <div className="flex flex-wrap justify-center gap-3 max-w-3xl mx-auto">
             {[
-              { label: '🎮 Figurines and collectibles', sub: 'Pokémon, miniatures, action figures' },
-              { label: '🔧 Functional parts', sub: 'Brackets, clips, housings, tools' },
-              { label: '💡 Prototypes', sub: 'Product mockups, concept models' },
-              { label: '💍 Jewelry and accessories', sub: 'Rings, pendants, custom pieces' },
-              { label: '🏠 Home and decor', sub: 'Vases, organizers, wall art' },
-              { label: '🚗 RC parts and drones', sub: 'Frames, mounts, covers' },
-              { label: '🎲 Board game pieces', sub: 'Terrain, tokens, custom dice' },
-              { label: '🎭 Cosplay and props', sub: 'Armor, helmets, movie replicas' },
-              { label: '🏗️ Architecture models', sub: 'Scale buildings, site plans' },
-              { label: '🔩 Replacement parts', sub: 'Broken clips, knobs, brackets' },
+              { label: 'Figurines and collectibles', sub: 'Pokémon, miniatures, action figures' },
+              { label: 'Functional parts', sub: 'Brackets, clips, housings, tools' },
+              { label: 'Prototypes', sub: 'Product mockups, concept models' },
+              { label: 'Jewelry and accessories', sub: 'Rings, pendants, custom pieces' },
+              { label: 'Home and decor', sub: 'Vases, organizers, wall art' },
+              { label: 'RC parts and drones', sub: 'Frames, mounts, covers' },
+              { label: 'Board game pieces', sub: 'Terrain, tokens, custom dice' },
+              { label: 'Cosplay and props', sub: 'Armor, helmets, movie replicas' },
+              { label: 'Architecture models', sub: 'Scale buildings, site plans' },
+              { label: 'Replacement parts', sub: 'Broken clips, knobs, brackets' },
             ].map((t) => (
               <div key={t.label} className="rounded-2xl border border-warm-200 bg-warm-50 px-5 py-3 text-center">
                 <p className="font-semibold text-warm-800 text-sm">{t.label}</p>

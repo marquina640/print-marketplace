@@ -1,4 +1,5 @@
-﻿import { redirect } from 'next/navigation'
+﻿import { CreditCard, AlertTriangle, Printer } from 'lucide-react'
+import { redirect } from 'next/navigation'
 import { cookies } from 'next/headers'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
@@ -204,7 +205,7 @@ export default async function PrinterDashboardPage({ searchParams }: PageProps) 
         </div>
       ) : (
         <div className="rounded-xl bg-amber-50 border border-amber-300 px-5 py-4 flex items-start gap-3">
-          <span className="text-2xl">💳</span>
+          <CreditCard className="h-5 w-5 text-amber-700" />
           <div className="flex-1">
             <p className="font-semibold text-amber-900">Connect your bank account to get paid</p>
             <p className="text-sm text-amber-700 mt-0.5 mb-3">
@@ -220,7 +221,7 @@ export default async function PrinterDashboardPage({ searchParams }: PageProps) 
       {/* PayPal → Stripe migration banner */}
       {needsPaypalMigration && (
         <div className="rounded-xl bg-orange-50 border border-orange-300 px-5 py-4 flex items-start gap-3">
-          <span className="text-2xl">⚠️</span>
+          <AlertTriangle className="h-5 w-5 text-orange-700 flex-shrink-0" />
           <div className="flex-1">
             <p className="font-semibold text-orange-900">Action required: switch to Stripe for payouts</p>
             <p className="text-sm text-orange-700 mt-0.5 mb-3">
@@ -237,7 +238,7 @@ export default async function PrinterDashboardPage({ searchParams }: PageProps) 
       {/* No machines banner */}
       {!hasMachines && (
         <div className="rounded-xl bg-red-50 border border-red-300 px-5 py-4 flex items-start gap-3">
-          <span className="text-2xl">🖨️</span>
+          <Printer className="h-5 w-5 text-red-700 flex-shrink-0" />
           <div className="flex-1">
             <p className="font-semibold text-red-900">Add a machine — you won't be visible to customers without one</p>
             <p className="text-sm text-red-700 mt-0.5 mb-3">

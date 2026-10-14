@@ -54,7 +54,7 @@ function MaterialsCheckbox({ selected, onChange, certLevel }: {
           <div key={level}>
             <p className="text-xs font-bold uppercase tracking-widest text-warm-400 mb-1.5 flex items-center gap-1.5">
               {LEVEL_LABELS[level]}
-              {locked && <span className="text-amber-500 normal-case font-medium tracking-normal">🔒 Requires level {level}</span>}
+              {locked && <span className="text-amber-500 normal-case font-medium tracking-normal">Requires level {level}</span>}
             </p>
             <div className="flex flex-wrap gap-2">
               {items.map(({ label }) => {

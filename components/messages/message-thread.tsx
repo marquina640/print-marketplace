@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import { AlertTriangle } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { formatRelativeTime } from '@/lib/utils'
@@ -144,7 +145,7 @@ export function MessageThread({
       {/* Filter warning */}
       {filterWarning && (
         <div className="mx-3 mb-2 rounded-xl bg-amber-50 border border-amber-200 px-3 py-2 flex items-start gap-2">
-          <span className="text-amber-500 text-sm mt-0.5 flex-shrink-0">⚠️</span>
+          <AlertTriangle className="h-4 w-4 text-amber-500 mt-0.5 flex-shrink-0" />
           <p className="text-xs text-amber-800">{filterWarning}</p>
           <button onClick={() => setWarning(null)} className="ml-auto text-amber-400 hover:text-amber-600 flex-shrink-0 text-xs">✕</button>
         </div>

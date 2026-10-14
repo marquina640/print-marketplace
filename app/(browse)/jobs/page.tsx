@@ -1,3 +1,4 @@
+import { Search } from 'lucide-react'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { cookies } from 'next/headers'
@@ -145,7 +146,7 @@ export default async function JobsFeedPage({ searchParams }: PageProps) {
 
       {!jobs || jobs.length === 0 ? (
         <div className="card p-16 text-center">
-          <div className="text-5xl mb-4">🔍</div>
+          <Search className="h-12 w-12 text-warm-400 mb-4 mx-auto" />
           <h3 className="font-semibold text-warm-900 mb-1">No requests found</h3>
           <p className="text-sm text-warm-500">
             {hasFilters ? 'Try adjusting your filters.' : 'No open requests right now. Check back soon!'}

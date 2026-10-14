@@ -12,7 +12,6 @@ export function EarningsCalculator() {
   return (
     <div className="rounded-2xl bg-[#1a1535] text-white p-6 space-y-6">
       <div className="flex items-center gap-2">
-        <span className="text-xl">💰</span>
         <h3 className="font-bold text-base">Earnings estimator</h3>
       </div>
 

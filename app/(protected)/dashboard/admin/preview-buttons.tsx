@@ -46,7 +46,7 @@ export function AdminPreviewButtons({ clients, makers }: AdminPreviewButtonsProp
               disabled={pending}
               className="rounded-xl bg-gold-400 text-ink-900 font-semibold px-4 py-1.5 text-sm hover:bg-gold-300 disabled:opacity-50 transition-colors"
             >
-              👤 {u.display_name ?? u.email.split('@')[0]}
+              {u.display_name ?? u.email.split('@')[0]}
             </button>
           ))}
         </div>
@@ -66,7 +66,7 @@ export function AdminPreviewButtons({ clients, makers }: AdminPreviewButtonsProp
               disabled={pending}
               className="rounded-xl bg-white/15 text-white font-semibold px-4 py-1.5 text-sm hover:bg-white/25 disabled:opacity-50 transition-colors border border-white/20"
             >
-              🖨 {u.display_name ?? u.email.split('@')[0]}
+              {u.display_name ?? u.email.split('@')[0]}
             </button>
           ))}
         </div>

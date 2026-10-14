@@ -347,7 +347,6 @@ export function MachinesForm({ effectiveUserId }: { effectiveUserId: string }) {
 
       {machines.length === 0 ? (
         <div className="card p-12 text-center">
-          <p className="text-4xl mb-3">🖨️</p>
           <p className="font-semibold text-warm-900 mb-1">No machines yet</p>
           <p className="text-sm text-warm-500">Add your printers so customers can see your capabilities.</p>
         </div>
@@ -375,7 +374,7 @@ export function MachinesForm({ effectiveUserId }: { effectiveUserId: string }) {
                   </div>
                   <div className="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-xs text-warm-500">
                     {m.build_volume_x && m.build_volume_y && m.build_volume_z && (
-                      <span>📦 {m.build_volume_x}×{m.build_volume_y}×{m.build_volume_z} mm</span>
+                      <span>{m.build_volume_x}×{m.build_volume_y}×{m.build_volume_z} mm</span>
                     )}
                     {m.nozzle_diameters?.length > 0 && (
                       <span>⌀ {m.nozzle_diameters.join(', ')} mm nozzle{m.nozzle_diameters.length > 1 ? 's' : ''}</span>

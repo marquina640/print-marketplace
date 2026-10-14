@@ -50,9 +50,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
       </Link>
 
       {/* Cover */}
-      <div className={`h-48 sm:h-60 rounded-2xl bg-gradient-to-br ${post.coverBg} flex items-center justify-center shadow-sm`}>
-        <span className="text-7xl">{post.coverIcon}</span>
-      </div>
+      <div className={`h-48 sm:h-60 rounded-2xl bg-gradient-to-br ${post.coverBg} shadow-sm`} />
 
       {/* Meta */}
       <div className="space-y-3">
@@ -81,9 +79,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
           {BLOG_POSTS.filter((p) => p.slug !== slug).map((related) => (
             <Link key={related.slug} href={`/blog/${related.slug}`}
               className="flex gap-3 rounded-xl border border-warm-200 bg-white p-4 hover:border-ink-300 hover:shadow-sm transition-all group">
-              <div className={`w-10 h-10 flex-shrink-0 rounded-xl bg-gradient-to-br ${related.coverBg} flex items-center justify-center text-xl`}>
-                {related.coverIcon}
-              </div>
+              <div className={`w-10 h-10 flex-shrink-0 rounded-xl bg-gradient-to-br ${related.coverBg}`} />
               <div className="min-w-0">
                 <p className="text-xs text-warm-400 mb-0.5">{related.category} · {related.readTime}</p>
                 <p className="text-sm font-semibold text-ink-900 group-hover:text-ink-600 transition-colors leading-snug line-clamp-2">{related.title}</p>

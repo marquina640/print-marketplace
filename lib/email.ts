@@ -140,7 +140,7 @@ export function emailQuoteAccepted({
     to,
     subject: `Your quote for "${jobTitle}" was accepted!`,
     html: `
-      <h2 style="margin:0 0 8px;font-size:20px;font-weight:800;color:#1a1625;">Your quote was accepted &#x1F389;</h2>
+      <h2 style="margin:0 0 8px;font-size:20px;font-weight:800;color:#1a1625;">Your quote was accepted</h2>
       <p style="margin:0 0 20px;color:#6b6760;font-size:14px;line-height:1.6;">
         Your quote of <strong style="color:#1a1625;">CHF ${price.toFixed(2)}</strong> for
         <em>${jobTitle}</em> has been accepted. The client will proceed to payment shortly.
@@ -160,7 +160,7 @@ export function emailJobPaid({
     to,
     subject: `Payment received - "${jobTitle}" is ready to print`,
     html: `
-      <h2 style="margin:0 0 8px;font-size:20px;font-weight:800;color:#1a1625;">Payment confirmed &#x1F4B3;</h2>
+      <h2 style="margin:0 0 8px;font-size:20px;font-weight:800;color:#1a1625;">Payment confirmed</h2>
       <p style="margin:0 0 20px;color:#6b6760;font-size:14px;line-height:1.6;">
         <strong style="color:#1a1625;">CHF ${price.toFixed(2)}</strong> has been received
         for <em>${jobTitle}</em>. You can start printing now.
@@ -193,7 +193,7 @@ export function emailJobShipped({
     subject: inPerson ? `Order handed over &mdash; "${jobTitle}"` : `Your order has shipped &mdash; "${jobTitle}"`,
     html: `
       <h2 style="margin:0 0 8px;font-size:20px;font-weight:800;color:#1a1625;">
-        ${inPerson ? 'Order handed over &#x1F91D;' : 'Your order is on its way &#x1F4E6;'}
+        ${inPerson ? 'Order handed over' : 'Your order is on its way'}
       </h2>
       ${body}
       <p style="margin:0;color:#6b6760;font-size:14px;">
@@ -211,7 +211,7 @@ export function emailDeliveryConfirmed({
     to,
     subject: `Delivery confirmed - payment for "${jobTitle}" is being processed`,
     html: `
-      <h2 style="margin:0 0 8px;font-size:20px;font-weight:800;color:#1a1625;">Delivery confirmed &#x2705;</h2>
+      <h2 style="margin:0 0 8px;font-size:20px;font-weight:800;color:#1a1625;">Delivery confirmed</h2>
       <p style="margin:0 0 20px;color:#6b6760;font-size:14px;line-height:1.6;">
         The client confirmed receipt of <em>${jobTitle}</em>. Your payment is on its way to your PayPal account.
       </p>
@@ -231,7 +231,7 @@ export function emailNewMessage({
     to,
     subject: `New message from ${senderName} - "${jobTitle}"`,
     html: `
-      <h2 style="margin:0 0 8px;font-size:20px;font-weight:800;color:#1a1625;">New message &#x1F4AC;</h2>
+      <h2 style="margin:0 0 8px;font-size:20px;font-weight:800;color:#1a1625;">New message</h2>
       <p style="margin:0 0 16px;color:#6b6760;font-size:14px;">
         <strong style="color:#1a1625;">${senderName}</strong> sent you a message about <em>${jobTitle}</em>:
       </p>

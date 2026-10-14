@@ -20,9 +20,7 @@ export default function BlogPage() {
         {BLOG_POSTS.map((post) => (
           <Link key={post.slug} href={`/blog/${post.slug}`} className="group block rounded-2xl border border-warm-200 bg-white overflow-hidden hover:border-ink-300 hover:shadow-md transition-all">
             {/* Cover */}
-            <div className={`h-32 bg-gradient-to-br ${post.coverBg} flex items-center justify-center`}>
-              <span className="text-5xl">{post.coverIcon}</span>
-            </div>
+            <div className={`h-32 bg-gradient-to-br ${post.coverBg}`} />
             {/* Content */}
             <div className="p-4 space-y-2">
               <div className="flex items-center gap-2">
