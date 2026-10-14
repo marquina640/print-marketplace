@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useTransition } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -62,6 +62,19 @@ export function Navbar({ userEmail, userRole, unreadMessages = 0, notifications 
   const [menuOpen, setMenuOpen] = useState(false)
   const [signingOut, setSigningOut] = useState(false)
   const [bellOpen, setBellOpen] = useState(false)
+  const [, startRoleSwitch] = useTransition()
+
+  function handleSwitchToClient() {
+    startRoleSwitch(async () => {
+      await (isPreview ? switchPreviewToClient : switchToClient)()
+    })
+  }
+
+  function handleSwitchToMaker() {
+    startRoleSwitch(async () => {
+      await (isPreview ? switchPreviewToMaker : switchToMaker)()
+    })
+  }
   const bellRef = useRef<HTMLDivElement>(null)
 
   const unreadNotifications = notifications.filter((n) => !n.is_read)
@@ -191,26 +204,22 @@ export function Navbar({ userEmail, userRole, unreadMessages = 0, notifications 
               {/* Role switcher - only for non-admins (or admin in preview) */}
               {(userRole !== 'admin' || isPreview) && (
                 <div className="flex items-center rounded-full border border-warm-200 bg-warm-50 p-0.5 gap-0.5">
-                  <form action={isPreview ? switchPreviewToClient : switchToClient}>
-                    <button type="submit"
-                      className={`px-3 py-1 text-xs font-semibold rounded-full transition-all ${
-                        userRole === 'client'
-                          ? 'bg-gold-500 text-ink-950'
-                          : 'text-warm-500 hover:text-warm-800'
-                      }`}>
-                      Customer
-                    </button>
-                  </form>
-                  <form action={isPreview ? switchPreviewToMaker : switchToMaker}>
-                    <button type="submit"
-                      className={`px-3 py-1 text-xs font-semibold rounded-full transition-all ${
-                        userRole === 'printer_owner'
-                          ? 'bg-gold-500 text-ink-950'
-                          : 'text-warm-500 hover:text-warm-800'
-                      }`}>
-                      Maker
-                    </button>
-                  </form>
+                  <button type="button" onClick={handleSwitchToClient}
+                    className={`px-3 py-1 text-xs font-semibold rounded-full transition-all ${
+                      userRole === 'client'
+                        ? 'bg-gold-500 text-ink-950'
+                        : 'text-warm-500 hover:text-warm-800'
+                    }`}>
+                    Customer
+                  </button>
+                  <button type="button" onClick={handleSwitchToMaker}
+                    className={`px-3 py-1 text-xs font-semibold rounded-full transition-all ${
+                      userRole === 'printer_owner'
+                        ? 'bg-gold-500 text-ink-950'
+                        : 'text-warm-500 hover:text-warm-800'
+                    }`}>
+                    Maker
+                  </button>
                 </div>
               )}
 
@@ -286,20 +295,16 @@ export function Navbar({ userEmail, userRole, unreadMessages = 0, notifications 
               {/* Role switcher */}
               {(userRole !== 'admin' || isPreview) && (
                 <div className="flex items-center rounded-full border border-warm-200 bg-warm-50 p-0.5 gap-0.5 mb-3">
-                  <form action={isPreview ? switchPreviewToClient : switchToClient} className="flex-1">
-                    <button type="submit" className={`w-full px-3 py-1.5 text-xs font-semibold rounded-full transition-all ${
-                      userRole === 'client' ? 'bg-gold-500 text-ink-950' : 'text-warm-500 hover:text-warm-800'
-                    }`}>
-                      Customer
-                    </button>
-                  </form>
-                  <form action={isPreview ? switchPreviewToMaker : switchToMaker} className="flex-1">
-                    <button type="submit" className={`w-full px-3 py-1.5 text-xs font-semibold rounded-full transition-all ${
-                      userRole === 'printer_owner' ? 'bg-gold-500 text-ink-950' : 'text-warm-500 hover:text-warm-800'
-                    }`}>
-                      Maker
-                    </button>
-                  </form>
+                  <button type="button" onClick={handleSwitchToClient} className={`flex-1 px-3 py-1.5 text-xs font-semibold rounded-full transition-all ${
+                    userRole === 'client' ? 'bg-gold-500 text-ink-950' : 'text-warm-500 hover:text-warm-800'
+                  }`}>
+                    Customer
+                  </button>
+                  <button type="button" onClick={handleSwitchToMaker} className={`flex-1 px-3 py-1.5 text-xs font-semibold rounded-full transition-all ${
+                    userRole === 'printer_owner' ? 'bg-gold-500 text-ink-950' : 'text-warm-500 hover:text-warm-800'
+                  }`}>
+                    Maker
+                  </button>
                 </div>
               )}
               {mobileNav.map((item) => {
