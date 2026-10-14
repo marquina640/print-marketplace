@@ -240,7 +240,7 @@ export default async function PrinterDashboardPage({ searchParams }: PageProps) 
         <div className="rounded-xl bg-red-50 border border-red-300 px-5 py-4 flex items-start gap-3">
           <Printer className="h-5 w-5 text-red-700 flex-shrink-0" />
           <div className="flex-1">
-            <p className="font-semibold text-red-900">Add a machine — you won't be visible to customers without one</p>
+            <p className="font-semibold text-red-900">Add a machine. You won't be visible to customers without one.</p>
             <p className="text-sm text-red-700 mt-0.5 mb-3">
               Customers can't find you on the map and you can't submit quotes until you add at least one printer to your profile.
             </p>

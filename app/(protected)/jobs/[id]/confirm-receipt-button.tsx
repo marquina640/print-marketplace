@@ -125,7 +125,7 @@ export function ConfirmReceiptButton({ jobId }: { jobId: string }) {
                   <p className="text-sm text-warm-600 font-medium">
                     {photoPreviews.length === 0 ? 'Click to upload a photo' : 'Add more photos'}
                   </p>
-                  <p className="text-xs text-warm-400 mt-0.5">JPG, PNG, WEBP — max 20 MB each</p>
+                  <p className="text-xs text-warm-400 mt-0.5">JPG, PNG, WEBP (max 20 MB each)</p>
                   <input
                     ref={fileRef}
                     type="file"

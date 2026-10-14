@@ -53,7 +53,7 @@ export default function Post() {
         <li>Specify material, quantity, deadline, and any budget constraints</li>
         <li>Wait for quotes - most requests hear back within a few hours</li>
         <li>Review the quotes, check maker profiles and ratings, and accept the best one</li>
-        <li>Pay securely — the maker gets paid when you confirm delivery</li>
+        <li>Pay securely. The maker gets paid when you confirm delivery.</li>
       </ol>
 
       <div className="mt-8 rounded-2xl bg-[#1a1535] text-white p-6 space-y-3">

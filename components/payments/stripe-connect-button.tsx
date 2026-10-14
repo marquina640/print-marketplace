@@ -57,7 +57,7 @@ export function StripeConnectButton({ connected, detailsSubmitted, hasAccount, i
       <div className="space-y-2">
         <div className="rounded-xl bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-800">
           <p className="font-semibold">Stripe account under review</p>
-          <p className="text-xs mt-0.5">Payouts will activate once Stripe approves your account — usually within 1–2 business days. No further action needed.</p>
+          <p className="text-xs mt-0.5">Payouts will activate once Stripe approves your account, usually within 1–2 business days. No further action needed.</p>
         </div>
         <button
           type="button"
@@ -76,7 +76,7 @@ export function StripeConnectButton({ connected, detailsSubmitted, hasAccount, i
     <div className="space-y-2">
       {countrySelected === false && (
         <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
-          Select your country above before connecting Stripe — it determines which country your payout account is created in.
+          Select your country above before connecting Stripe. It determines which country your payout account is created in.
         </p>
       )}
       <button

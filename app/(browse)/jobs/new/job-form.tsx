@@ -472,7 +472,7 @@ export function NewJobForm({ clientId, clientLocation, isGuest, makerProcesses, 
             <h2 className="font-semibold text-ink-900">Manufacturing Process</h2>
             {makerProcesses && makerName && (
               <span className="text-xs text-warm-400 font-normal">
-                — showing {makerName}&apos;s capabilities
+                (showing {makerName}&apos;s capabilities)
               </span>
             )}
             <div className="relative group">
@@ -827,7 +827,7 @@ export function NewJobForm({ clientId, clientLocation, isGuest, makerProcesses, 
           <div className="card p-6 space-y-4">
             <div>
               <h2 className="font-semibold text-ink-900">Reference Photos <span className="text-red-500">*</span></h2>
-              <p className="text-sm text-warm-500 mt-0.5">Upload up to 3 photos so the maker understands what you need designed — sketches, inspiration images, or similar objects all work.</p>
+              <p className="text-sm text-warm-500 mt-0.5">Upload up to 3 photos so the maker understands what you need designed (sketches, inspiration images, or similar objects all work).</p>
             </div>
 
             {/* Existing previews */}

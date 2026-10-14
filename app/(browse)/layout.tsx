@@ -46,7 +46,7 @@ export default async function BrowseLayout({ children }: { children: React.React
       />
       {!user && (
         <div className="border-b border-[#3D3A58] bg-[#2D2845] py-2.5 text-center text-sm text-[#CEC8E4]">
-          You're browsing as a guest —{' '}
+          You're browsing as a guest.{' '}
           <Link href="/signup" className="font-semibold text-[#D4A017] hover:underline">
             create a free account
           </Link>

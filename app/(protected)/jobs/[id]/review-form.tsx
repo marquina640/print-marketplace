@@ -28,7 +28,7 @@ export function ReviewForm({ jobId, reviewerId, revieweeId, revieweeLabel, exist
       <div className="rounded-xl bg-emerald-50 border border-emerald-200 p-4 text-sm text-emerald-800">
         <p className="font-medium">Review submitted ✓</p>
         {existingReview?.is_public ? (
-          <p className="mt-1 text-emerald-700">Both parties have reviewed — your review is now public.</p>
+          <p className="mt-1 text-emerald-700">Both parties have reviewed. Your review is now public.</p>
         ) : (
           <p className="mt-1 text-emerald-700">Waiting for the other party to review. Both reviews will go public together.</p>
         )}
@@ -99,7 +99,7 @@ export function ReviewForm({ jobId, reviewerId, revieweeId, revieweeLabel, exist
 
       <div className="rounded-xl bg-ink-50 border border-ink-200 p-3 text-xs text-ink-700">
         <strong>How it works:</strong> Your review is private until the other party also submits theirs.
-        Once both are done, both reviews go public simultaneously — just like Airbnb.
+        Once both are done, both reviews go public simultaneously (just like Airbnb).
       </div>
 
       {error && <p className="text-sm text-red-600">{error}</p>}

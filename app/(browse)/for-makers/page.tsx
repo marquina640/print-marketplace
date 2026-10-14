@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 }
 
 const benefits = [
-  { title: 'Free to join', desc: 'No subscription, no listing fee. A commission applies only when a job is successfully completed — no upfront costs, ever.' },
+  { title: 'Free to join', desc: 'No subscription, no listing fee. A commission applies only when a job is successfully completed. No upfront costs, ever.' },
   { title: 'You set your prices', desc: 'Quote whatever you think is fair. There\'s no floor or ceiling - the market finds the right price.' },
   { title: 'Always get paid', desc: 'The client pays securely at checkout. Once they confirm delivery, your payment is sent directly to your bank account via Stripe.' },
   { title: 'Work your schedule', desc: 'Only quote on jobs you want to take. Busy this week? Simply don\'t quote. No penalties, no minimums.' },

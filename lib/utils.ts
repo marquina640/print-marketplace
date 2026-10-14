@@ -413,7 +413,7 @@ export const BENCHMARK_REQUIREMENTS: Record<number, {
     extras: [
       'Download the model at makerworld.com/en/models/1469968-all-in-one-calibration-test',
       'Print in PLA or your primary material using your normal everyday settings',
-      'Do not tune settings specifically for this test — we want to see your typical results',
+      'Do not tune settings specifically for this test. We want to see your typical results.',
       'Photograph the finished print from multiple angles in good lighting',
       'Include a close-up of the arch, bridge, and thin towers',
     ],
@@ -496,7 +496,7 @@ export const BENCHMARK_REQUIREMENTS: Record<number, {
     ],
     extras: [
       'Include your business description directly in the notes field below',
-      'Upload at least 3 photos of your print farm — wide shots and detail shots',
+      'Upload at least 3 photos of your print farm (wide shots and detail shots)',
       'Show printers actively running if possible',
       'Production Maker approval includes a 2-week trial period with real jobs',
     ],

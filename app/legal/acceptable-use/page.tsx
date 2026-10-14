@@ -57,7 +57,7 @@ export default function AcceptableUsePage() {
           Many 3D models published on platforms such as Printables, Thingiverse, MyMiniFactory, and Cults3D are distributed under Creative Commons or similar licences. Several of these licences include a <strong>Non-Commercial (NC)</strong> restriction, which prohibits using the model for any commercial purpose.
         </p>
         <p>
-          <strong>Having a model manufactured on PrintMarketHub in exchange for payment constitutes commercial use.</strong> Submitting a job to produce prints of an NC-licensed model — even if you obtained the file for free — is likely a violation of that model's licence terms and may expose you to legal liability from the original creator.
+          <strong>Having a model manufactured on PrintMarketHub in exchange for payment constitutes commercial use.</strong> Submitting a job to produce prints of an NC-licensed model (even if you obtained the file for free) is likely a violation of that model's licence terms and may expose you to legal liability from the original creator.
         </p>
         <p>When submitting a job, you are responsible for ensuring that any model file you upload is either:</p>
         <ul>
@@ -67,7 +67,7 @@ export default function AcceptableUsePage() {
         <p>As a general guide:</p>
         <Table rows={[
           ['CC BY, CC BY-SA', 'Commercial use permitted'],
-          ['CC BY-NC, CC BY-NC-SA, CC BY-NC-ND', 'Commercial use prohibited — do not use on PrintMarketHub'],
+          ['CC BY-NC, CC BY-NC-SA, CC BY-NC-ND', 'Commercial use prohibited. Do not use on PrintMarketHub.'],
           ['All Rights Reserved / no licence stated', 'Assume no commercial use permitted'],
           ['Explicitly marked "Commercial use OK" by creator', 'Commercial use permitted'],
         ]} headers={['Licence', 'Commercial use status']} />

@@ -112,7 +112,7 @@ export default async function MakersBrowsePage({ searchParams }: PageProps) {
       <div>
         <h1 className="section-heading">Browse Makers</h1>
         <p className="text-warm-500 text-sm mt-1">
-          Get your idea done by a real local maker —{' '}
+          Get your idea done by a real local maker.{' '}
           {enrichedMakers.length} maker{enrichedMakers.length !== 1 ? 's' : ''} on the platform
           {error && <span className="ml-2 text-red-400 text-xs">(query error: {error.message})</span>}
         </p>

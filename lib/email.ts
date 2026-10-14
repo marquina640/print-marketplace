@@ -275,7 +275,7 @@ export function emailMakerAddMachine({ to, name }: { to: string; name: string | 
   const greeting = name ? `Hi ${name},` : 'Hi there,'
   return sendEmail({
     to,
-    subject: 'Add your printer — customers can\'t find you yet',
+    subject: 'Add your printer: customers can\'t find you yet',
     html: `
       <h2 style="margin:0 0 8px;font-size:20px;font-weight:800;color:#1a1625;">You&apos;re not on the map yet</h2>
       <p style="margin:0 0 16px;color:#6b6760;font-size:14px;line-height:1.6;">
@@ -370,7 +370,7 @@ export function emailMakerNewJobNearby({
   const distance = distanceKm < 5 ? 'less than 5 km' : `${Math.round(distanceKm)} km`
   return sendEmail({
     to,
-    subject: `New print request near you — "${jobTitle}"`,
+    subject: `New print request near you: "${jobTitle}"`,
     html: `
       <h2 style="margin:0 0 8px;font-size:20px;font-weight:800;color:#1a1625;">New job near you</h2>
       <p style="margin:0 0 20px;color:#6b6760;font-size:14px;line-height:1.6;">

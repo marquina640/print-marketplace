@@ -16,7 +16,7 @@ const STEPS = [
     icon: '📬',
     label: 'Step 2',
     title: 'Receive quotes',
-    desc: "Usually within a few hours. You'll get an email notification for each new quote — no need to keep checking.",
+    desc: "Usually within a few hours. You'll get an email notification for each new quote. No need to keep checking.",
     bg: 'bg-amber-50 border-amber-100',
     iconBg: 'bg-amber-100 text-amber-600',
   },

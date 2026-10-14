@@ -36,7 +36,7 @@ export function RelistButton({ jobId }: { jobId: string }) {
           <div className="relative z-10 w-full max-w-sm rounded-2xl bg-white shadow-2xl p-6 space-y-4">
             <h2 className="text-base font-bold text-warm-900">Relist this request?</h2>
             <p className="text-sm text-warm-500 leading-relaxed">
-              Do you want to update anything before relisting — like the deadline or description?
+              Do you want to update anything before relisting, like the deadline or description?
             </p>
             <div className="flex gap-3 pt-1">
               <Button

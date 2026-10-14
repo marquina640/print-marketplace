@@ -38,7 +38,7 @@ const clientSteps = [
   {
     number: '05',
     title: 'Pay securely',
-    desc: 'Your payment is processed securely at checkout. The maker gets paid once you confirm delivery — you\'re never charged for a result you haven\'t approved.',
+    desc: 'Your payment is processed securely at checkout. The maker gets paid once you confirm delivery. You\'re never charged for a result you haven\'t approved.',
     color: 'border-indigo-200 bg-indigo-50',
     numColor: 'text-indigo-400',
   },

@@ -289,7 +289,7 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
               d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
           </svg>
           <div>
-            <p className="text-sm font-semibold text-amber-800">Customer files — handle with care</p>
+            <p className="text-sm font-semibold text-amber-800">Customer files: handle with care</p>
             <p className="text-xs text-amber-700 mt-0.5">
               These files are shared with you to fulfil this request only. Do not share, resell, or reuse them for any other purpose.
             </p>
@@ -477,7 +477,7 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
                       {/* Step 2: Paid — maker ships */}
                       {(job as any).status === 'paid' && (
                         <div className="rounded-xl border border-blue-200 bg-blue-50 p-4 space-y-2">
-                          <p className="text-sm font-semibold text-blue-900">Payment received — waiting for shipment</p>
+                          <p className="text-sm font-semibold text-blue-900">Payment received, waiting for shipment</p>
                           {canMarkShipped && (
                             <>
                               <p className="text-xs text-blue-700">Ship the order and mark it as shipped so the client knows it's on the way.</p>
@@ -492,7 +492,7 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
                       {(job as any).status === 'shipped' && (
                         <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 space-y-2">
                           <p className="text-sm font-semibold text-amber-900">
-                            {(job as any).in_person_delivery ? 'Order handed over in person' : 'Order shipped'} — awaiting confirmation
+                            {(job as any).in_person_delivery ? 'Order handed over in person' : 'Order shipped'}, awaiting confirmation
                           </p>
                           {/* Shipping details */}
                           {!(job as any).in_person_delivery && ((job as any).shipping_carrier || (job as any).tracking_number) && (
@@ -521,7 +521,7 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
                       {/* Step 4: Delivered — admin pays out */}
                       {['delivered', 'completed'].includes((job as any).status) && !(job as any).payout_at && (
                         <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 space-y-2">
-                          <p className="text-sm font-semibold text-emerald-900">Delivered — payout pending</p>
+                          <p className="text-sm font-semibold text-emerald-900">Delivered, payout pending</p>
                           {isAdmin && (
                             <>
                               <p className="text-xs text-emerald-700">
