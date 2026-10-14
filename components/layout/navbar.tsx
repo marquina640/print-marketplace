@@ -65,15 +65,21 @@ export function Navbar({ userEmail, userRole, unreadMessages = 0, notifications 
   const [, startRoleSwitch] = useTransition()
 
   function handleSwitchToClient() {
-    startRoleSwitch(async () => {
-      await (isPreview ? switchPreviewToClient : switchToClient)()
-    })
+    if (isPreview) {
+      startRoleSwitch(async () => { await switchPreviewToClient() })
+      return
+    }
+    document.cookie = `view_mode=client; path=/; max-age=${86400 * 30}`
+    router.push('/dashboard/client')
   }
 
   function handleSwitchToMaker() {
-    startRoleSwitch(async () => {
-      await (isPreview ? switchPreviewToMaker : switchToMaker)()
-    })
+    if (isPreview) {
+      startRoleSwitch(async () => { await switchPreviewToMaker() })
+      return
+    }
+    document.cookie = `view_mode=maker; path=/; max-age=${86400 * 30}`
+    router.push('/dashboard/printer')
   }
   const bellRef = useRef<HTMLDivElement>(null)
 
