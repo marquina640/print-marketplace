@@ -33,6 +33,7 @@ export function NewJobForm({ clientId, clientLocation, isGuest, makerProcesses, 
   const [ogImageUrl, setOgImageUrl] = useState<string | null>(null)
   const [ogImageLoading, setOgImageLoading] = useState(false)
   const [manualImageUrl, setManualImageUrl] = useState('')
+  const [imageUrlFailed, setImageUrlFailed] = useState(false)
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [imageDragOver, setImageDragOver] = useState(false)
@@ -830,6 +831,7 @@ export function NewJobForm({ clientId, clientLocation, isGuest, makerProcesses, 
                     onChange={(e) => {
                       const val = e.target.value
                       setManualImageUrl(val)
+                      setImageUrlFailed(false)
                       if (val.trim().startsWith('http')) {
                         setOgImageUrl(val.trim())
                         if (!imageFile) setImagePreview(val.trim())
@@ -842,6 +844,7 @@ export function NewJobForm({ clientId, clientLocation, isGuest, makerProcesses, 
                       const pasted = e.clipboardData.getData('text').trim()
                       if (pasted.startsWith('http')) {
                         setManualImageUrl(pasted)
+                        setImageUrlFailed(false)
                         setOgImageUrl(pasted)
                         if (!imageFile) setImagePreview(pasted)
                       }
@@ -944,12 +947,13 @@ export function NewJobForm({ clientId, clientLocation, isGuest, makerProcesses, 
           </div>
 
           {/* Auto-filled from og:image */}
-          {!imageFile && ogImageUrl && imagePreview ? (
+          {!imageFile && ogImageUrl && imagePreview && !imageUrlFailed ? (
             <div className="relative">
               <img
                 src={imagePreview}
                 alt="Auto-filled preview"
                 className="w-full max-h-64 object-cover rounded-xl border border-green-200"
+                onError={() => { setOgImageUrl(null); setImagePreview(null); setImageUrlFailed(true) }}
               />
               <div className="absolute top-2 left-2 flex items-center gap-1.5 rounded-full bg-green-500 px-2.5 py-1 text-[11px] font-semibold text-white shadow">
                 ✨ Auto-filled from your link
@@ -1012,7 +1016,12 @@ export function NewJobForm({ clientId, clientLocation, isGuest, makerProcesses, 
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
                       d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
-                  {modelInputMode === 'link' && modelUrl.trim().startsWith('http') && !manualImageUrl ? (
+                  {imageUrlFailed ? (
+                    <>
+                      <p className="text-sm text-red-500 font-medium">That URL didn't load as an image</p>
+                      <p className="text-xs text-warm-400 mt-1">Make sure to copy the image address, not the page URL — or upload a photo here</p>
+                    </>
+                  ) : modelInputMode === 'link' && modelUrl.trim().startsWith('http') && !manualImageUrl ? (
                     <>
                       <p className="text-sm text-amber-600 font-medium">Couldn't fetch a preview from this link</p>
                       <p className="text-xs text-warm-400 mt-1">Paste the image URL above, or upload a photo here</p>
