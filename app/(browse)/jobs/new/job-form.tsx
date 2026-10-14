@@ -32,8 +32,6 @@ export function NewJobForm({ clientId, clientLocation, isGuest, makerProcesses, 
   const [modelUrl, setModelUrl] = useState('')
   const [ogImageUrl, setOgImageUrl] = useState<string | null>(null)
   const [ogImageLoading, setOgImageLoading] = useState(false)
-  const [manualImageUrl, setManualImageUrl] = useState('')
-  const [imageUrlFailed, setImageUrlFailed] = useState(false)
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [imageDragOver, setImageDragOver] = useState(false)
@@ -90,7 +88,6 @@ export function NewJobForm({ clientId, clientLocation, isGuest, makerProcesses, 
   useEffect(() => {
     if (modelInputMode !== 'link' || !modelUrl.trim().startsWith('http')) {
       setOgImageUrl(null)
-      setManualImageUrl('')
       if (!imageFile) setImagePreview(null)
       return
     }
@@ -819,45 +816,6 @@ export function NewJobForm({ clientId, clientLocation, isGuest, makerProcesses, 
               <p className="text-xs text-warm-400">
                 Find your model on one of these platforms, copy the page URL, and paste it above.
               </p>
-              {modelUrl.trim().startsWith('http') && !ogImageLoading && (
-                <div className="space-y-1.5 pt-3 border-t border-warm-100">
-                  <p className="text-xs font-medium text-warm-700">
-                    Paste the model image URL <span className="font-normal text-warm-400">(if preview didn't auto-fill)</span>
-                  </p>
-                  <input
-                    type="text"
-                    inputMode="url"
-                    value={manualImageUrl}
-                    onChange={(e) => {
-                      const val = e.target.value
-                      setManualImageUrl(val)
-                      setImageUrlFailed(false)
-                      if (val.trim().startsWith('http')) {
-                        setOgImageUrl(val.trim())
-                        if (!imageFile) setImagePreview(val.trim())
-                      } else {
-                        setOgImageUrl(null)
-                        if (!imageFile) setImagePreview(null)
-                      }
-                    }}
-                    onPaste={(e) => {
-                      const pasted = e.clipboardData.getData('text').trim()
-                      if (pasted.startsWith('http')) {
-                        setManualImageUrl(pasted)
-                        setImageUrlFailed(false)
-                        setOgImageUrl(pasted)
-                        if (!imageFile) setImagePreview(pasted)
-                      }
-                    }}
-                    placeholder="https://..."
-                    className="w-full rounded-xl border border-warm-300 bg-white px-4 py-2.5 text-sm text-ink-900 placeholder-warm-400 focus:border-ink-500 focus:outline-none focus:ring-2 focus:ring-ink-200 transition"
-                  />
-                  <p className="text-xs text-warm-400">
-                    Desktop: right-click the photo → "Copy image address" → paste above.
-                    Mobile: save the photo from the site, then upload it in the section below.
-                  </p>
-                </div>
-              )}
             </div>
           )}
         </div>
@@ -942,19 +900,19 @@ export function NewJobForm({ clientId, clientLocation, isGuest, makerProcesses, 
             </h2>
             <p className="text-sm text-warm-500 mt-0.5">
               {modelInputMode === 'link' && !imageFile
-                ? 'We\'ll try to auto-fill this from your link - or upload your own.'
+                ? 'We\'ll try to auto-fill from your link. If it doesn\'t work, save the model image from the site and upload it here.'
                 : 'Upload a photo or render so makers quickly understand the job.'}
             </p>
           </div>
 
           {/* Auto-filled from og:image */}
-          {!imageFile && ogImageUrl && imagePreview && !imageUrlFailed ? (
+          {!imageFile && ogImageUrl && imagePreview ? (
             <div className="relative">
               <img
                 src={imagePreview}
                 alt="Auto-filled preview"
                 className="w-full max-h-64 object-cover rounded-xl border border-green-200"
-                onError={() => { setOgImageUrl(null); setImagePreview(null); setImageUrlFailed(true) }}
+                onError={() => { setOgImageUrl(null); setImagePreview(null) }}
               />
               <div className="absolute top-2 left-2 flex items-center gap-1.5 rounded-full bg-green-500 px-2.5 py-1 text-[11px] font-semibold text-white shadow">
                 ✨ Auto-filled from your link
@@ -1017,15 +975,10 @@ export function NewJobForm({ clientId, clientLocation, isGuest, makerProcesses, 
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
                       d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
-                  {imageUrlFailed ? (
+                  {modelInputMode === 'link' && modelUrl.trim().startsWith('http') ? (
                     <>
-                      <p className="text-sm text-red-500 font-medium">That URL didn't load as an image</p>
-                      <p className="text-xs text-warm-400 mt-1">Make sure to copy the image address, not the page URL — or upload a photo here</p>
-                    </>
-                  ) : modelInputMode === 'link' && modelUrl.trim().startsWith('http') && !manualImageUrl ? (
-                    <>
-                      <p className="text-sm text-amber-600 font-medium">Couldn't fetch a preview from this link</p>
-                      <p className="text-xs text-warm-400 mt-1">On mobile: save the photo from the site, then upload it here</p>
+                      <p className="text-sm text-amber-600 font-medium">Couldn't auto-fill a preview</p>
+                      <p className="text-xs text-warm-400 mt-1">Save the model image from the site, then upload it here</p>
                     </>
                   ) : (
                     <>
