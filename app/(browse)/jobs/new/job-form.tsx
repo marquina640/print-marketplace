@@ -853,7 +853,8 @@ export function NewJobForm({ clientId, clientLocation, isGuest, makerProcesses, 
                     className="w-full rounded-xl border border-warm-300 bg-white px-4 py-2.5 text-sm text-ink-900 placeholder-warm-400 focus:border-ink-500 focus:outline-none focus:ring-2 focus:ring-ink-200 transition"
                   />
                   <p className="text-xs text-warm-400">
-                    On Thingiverse or MakerWorld: right-click the main photo → "Copy image address" → paste above
+                    Desktop: right-click the photo → "Copy image address" → paste above.
+                    Mobile: save the photo from the site, then upload it in the section below.
                   </p>
                 </div>
               )}
@@ -1024,7 +1025,7 @@ export function NewJobForm({ clientId, clientLocation, isGuest, makerProcesses, 
                   ) : modelInputMode === 'link' && modelUrl.trim().startsWith('http') && !manualImageUrl ? (
                     <>
                       <p className="text-sm text-amber-600 font-medium">Couldn't fetch a preview from this link</p>
-                      <p className="text-xs text-warm-400 mt-1">Paste the image URL above, or upload a photo here</p>
+                      <p className="text-xs text-warm-400 mt-1">On mobile: save the photo from the site, then upload it here</p>
                     </>
                   ) : (
                     <>
