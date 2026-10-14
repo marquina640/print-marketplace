@@ -32,6 +32,7 @@ export function NewJobForm({ clientId, clientLocation, isGuest, makerProcesses, 
   const [modelUrl, setModelUrl] = useState('')
   const [ogImageUrl, setOgImageUrl] = useState<string | null>(null)
   const [ogImageLoading, setOgImageLoading] = useState(false)
+  const [manualImageUrl, setManualImageUrl] = useState('')
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [imageDragOver, setImageDragOver] = useState(false)
@@ -88,6 +89,7 @@ export function NewJobForm({ clientId, clientLocation, isGuest, makerProcesses, 
   useEffect(() => {
     if (modelInputMode !== 'link' || !modelUrl.trim().startsWith('http')) {
       setOgImageUrl(null)
+      setManualImageUrl('')
       if (!imageFile) setImagePreview(null)
       return
     }
@@ -816,6 +818,42 @@ export function NewJobForm({ clientId, clientLocation, isGuest, makerProcesses, 
               <p className="text-xs text-warm-400">
                 Find your model on one of these platforms, copy the page URL, and paste it above.
               </p>
+              {modelUrl.trim().startsWith('http') && !ogImageLoading && (
+                <div className="space-y-1.5 pt-3 border-t border-warm-100">
+                  <p className="text-xs font-medium text-warm-700">
+                    Paste the model image URL <span className="font-normal text-warm-400">(if preview didn't auto-fill)</span>
+                  </p>
+                  <input
+                    type="text"
+                    inputMode="url"
+                    value={manualImageUrl}
+                    onChange={(e) => {
+                      const val = e.target.value
+                      setManualImageUrl(val)
+                      if (val.trim().startsWith('http')) {
+                        setOgImageUrl(val.trim())
+                        if (!imageFile) setImagePreview(val.trim())
+                      } else {
+                        setOgImageUrl(null)
+                        if (!imageFile) setImagePreview(null)
+                      }
+                    }}
+                    onPaste={(e) => {
+                      const pasted = e.clipboardData.getData('text').trim()
+                      if (pasted.startsWith('http')) {
+                        setManualImageUrl(pasted)
+                        setOgImageUrl(pasted)
+                        if (!imageFile) setImagePreview(pasted)
+                      }
+                    }}
+                    placeholder="https://..."
+                    className="w-full rounded-xl border border-warm-300 bg-white px-4 py-2.5 text-sm text-ink-900 placeholder-warm-400 focus:border-ink-500 focus:outline-none focus:ring-2 focus:ring-ink-200 transition"
+                  />
+                  <p className="text-xs text-warm-400">
+                    On Thingiverse or MakerWorld: right-click the main photo → "Copy image address" → paste above
+                  </p>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -974,10 +1012,10 @@ export function NewJobForm({ clientId, clientLocation, isGuest, makerProcesses, 
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
                       d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
-                  {modelInputMode === 'link' && modelUrl.trim().startsWith('http') ? (
+                  {modelInputMode === 'link' && modelUrl.trim().startsWith('http') && !manualImageUrl ? (
                     <>
                       <p className="text-sm text-amber-600 font-medium">Couldn't fetch a preview from this link</p>
-                      <p className="text-xs text-warm-400 mt-1">Please upload a screenshot or photo of the model</p>
+                      <p className="text-xs text-warm-400 mt-1">Paste the image URL above, or upload a photo here</p>
                     </>
                   ) : (
                     <>
