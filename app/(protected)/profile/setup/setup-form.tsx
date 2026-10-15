@@ -309,7 +309,7 @@ export function ProfileSetupForm({ effectiveUserId }: { effectiveUserId: string 
       })
       .eq('user_id', effectiveUserId)
 
-    router.push('/dashboard/printer')
+    router.push(isNewProfile ? '/profile/machines' : '/dashboard/printer')
     router.refresh()
   }
 
