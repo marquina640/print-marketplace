@@ -22,10 +22,17 @@ export async function POST(req: NextRequest) {
       .single()
 
     let accountId = (printerProfile as any)?.stripe_account_id as string | null
-    const country = ((printerProfile as any)?.country as string | null) ?? 'CH'
+    const country = (printerProfile as any)?.country as string | null
+
+    if (!accountId && !country) {
+      return NextResponse.json(
+        { error: 'Please set your country in Profile → Setup before connecting Stripe.' },
+        { status: 400 }
+      )
+    }
 
     if (!accountId) {
-      accountId = await createConnectedAccount(profile?.email ?? '', country)
+      accountId = await createConnectedAccount(profile?.email ?? '', country!)
 
       // Save to DB BEFORE redirecting — if this fails, abort so we don't lose the link
       const { data: updated } = await admin
