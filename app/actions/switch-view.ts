@@ -7,7 +7,7 @@ import { createClient } from '@/lib/supabase/server'
 export async function switchToClient() {
   const cookieStore = await cookies()
   cookieStore.set('view_mode', 'client', { path: '/', maxAge: 86400 * 30 })
-  redirect('/dashboard/client')
+  redirect('/feed')
 }
 
 export async function switchToMaker() {

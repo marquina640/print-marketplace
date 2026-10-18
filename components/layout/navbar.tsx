@@ -72,7 +72,7 @@ export function Navbar({ userEmail, userRole, unreadMessages = 0, notifications 
       return
     }
     document.cookie = `view_mode=client; path=/; max-age=${86400 * 30}`
-    router.push('/dashboard/client')
+    router.push('/feed')
   }
 
   function handleSwitchToMaker() {
