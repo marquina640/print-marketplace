@@ -30,6 +30,7 @@ interface NavbarProps {
 
 const clientNav = [
   { href: '/dashboard/client', label: 'Dashboard' },
+  { href: '/feed',             label: 'Browse Prints' },
   { href: '/jobs/new',         label: 'Post a Request' },
   { href: '/makers',           label: 'Browse Makers' },
   { href: '/map',              label: 'Map' },
@@ -42,6 +43,7 @@ const printerNav = [
   { href: '/jobs',                  label: 'Browse Requests' },
   { href: '/map',                   label: 'Map' },
   { href: '/messages',              label: 'Messages' },
+  { href: '/profile/listings',      label: 'My Listings' },
   { href: '/profile/machines',      label: 'Machines' },
   { href: '/profile/portfolio',     label: 'Portfolio' },
   { href: '/profile/certification', label: 'Certification' },

@@ -83,10 +83,21 @@ const icons = {
       <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
     </svg>
   ),
+  feed: (
+    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} className="h-4 w-4">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+    </svg>
+  ),
+  shop: (
+    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} className="h-4 w-4">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+    </svg>
+  ),
 }
 
 const clientNav: NavItem[] = [
   { href: '/dashboard/client', label: 'Dashboard',      icon: icons.home     },
+  { href: '/feed',             label: 'Browse Prints',  icon: icons.feed     },
   { href: '/jobs/new',         label: 'Post a Request', icon: icons.plus     },
   { href: '/makers',           label: 'Browse Makers',  icon: icons.search   },
   { href: '/map',              label: 'Map',            icon: icons.map      },
@@ -99,6 +110,7 @@ const printerNav: NavItem[] = [
   { href: '/jobs',                    label: 'Browse Requests', icon: icons.search    },
   { href: '/map',                     label: 'Map',           icon: icons.map       },
   { href: '/messages',                label: 'Messages',      icon: icons.chat      },
+  { href: '/profile/listings',        label: 'My Listings',   icon: icons.shop      },
   { href: '/profile/machines',        label: 'Machines',      icon: icons.cog       },
   { href: '/profile/portfolio',       label: 'Portfolio',     icon: icons.briefcase },
   { href: '/profile/certification',   label: 'Certification', icon: icons.users     },

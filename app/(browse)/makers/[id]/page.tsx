@@ -1,12 +1,15 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { CertificationBadge, JobTypeBadge, MaterialBadge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { getCertificationLevel, MANUFACTURING_PROCESSES } from '@/lib/utils'
 import { formatDate } from '@/lib/utils'
 import { InviteToJobButton } from '@/components/makers/invite-to-job-button'
 import { ShareMakerButton } from '@/components/makers/share-maker-button'
+import { FollowButton } from '@/components/listings/follow-button'
+import { ListingCard } from '@/components/listings/listing-card'
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -17,12 +20,15 @@ export default async function MakerProfilePage({ params }: PageProps) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
+  const admin = createAdminClient()
+
   const [
     { data: printerProfile },
     { data: machines },
     { data: portfolio },
     { data: reviews },
     { data: baseProfile },
+    { data: listings },
   ] = await Promise.all([
     supabase.from('printer_profiles').select('*').eq('user_id', id).single(),
     supabase.from('machines').select('*').eq('maker_id', id).eq('is_active', true).order('created_at'),
@@ -31,7 +37,15 @@ export default async function MakerProfilePage({ params }: PageProps) {
     supabase.from('reviews').select('*, profiles:reviewer_id(display_name, email)')
       .eq('reviewee_id', id).eq('is_public', true).order('created_at', { ascending: false }),
     supabase.from('profiles').select('display_name, email, created_at').eq('user_id', id).single(),
+    admin.from('listings').select('*').eq('maker_id', id).eq('status', 'active').order('created_at', { ascending: false }),
   ])
+
+  // Follow state
+  let isFollowing = false
+  if (user && user.id !== id) {
+    const { data: follow } = await admin.from('follows').select('id').eq('follower_id', user.id).eq('maker_id', id).single()
+    isFollowing = !!follow
+  }
 
   if (!printerProfile) notFound()
 
@@ -107,6 +121,9 @@ export default async function MakerProfilePage({ params }: PageProps) {
               </Link>
             )}
             <ShareMakerButton makerId={id} makerName={printerProfile.display_name ?? 'Maker'} />
+            {user && !isOwnProfile && (
+              <FollowButton makerId={id} userId={user.id} initialFollowing={isFollowing} />
+            )}
           </div>
         </div>
 
@@ -264,6 +281,22 @@ export default async function MakerProfilePage({ params }: PageProps) {
                 </div>
               )
             })}
+          </div>
+        </section>
+      )}
+
+      {/* Shop */}
+      {listings && listings.length > 0 && (
+        <section>
+          <h2 className="text-lg font-bold text-ink-900 mb-4">Shop</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+            {listings.map((listing: any) => (
+              <ListingCard key={listing.id} listing={{
+                ...listing,
+                maker_name: printerProfile.display_name,
+                maker_city: printerProfile.city,
+              }} />
+            ))}
           </div>
         </section>
       )}
