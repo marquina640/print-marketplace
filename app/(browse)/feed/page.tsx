@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { FeedClient } from './feed-client'
@@ -35,9 +36,16 @@ export default async function FeedPage() {
 
   return (
     <div className="max-w-6xl mx-auto py-6">
-      <div className="mb-6">
-        <h1 className="text-xl font-bold text-ink-900">Browse prints</h1>
-        <p className="text-sm text-warm-500 mt-1">Ready-made and made-to-order prints from local makers.</p>
+      <div className="flex items-center justify-between mb-6 gap-4">
+        <div>
+          <h1 className="text-xl font-bold text-ink-900">Browse prints</h1>
+          <p className="text-sm text-warm-500 mt-1">Ready-made and made-to-order prints from local makers.</p>
+        </div>
+        <Link href="/jobs/new" className="flex-shrink-0">
+          <button className="rounded-xl bg-[#D4A017] text-[#1a1535] px-4 py-2.5 text-sm font-bold hover:bg-[#c49015] transition-colors whitespace-nowrap">
+            + Post a request
+          </button>
+        </Link>
       </div>
       <FeedClient
         allListings={flat}

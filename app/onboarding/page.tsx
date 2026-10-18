@@ -10,7 +10,7 @@ type Role = 'client' | 'printer_owner'
 
 const ROLE_REDIRECT: Record<string, string> = {
   admin:         '/dashboard/admin',
-  client:        '/dashboard/client',
+  client:        '/feed',
   printer_owner: '/profile/setup',
 }
 
@@ -62,7 +62,7 @@ export default function OnboardingPage() {
       // Already has a role - just redirect to their dashboard
       const map: Record<string, string> = {
         admin: '/dashboard/admin',
-        client: '/dashboard/client',
+        client: '/feed',
         printer_owner: '/profile/setup',
       }
       router.push(map[existing.role] ?? '/dashboard')
@@ -88,7 +88,7 @@ export default function OnboardingPage() {
     window.rdt?.('track', 'SignUp')
 
     if (selectedRole === 'client') {
-      router.push('/dashboard/client')
+      router.push('/feed')
     } else {
       router.push('/profile/setup')
     }
