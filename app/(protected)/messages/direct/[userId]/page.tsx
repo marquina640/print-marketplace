@@ -1,5 +1,6 @@
 import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
+import { cookies } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { MessageThread } from '@/components/messages/message-thread'
@@ -15,7 +16,11 @@ export default async function DirectMessagePage({ params }: PageProps) {
   if (!user) redirect('/login')
 
   const { data: profile } = await supabase.from('profiles').select('role').eq('user_id', user.id).single()
+  const cookieStore = await cookies()
+  const previewUserId = profile?.role === 'admin' ? cookieStore.get('admin_preview_user_id')?.value : undefined
   const isAdmin = profile?.role === 'admin'
+  // When admin previews as a user, show the thread from that user's perspective
+  const effectiveUserId = previewUserId ?? user.id
 
   const admin = createAdminClient()
 
@@ -26,7 +31,7 @@ export default async function DirectMessagePage({ params }: PageProps) {
       .select('*', { count: 'exact', head: true })
       .is('job_id', null)
       .eq('sender_id', otherUserId)
-      .eq('receiver_id', user.id)
+      .eq('receiver_id', effectiveUserId)
 
     if (!count || count === 0) redirect('/messages')
   }
@@ -47,7 +52,7 @@ export default async function DirectMessagePage({ params }: PageProps) {
     .from('messages')
     .select('*')
     .is('job_id', null)
-    .or(`and(sender_id.eq.${user.id},receiver_id.eq.${otherUserId}),and(sender_id.eq.${otherUserId},receiver_id.eq.${user.id})`)
+    .or(`and(sender_id.eq.${effectiveUserId},receiver_id.eq.${otherUserId}),and(sender_id.eq.${otherUserId},receiver_id.eq.${effectiveUserId})`)
     .order('created_at', { ascending: true })
 
   return (
@@ -63,7 +68,7 @@ export default async function DirectMessagePage({ params }: PageProps) {
 
       <MessageThread
         jobId={null}
-        currentUserId={user.id}
+        currentUserId={effectiveUserId}
         receiverId={otherUserId}
         threadTitle={`Chat with ${otherName}`}
         initialMessages={messages ?? []}
