@@ -32,20 +32,26 @@ export default async function MessagesPage() {
     .not('accepted_quote_id', 'is', null)
     .not('status', 'in', '("delivered","completed")')
 
-  const { data: printerQuotesRaw } = await db
+  // For makers: find jobs where their quote is the accepted one (by accepted_quote_id)
+  // This is more reliable than checking quote.status which can get stuck
+  const { data: makerQuoteIds } = await db
     .from('quotes')
-    .select('job_id, jobs(id, title, status, client_id)')
+    .select('id')
     .eq('printer_id', effectiveUserId)
-    .eq('status', 'accepted')
 
-  const printerQuotes = (printerQuotesRaw ?? []).filter((q) => {
-    const job = q.jobs as { status?: string } | null
-    return job && !['delivered', 'completed'].includes(job.status ?? '')
-  })
+  const makerQIds = (makerQuoteIds ?? []).map((q) => q.id)
+
+  const { data: makerJobs } = makerQIds.length > 0
+    ? await db
+        .from('jobs')
+        .select('id, title, status, client_id')
+        .in('accepted_quote_id', makerQIds)
+        .not('status', 'in', '("delivered","completed")')
+    : { data: [] }
 
   const jobIds = [
     ...(clientJobs?.map((j) => j.id) ?? []),
-    ...(printerQuotes?.map((q) => q.job_id) ?? []),
+    ...((makerJobs ?? []).map((j) => j.id)),
   ]
 
   const { data: lastJobMessages } = jobIds.length > 0
@@ -72,10 +78,9 @@ export default async function MessagesPage() {
   clientJobs?.forEach((j) => {
     jobThreads.push({ kind: 'job', jobId: j.id, title: j.title, lastMessage: threadMap.get(j.id) })
   })
-  printerQuotes?.forEach((q) => {
-    const job = q.jobs as { id: string; title: string } | null
-    if (job && !jobThreads.find((t) => t.jobId === job.id)) {
-      jobThreads.push({ kind: 'job', jobId: job.id, title: job.title, lastMessage: threadMap.get(job.id) })
+  ;(makerJobs ?? []).forEach((j) => {
+    if (!jobThreads.find((t) => t.jobId === j.id)) {
+      jobThreads.push({ kind: 'job', jobId: j.id, title: j.title, lastMessage: threadMap.get(j.id) })
     }
   })
 
