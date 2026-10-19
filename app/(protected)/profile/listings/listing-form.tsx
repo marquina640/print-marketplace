@@ -24,6 +24,8 @@ interface Listing {
   pickup_available: boolean
   local_delivery_available: boolean
   status: string
+  variation_type: string | null
+  variation_options: string[]
 }
 
 interface Props {
@@ -40,6 +42,11 @@ export function ListingForm({ effectiveUserId, listing, onSaved, onCancel }: Pro
   const [photos, setPhotos]   = useState<string[]>(listing?.photos ?? [])
   const [newFiles, setNewFiles] = useState<{ file: File; preview: string }[]>([])
   const fileRef = useRef<HTMLInputElement>(null)
+
+  const [variationType, setVariationType]   = useState<string>(listing?.variation_type ?? '')
+  const [variationOptions, setVariationOptions] = useState<string>(
+    (listing?.variation_options ?? []).join(', ')
+  )
 
   const [form, setForm] = useState({
     title:                    listing?.title ?? '',
@@ -107,6 +114,11 @@ export function ListingForm({ effectiveUserId, listing, onSaved, onCancel }: Pro
 
     const allPhotos = [...photos, ...uploadedUrls]
 
+    const parsedOptions = variationOptions
+      .split(',')
+      .map(s => s.trim())
+      .filter(Boolean)
+
     const payload = {
       maker_id:                 effectiveUserId,
       title:                    form.title.trim(),
@@ -119,6 +131,8 @@ export function ListingForm({ effectiveUserId, listing, onSaved, onCancel }: Pro
       shipping_price:           form.shipping_available ? parseFloat(form.shipping_price) || 0 : 0,
       pickup_available:         form.pickup_available,
       local_delivery_available: form.local_delivery_available,
+      variation_type:           variationType || null,
+      variation_options:        variationType ? parsedOptions : [],
     }
 
     if (isEdit) {
@@ -249,6 +263,35 @@ export function ListingForm({ effectiveUserId, listing, onSaved, onCancel }: Pro
             <span className="text-sm text-warm-800">Local delivery</span>
           </label>
         </div>
+      </div>
+
+      {/* Variations (optional) */}
+      <div>
+        <p className="text-sm font-medium text-warm-800 mb-1">Variations <span className="text-xs font-normal text-warm-400">(optional)</span></p>
+        <select
+          value={variationType}
+          onChange={e => { setVariationType(e.target.value); setVariationOptions('') }}
+          className="w-full rounded-xl border border-warm-300 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ink-400 mb-2"
+        >
+          <option value="">No variations</option>
+          <option value="size">Size</option>
+          <option value="color">Color</option>
+          <option value="material">Material</option>
+        </select>
+        {variationType && (
+          <div>
+            <label className="block text-xs font-medium text-warm-700 mb-1">
+              Options <span className="text-warm-400">(comma-separated, e.g. Small, Medium, Large)</span>
+            </label>
+            <input
+              type="text"
+              value={variationOptions}
+              onChange={e => setVariationOptions(e.target.value)}
+              placeholder="e.g. Small, Medium, Large"
+              className="w-full rounded-xl border border-warm-300 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ink-400"
+            />
+          </div>
+        )}
       </div>
 
       {error && <p className="text-sm text-red-600">{error}</p>}

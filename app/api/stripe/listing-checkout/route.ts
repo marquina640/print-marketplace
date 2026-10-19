@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
 
-    const { listingId, shippingMethod, deliveryAddress } = await req.json()
+    const { listingId, shippingMethod, deliveryAddress, selectedVariation } = await req.json()
     if (!listingId || !shippingMethod) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
@@ -55,14 +55,15 @@ export async function POST(req: NextRequest) {
 
     // Create order record first
     const { data: order, error: orderErr } = await admin.from('listing_orders').insert({
-      listing_id:      listingId,
-      buyer_id:        user.id,
-      maker_id:        listing.maker_id,
-      amount:          totalAmount,
-      currency:        listing.currency,
-      shipping_method: shippingMethod,
-      delivery_address: deliveryAddress ?? null,
-      status:          'pending',
+      listing_id:         listingId,
+      buyer_id:           user.id,
+      maker_id:           listing.maker_id,
+      amount:             totalAmount,
+      currency:           listing.currency,
+      shipping_method:    shippingMethod,
+      delivery_address:   deliveryAddress ?? null,
+      selected_variation: selectedVariation ?? null,
+      status:             'pending',
     }).select('id').single()
 
     if (orderErr || !order) {

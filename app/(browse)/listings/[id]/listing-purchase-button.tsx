@@ -13,15 +13,18 @@ interface Listing {
   shipping_price: number
   pickup_available: boolean
   local_delivery_available: boolean
+  variation_type: string | null
+  variation_options: string[]
 }
 
 export function ListingPurchaseButton({ listing, userId }: { listing: Listing; userId: string }) {
   const router = useRouter()
-  const [method, setMethod]     = useState<string>('')
-  const [address, setAddress]   = useState('')
-  const [loading, setLoading]   = useState(false)
-  const [error, setError]       = useState<string | null>(null)
-  const [open, setOpen]         = useState(false)
+  const [method, setMethod]       = useState<string>('')
+  const [variation, setVariation] = useState<string>('')
+  const [address, setAddress]     = useState('')
+  const [loading, setLoading]     = useState(false)
+  const [error, setError]         = useState<string | null>(null)
+  const [open, setOpen]           = useState(false)
 
   const options = [
     listing.shipping_available && { value: 'shipping', label: `Shipping${listing.shipping_price > 0 ? ` (+${formatCurrency(listing.shipping_price, listing.currency)})` : ' (free)'}` },
@@ -34,6 +37,9 @@ export function ListingPurchaseButton({ listing, userId }: { listing: Listing; u
 
   async function handleCheckout() {
     if (!method) { setError('Select a delivery option.'); return }
+    if (listing.variation_type && listing.variation_options.length > 0 && !variation) {
+      setError('Select a variation.'); return
+    }
     if (method === 'shipping' && !address.trim()) { setError('Enter your delivery address.'); return }
     setError(null)
     setLoading(true)
@@ -41,7 +47,12 @@ export function ListingPurchaseButton({ listing, userId }: { listing: Listing; u
     const res = await fetch('/api/stripe/listing-checkout', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ listingId: listing.id, shippingMethod: method, deliveryAddress: address.trim() || null }),
+      body: JSON.stringify({
+        listingId: listing.id,
+        shippingMethod: method,
+        deliveryAddress: address.trim() || null,
+        selectedVariation: variation || null,
+      }),
     })
     const data = await res.json()
 
@@ -83,6 +94,29 @@ export function ListingPurchaseButton({ listing, userId }: { listing: Listing; u
           ))}
         </div>
       </div>
+
+      {/* Variation selector */}
+      {listing.variation_type && listing.variation_options.length > 0 && (
+        <div>
+          <p className="text-xs font-medium text-warm-700 mb-2 capitalize">{listing.variation_type}</p>
+          <div className="flex flex-wrap gap-2">
+            {listing.variation_options.map(opt => (
+              <button
+                key={opt}
+                type="button"
+                onClick={() => setVariation(opt)}
+                className={`rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors ${
+                  variation === opt
+                    ? 'border-ink-600 bg-ink-600 text-white'
+                    : 'border-warm-300 bg-white text-warm-800 hover:border-ink-400'
+                }`}
+              >
+                {opt}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Address */}
       {method === 'shipping' && (

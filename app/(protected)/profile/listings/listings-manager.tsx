@@ -20,6 +20,8 @@ interface Listing {
   local_delivery_available: boolean
   status: string
   created_at: string
+  variation_type: string | null
+  variation_options: string[]
 }
 
 export function ListingsManager({ effectiveUserId, initialListings }: { effectiveUserId: string; initialListings: Listing[] }) {
