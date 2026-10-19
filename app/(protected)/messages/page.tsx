@@ -57,7 +57,7 @@ export default async function MessagesPage() {
 
   const threadMap = new Map<string, typeof lastJobMessages extends (infer T)[] ? T : never>()
   lastJobMessages?.forEach((m) => {
-    if (!threadMap.has(m.job_id!)) threadMap.set(m.job_id!, m)
+    if (m.job_id && !threadMap.has(m.job_id)) threadMap.set(m.job_id, m)
   })
 
   type JobThread = {

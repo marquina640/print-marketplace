@@ -163,7 +163,7 @@ export interface Database {
       messages: {
         Row: {
           id: string
-          job_id: string
+          job_id: string | null
           sender_id: string
           receiver_id: string
           content: string
@@ -172,7 +172,7 @@ export interface Database {
         }
         Insert: {
           id?: string
-          job_id: string
+          job_id?: string | null
           sender_id: string
           receiver_id: string
           content: string
