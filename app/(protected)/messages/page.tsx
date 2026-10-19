@@ -142,27 +142,12 @@ export default async function MessagesPage() {
     return new Date(b.lastMessage.created_at).getTime() - new Date(a.lastMessage.created_at).getTime()
   })
 
-  // DEBUG: remove after fix
-  const debugInfo = {
-    effectiveUserId,
-    previewUserId: previewUserId ?? null,
-    sentDirectCount: sentDirect?.length ?? 0,
-    receivedDirectCount: receivedDirect?.length ?? 0,
-    directThreadsCount: directThreads.length,
-    jobThreadsCount: jobThreads.length,
-  }
-
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Messages</h1>
         <p className="text-gray-500 text-sm mt-0.5">Conversations with clients and printer owners</p>
       </div>
-
-      {/* DEBUG PANEL - remove after fix */}
-      <pre className="text-xs bg-yellow-50 border border-yellow-200 rounded p-3 overflow-auto">
-        {JSON.stringify(debugInfo, null, 2)}
-      </pre>
 
       {allThreads.length === 0 ? (
         <EmptyState
