@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { getConnectedAccountStatus } from '@/lib/stripe'
 
 export async function GET(req: NextRequest) {
@@ -10,6 +11,17 @@ export async function GET(req: NextRequest) {
 
     const accountId = new URL(req.url).searchParams.get('accountId')
     if (!accountId) return NextResponse.json({ connected: false, detailsSubmitted: false })
+
+    // Verify the accountId belongs to the requesting user before querying Stripe
+    const admin = createAdminClient()
+    const { data: pp } = await admin
+      .from('printer_profiles')
+      .select('stripe_account_id')
+      .eq('user_id', user.id)
+      .single()
+    if ((pp as any)?.stripe_account_id !== accountId) {
+      return NextResponse.json({ connected: false, detailsSubmitted: false })
+    }
 
     const status = await getConnectedAccountStatus(accountId)
     return NextResponse.json({

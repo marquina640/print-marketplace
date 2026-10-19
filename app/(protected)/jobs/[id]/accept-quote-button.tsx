@@ -7,15 +7,11 @@ import { acceptQuote } from '@/app/actions/accept-quote'
 interface Props {
   jobId: string
   quoteId: string
-  printerId: string
-  printerEmail?: string
-  priceAmount?: number
-  jobTitle?: string
   usePayPal?: boolean
   shippingIncluded?: boolean
 }
 
-export function AcceptQuoteButton({ jobId, quoteId, printerId, printerEmail, priceAmount, jobTitle, usePayPal, shippingIncluded }: Props) {
+export function AcceptQuoteButton({ jobId, quoteId, usePayPal, shippingIncluded }: Props) {
   const [open, setOpen]       = useState(false)
   const [message, setMessage] = useState('')
   const [loading, setLoading] = useState(false)
@@ -47,7 +43,7 @@ export function AcceptQuoteButton({ jobId, quoteId, printerId, printerEmail, pri
         country:    shipCountry.trim(),
       } : undefined
 
-      await acceptQuote({ jobId, quoteId, printerId, printerEmail, priceAmount, jobTitle, message, shippingAddress })
+      await acceptQuote({ jobId, quoteId, message, shippingAddress })
 
       const endpoint = usePayPal ? '/api/paypal/orders/create' : '/api/stripe/checkout'
       const checkoutRes = await fetch(endpoint, {

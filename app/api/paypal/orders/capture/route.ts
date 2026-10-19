@@ -1,26 +1,36 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createAdminClient }   from '@/lib/supabase/admin'
-import { capturePayPalOrder }  from '@/lib/paypal'
-import { notifyJobPaid }       from '@/app/actions/notifications'
+import { createClient }            from '@/lib/supabase/server'
+import { createAdminClient }       from '@/lib/supabase/admin'
+import { capturePayPalOrder }      from '@/lib/paypal'
+import { notifyJobPaid }           from '@/app/actions/notifications'
 
 export const dynamic = 'force-dynamic'
 
 // Called by the PayPal JS SDK after buyer approves (inline buttons flow)
 export async function POST(req: NextRequest) {
   try {
+    // Require authentication — the buyer must be signed in
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
+
     const { orderId, jobId } = await req.json() as { orderId: string; jobId: string }
     if (!orderId || !jobId) return NextResponse.json({ error: 'Missing params' }, { status: 400 })
-    return captureAndRespond(orderId, jobId, req)
+    return captureAndRespond(orderId, jobId, user.id, req)
   } catch (err) {
     return NextResponse.json({ error: err instanceof Error ? err.message : String(err) }, { status: 500 })
   }
 }
 
-async function captureAndRespond(orderId: string, jobId: string, _req: NextRequest): Promise<NextResponse> {
+async function captureAndRespond(orderId: string, jobId: string, buyerId: string, _req: NextRequest): Promise<NextResponse> {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'
   const admin  = createAdminClient()
 
   const { data: job } = await admin.from('jobs').select('id, title, client_id').eq('id', jobId).single()
+  // Verify the authenticated user is the job's client
+  if (job && job.client_id !== buyerId) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  }
   if (!job) return NextResponse.json({ error: 'Job not found' }, { status: 404 })
 
   const { data: quote } = await admin.from('quotes').select('printer_id, price').eq('job_id', jobId).eq('status', 'accepted').single()

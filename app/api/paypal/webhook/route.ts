@@ -8,8 +8,14 @@ export async function POST(req: NextRequest) {
   const webhookId = process.env.PAYPAL_WEBHOOK_ID
   const body      = await req.text()
 
-  // Verify signature if webhook ID is configured
-  if (webhookId && webhookId !== 'REPLACE_WITH_WEBHOOK_ID') {
+  // Reject if PAYPAL_WEBHOOK_ID is not configured — signature verification is mandatory
+  if (!webhookId || webhookId === 'REPLACE_WITH_WEBHOOK_ID') {
+    console.error('PAYPAL_WEBHOOK_ID is not configured — rejecting webhook')
+    return NextResponse.json({ error: 'Webhook not configured' }, { status: 500 })
+  }
+
+  // Verify signature
+  if (webhookId) {
     const valid = await verifyWebhookSignature({
       body,
       webhookId,

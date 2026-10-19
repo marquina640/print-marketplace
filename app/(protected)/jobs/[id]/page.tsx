@@ -457,10 +457,6 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
                       <AcceptQuoteButton
                         jobId={job.id}
                         quoteId={q.id}
-                        printerId={q.printer_id}
-                        printerEmail={(q.profiles as { email: string } | null)?.email}
-                        priceAmount={q.price}
-                        jobTitle={job.title}
                         usePayPal={(() => { const c = countryByPrinter[q.printer_id]; return !!c && !STRIPE_CONNECT_COUNTRIES.has(c) })()}
                         shippingIncluded={!!(q as any).includes_shipping}
                       />

@@ -7,13 +7,11 @@ import { notifyReviewsPublished } from './notifications'
 
 export async function submitReview({
   jobId,
-  reviewerId,
   revieweeId,
   rating,
   comment,
 }: {
   jobId: string
-  reviewerId: string
   revieweeId: string
   rating: number
   comment: string | null
@@ -21,6 +19,9 @@ export async function submitReview({
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Not authenticated')
+
+  // Always use the authenticated user as the reviewer — never trust caller-supplied reviewerId
+  const reviewerId = user.id
 
   const admin = createAdminClient()
 

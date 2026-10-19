@@ -134,11 +134,13 @@ export async function confirmJobDelivery(jobId: string) {
   if (!job || (job as any).status !== 'shipped') throw new Error('Job not in shipped state')
   if (job.client_id !== effectiveUserId) throw new Error('Not the job owner')
 
-  const { error: deliveryError } = await adminClient.from('jobs').update({
+  // Atomic conditional update: only succeeds if status is still 'shipped', preventing double-payout
+  const { error: deliveryError, data: updatedRows } = await adminClient.from('jobs').update({
     status:       'delivered',
     delivered_at: new Date().toISOString(),
-  } as any).eq('id', jobId)
+  } as any).eq('id', jobId).eq('status', 'shipped').select('id')
   if (deliveryError) throw new Error(deliveryError.message)
+  if (!updatedRows?.length) throw new Error('Job already processed')
 
   const { data: acceptedQuote } = await adminClient
     .from('quotes').select('printer_id, price, currency').eq('job_id', jobId).eq('status', 'accepted').single()
@@ -296,7 +298,8 @@ export async function confirmListingDelivery(orderId: string, deliveryPhotoUrls:
 
   if (!order) throw new Error('Order not found')
   if ((order as any).buyer_id !== user.id) throw new Error('Not your order')
-  if (!['pending', 'paid'].includes((order as any).status)) throw new Error('Order already confirmed')
+  // Only allow confirming delivery on orders that have been paid; reject pending/unpaid orders
+  if ((order as any).status !== 'paid') throw new Error('Order must be paid before confirming delivery')
 
   await admin.from('listing_orders').update({
     status:           'delivered',

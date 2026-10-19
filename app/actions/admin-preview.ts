@@ -14,10 +14,11 @@ export async function setAdminPreview(role: 'client' | 'printer_owner' | null, u
   if (profile?.role !== 'admin') return
 
   const cookieStore = await cookies()
+  const secure = process.env.NODE_ENV === 'production'
   if (role) {
-    cookieStore.set('admin_preview_as', role, { path: '/', maxAge: 3600, httpOnly: true })
+    cookieStore.set('admin_preview_as', role, { path: '/', maxAge: 3600, httpOnly: true, secure })
     if (userId) {
-      cookieStore.set('admin_preview_user_id', userId, { path: '/', maxAge: 3600, httpOnly: true })
+      cookieStore.set('admin_preview_user_id', userId, { path: '/', maxAge: 3600, httpOnly: true, secure })
     } else {
       cookieStore.delete('admin_preview_user_id')
     }
