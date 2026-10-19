@@ -42,15 +42,17 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
   const effectiveRole = previewAs ?? viewModeRole ?? profile?.role
   const effectiveUserId = previewUserId ?? user.id
 
-  const { data: job } = await supabase.from('jobs').select('*').eq('id', id).single()
+  const isAdmin   = profile?.role === 'admin' && !previewUserId
+
+  // Use admin client for job + quotes so RLS doesn't block admin viewers
+  const jobClient    = isAdmin ? createAdminClient() : supabase
+  const quotesClient = isAdmin ? createAdminClient() : supabase
+
+  const { data: job } = await jobClient.from('jobs').select('*').eq('id', id).single()
   if (!job) notFound()
 
   const isOwner   = job.client_id === effectiveUserId
   const isPrinter = effectiveRole === 'printer_owner'
-  const isAdmin   = profile?.role === 'admin' && !previewUserId
-
-  // Use admin client for quotes so RLS doesn't block admin viewers
-  const quotesClient = isAdmin ? createAdminClient() : supabase
   const { data: quotes } = await quotesClient
     .from('quotes')
     .select('*, profiles:printer_id(display_name, email)')
