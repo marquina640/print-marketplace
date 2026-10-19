@@ -123,6 +123,7 @@ const adminNav: NavItem[] = [
   { href: '/dashboard/admin/certifications',  label: 'Certifications', icon: icons.users   },
   { href: '/dashboard/admin/users',           label: 'Users',        icon: icons.users     },
   { href: '/dashboard/admin/jobs',            label: 'Requests',     icon: icons.briefcase },
+  { href: '/dashboard/admin/quotes',          label: 'Quotes',       icon: icons.chat      },
   { href: '/dashboard/admin/settings',        label: 'Settings',     icon: icons.cog       },
 ]
 
