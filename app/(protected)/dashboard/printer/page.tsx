@@ -35,6 +35,11 @@ export default async function PrinterDashboardPage({ searchParams }: PageProps) 
     : undefined
   const effectiveUserId = previewUserId ?? user.id
 
+  // When previewing as another user, fetch their profile for avatar check
+  const effectiveProfile = previewUserId
+    ? (await supabase.from('profiles').select('avatar_url').eq('user_id', effectiveUserId).single()).data
+    : profile
+
   const { data: testUsers } = await supabase.from('profiles').select('user_id').eq('is_test', true)
   const testUserIds = testUsers?.map((u) => u.user_id) ?? []
 
@@ -95,7 +100,7 @@ export default async function PrinterDashboardPage({ searchParams }: PageProps) 
     { label: 'At least one color', done: (mp?.colors?.length ?? 0) > 0, href: '/profile/setup', group: 'core' as const },
     { label: 'Printer added', done: hasMachines, href: '/profile/machines', group: 'core' as const },
     { label: usesPayPalByDesign ? 'PayPal email set' : 'Stripe connected', done: usesPayPalByDesign ? !!mp?.paypal_email : !!mp?.stripe_account_id, href: '/profile/setup', group: 'core' as const },
-    { label: 'Profile photo', done: !!(profile as any)?.avatar_url, href: '/profile/setup', group: 'visibility' as const },
+    { label: 'Profile photo', done: !!(effectiveProfile as any)?.avatar_url, href: '/profile/setup', group: 'visibility' as const },
     { label: 'About / description', done: !!mp?.description, href: '/profile/setup', group: 'visibility' as const },
     { label: 'At least one service enabled', done: hasService, href: '/profile/setup', group: 'visibility' as const },
     { label: 'Portfolio photo', done: (activePortfolioCount ?? 0) > 0, href: '/profile/portfolio', group: 'visibility' as const },
