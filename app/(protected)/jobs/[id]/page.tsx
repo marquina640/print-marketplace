@@ -2,6 +2,7 @@ import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
 import { cookies } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { QuoteForm } from '@/components/quotes/quote-form'
 import { StatusBadge, MaterialBadge, CertificationBadge, JobTypeBadge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -48,7 +49,9 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
   const isPrinter = effectiveRole === 'printer_owner'
   const isAdmin   = profile?.role === 'admin' && !previewUserId
 
-  const { data: quotes } = await supabase
+  // Use admin client for quotes so RLS doesn't block admin viewers
+  const quotesClient = isAdmin ? createAdminClient() : supabase
+  const { data: quotes } = await quotesClient
     .from('quotes')
     .select('*, profiles:printer_id(display_name, email)')
     .eq('job_id', id)
