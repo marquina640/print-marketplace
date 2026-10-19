@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { notifyQuoteAccepted } from '@/app/actions/notifications'
@@ -18,7 +17,6 @@ interface Props {
 }
 
 export function AcceptQuoteButton({ jobId, quoteId, printerId, printerEmail, priceAmount, jobTitle, usePayPal }: Props) {
-  const router = useRouter()
   const [open, setOpen]       = useState(false)
   const [message, setMessage] = useState('')
   const [loading, setLoading] = useState(false)
@@ -34,12 +32,12 @@ export function AcceptQuoteButton({ jobId, quoteId, printerId, printerEmail, pri
       await supabase.from('quotes').update({ status: 'accepted' }).eq('id', quoteId)
       await supabase.from('jobs').update({ status: 'accepted', accepted_quote_id: quoteId }).eq('id', jobId)
 
+      // Notifications and message are fire-and-forget — never block payment
       if (printerEmail && priceAmount && jobTitle) {
-        await notifyQuoteAccepted({ jobId, jobTitle, printerId, printerEmail, price: priceAmount })
+        notifyQuoteAccepted({ jobId, jobTitle, printerId, printerEmail, price: priceAmount }).catch(() => {})
       }
-
       if (message.trim()) {
-        await sendMessage({ jobId, receiverId: printerId, content: message.trim() })
+        sendMessage({ jobId, receiverId: printerId, content: message.trim() }).catch(() => {})
       }
 
       // Redirect to checkout immediately
