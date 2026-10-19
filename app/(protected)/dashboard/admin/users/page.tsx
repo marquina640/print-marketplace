@@ -9,6 +9,7 @@ import { RemindButton } from './remind-button'
 import { MapClient } from '@/components/map/map-client'
 import { PaypalMigrationButton } from './paypal-migration-button'
 import { ProfileReminderButton } from './profile-reminder-button'
+import { PreviewAsButton } from './preview-as-button'
 import { STRIPE_CONNECT_COUNTRIES } from '@/lib/stripe'
 
 export const metadata = { title: 'Users - Admin' }
@@ -121,10 +122,10 @@ export default async function AdminUsersPage() {
       {notOnboarded.length > 0 && <UserTable title="Not Onboarded" users={notOnboarded} highlight showRemind />}
 
       {/* Clients */}
-      <UserTable title="Customers" users={clients} />
+      <UserTable title="Customers" users={clients} showPreview />
 
       {/* Makers */}
-      <UserTable title="Makers" users={makers} hasProfile={hasProfile} hasMachines={hasMachines} />
+      <UserTable title="Makers" users={makers} hasProfile={hasProfile} hasMachines={hasMachines} showPreview />
 
       {/* Admins */}
       {admins.length > 0 && <UserTable title="Admins" users={admins} />}
@@ -138,16 +139,17 @@ function Pill({ yes }: { yes: boolean }) {
     : <span className="text-red-400 font-medium">✗ No</span>
 }
 
-function UserTable({ title, users, highlight, hasProfile, hasMachines, showRemind }: {
+function UserTable({ title, users, highlight, hasProfile, hasMachines, showRemind, showPreview }: {
   title: string
   highlight?: boolean
   showRemind?: boolean
+  showPreview?: boolean
   hasProfile?: Set<string>
   hasMachines?: Set<string>
   users: { user_id: string; email: string; display_name: string | null; role: string; created_at: string; onboarding_complete: boolean | null }[]
 }) {
   const showMakerCols = !!(hasProfile || hasMachines)
-  const headers = ['Name', 'Email', 'Role', 'Onboarded', ...(showMakerCols ? ['Profile', 'Machines'] : []), 'Joined', ...(showMakerCols ? [''] : []), ...(showRemind ? [''] : []), '']
+  const headers = ['Name', 'Email', 'Role', 'Onboarded', ...(showMakerCols ? ['Profile', 'Machines'] : []), 'Joined', ...(showMakerCols ? [''] : []), ...(showRemind ? [''] : []), ...(showPreview ? [''] : []), '']
 
   return (
     <section>
@@ -200,6 +202,14 @@ function UserTable({ title, users, highlight, hasProfile, hasMachines, showRemin
                   {showRemind && (
                     <td className="px-4 py-3 text-sm">
                       <RemindButton userId={u.user_id} />
+                    </td>
+                  )}
+                  {showPreview && (
+                    <td className="px-4 py-3 text-sm">
+                      <PreviewAsButton
+                        userId={u.user_id}
+                        role={u.role === 'printer_owner' ? 'printer_owner' : 'client'}
+                      />
                     </td>
                   )}
                   <td className="px-4 py-3 text-sm">
