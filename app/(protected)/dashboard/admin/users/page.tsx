@@ -217,7 +217,7 @@ function UserTable({ title, users, highlight, hasProfile, hasMachines, showRemin
                   {showMessage && (
                     <td className="px-4 py-3 text-sm">
                       <MessageUserButton
-                        email={u.email}
+                        userId={u.user_id}
                         name={u.display_name ?? u.email.split('@')[0]}
                       />
                     </td>

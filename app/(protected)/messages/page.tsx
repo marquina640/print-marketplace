@@ -2,6 +2,7 @@
 import Link from 'next/link'
 import { cookies } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { EmptyState } from '@/components/ui/empty-state'
 import { formatRelativeTime } from '@/lib/utils'
 
@@ -17,7 +18,9 @@ export default async function MessagesPage() {
   const previewUserId = profile?.role === 'admin' ? cookieStore.get('admin_preview_user_id')?.value : undefined
   const effectiveUserId = previewUserId ?? user.id
 
-  // Get all jobs where the effective user is either the client or the accepted printer
+  const admin = createAdminClient()
+
+  // --- Job-based threads ---
   const { data: clientJobs } = await supabase
     .from('jobs')
     .select('id, title, status, accepted_quote_id')
@@ -35,7 +38,7 @@ export default async function MessagesPage() {
     ...(printerQuotes?.map((q) => q.job_id) ?? []),
   ]
 
-  const { data: lastMessages } = jobIds.length > 0
+  const { data: lastJobMessages } = jobIds.length > 0
     ? await supabase
         .from('messages')
         .select('*')
@@ -43,32 +46,82 @@ export default async function MessagesPage() {
         .order('created_at', { ascending: false })
     : { data: [] }
 
-  // Build thread map: jobId → latest message
-  const threadMap = new Map<string, typeof lastMessages extends (infer T)[] ? T : never>()
-  lastMessages?.forEach((m) => {
-    if (!threadMap.has(m.job_id)) threadMap.set(m.job_id, m)
+  const threadMap = new Map<string, typeof lastJobMessages extends (infer T)[] ? T : never>()
+  lastJobMessages?.forEach((m) => {
+    if (!threadMap.has(m.job_id!)) threadMap.set(m.job_id!, m)
   })
 
   type JobThread = {
+    kind: 'job'
     jobId: string
     title: string
-    lastMessage: (typeof lastMessages extends (infer T)[] ? T : never) | undefined
+    lastMessage: (typeof lastJobMessages extends (infer T)[] ? T : never) | undefined
   }
 
-  const threads: JobThread[] = []
-
+  const jobThreads: JobThread[] = []
   clientJobs?.forEach((j) => {
-    threads.push({ jobId: j.id, title: j.title, lastMessage: threadMap.get(j.id) })
+    jobThreads.push({ kind: 'job', jobId: j.id, title: j.title, lastMessage: threadMap.get(j.id) })
   })
   printerQuotes?.forEach((q) => {
     const job = q.jobs as { id: string; title: string } | null
-    if (job && !threads.find((t) => t.jobId === job.id)) {
-      threads.push({ jobId: job.id, title: job.title, lastMessage: threadMap.get(job.id) })
+    if (job && !jobThreads.find((t) => t.jobId === job.id)) {
+      jobThreads.push({ kind: 'job', jobId: job.id, title: job.title, lastMessage: threadMap.get(job.id) })
     }
   })
 
-  // Sort by last message time
-  threads.sort((a, b) => {
+  // --- Direct (admin) threads ---
+  type DirectThread = {
+    kind: 'direct'
+    otherUserId: string
+    otherName: string
+    lastMessage: (typeof lastJobMessages extends (infer T)[] ? T : never) | undefined
+  }
+
+  const directThreads: DirectThread[] = []
+
+  const { data: directMessages } = await admin
+    .from('messages')
+    .select('*')
+    .is('job_id', null)
+    .or(`sender_id.eq.${effectiveUserId},receiver_id.eq.${effectiveUserId}`)
+    .order('created_at', { ascending: false })
+
+  if (directMessages && directMessages.length > 0) {
+    // Group by the other party
+    const otherUserIds = new Set<string>()
+    const directMap = new Map<string, typeof directMessages[0]>()
+    directMessages.forEach((m) => {
+      const otherId = m.sender_id === effectiveUserId ? m.receiver_id : m.sender_id
+      if (!directMap.has(otherId)) {
+        directMap.set(otherId, m)
+        otherUserIds.add(otherId)
+      }
+    })
+
+    if (otherUserIds.size > 0) {
+      const { data: otherProfiles } = await admin
+        .from('profiles')
+        .select('user_id, display_name, email')
+        .in('user_id', [...otherUserIds])
+
+      const profileMap = new Map((otherProfiles ?? []).map((p) => [p.user_id, p]))
+      otherUserIds.forEach((otherId) => {
+        const p = profileMap.get(otherId)
+        const name = (p as any)?.display_name ?? (p as any)?.email?.split('@')[0] ?? 'Support'
+        directThreads.push({
+          kind: 'direct',
+          otherUserId: otherId,
+          otherName: name,
+          lastMessage: directMap.get(otherId),
+        })
+      })
+    }
+  }
+
+  type Thread = JobThread | DirectThread
+
+  const allThreads: Thread[] = [...jobThreads, ...directThreads]
+  allThreads.sort((a, b) => {
     if (!a.lastMessage) return 1
     if (!b.lastMessage) return -1
     return new Date(b.lastMessage.created_at).getTime() - new Date(a.lastMessage.created_at).getTime()
@@ -81,7 +134,7 @@ export default async function MessagesPage() {
         <p className="text-gray-500 text-sm mt-0.5">Conversations with clients and printer owners</p>
       </div>
 
-      {threads.length === 0 ? (
+      {allThreads.length === 0 ? (
         <EmptyState
           icon={
             <svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -94,30 +147,44 @@ export default async function MessagesPage() {
         />
       ) : (
         <div className="card divide-y divide-gray-100">
-          {threads.map((t) => (
-            <Link
-              key={t.jobId}
-              href={`/messages/${t.jobId}`}
-              className="flex items-center justify-between p-4 hover:bg-gray-50 transition-colors"
-            >
-              <div className="min-w-0">
-                <p className="text-sm font-semibold text-gray-900 truncate">{t.title}</p>
-                {t.lastMessage ? (
-                  <p className="text-xs text-gray-500 truncate mt-0.5">
-                    {t.lastMessage.sender_id === effectiveUserId ? 'You: ' : ''}
-                    {t.lastMessage.content}
-                  </p>
-                ) : (
-                  <p className="text-xs text-gray-400 mt-0.5">No messages yet - start the conversation</p>
+          {allThreads.map((t) => {
+            const href = t.kind === 'job' ? `/messages/${t.jobId}` : `/messages/direct/${t.otherUserId}`
+            const title = t.kind === 'job' ? t.title : t.otherName
+            const subtitle = t.kind === 'direct' ? (
+              <span className="inline-flex items-center gap-1 text-xs text-indigo-600 font-medium">
+                <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
+                Support chat
+              </span>
+            ) : null
+
+            return (
+              <Link
+                key={href}
+                href={href}
+                className="flex items-center justify-between p-4 hover:bg-gray-50 transition-colors"
+              >
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm font-semibold text-gray-900 truncate">{title}</p>
+                    {subtitle}
+                  </div>
+                  {t.lastMessage ? (
+                    <p className="text-xs text-gray-500 truncate mt-0.5">
+                      {t.lastMessage.sender_id === effectiveUserId ? 'You: ' : ''}
+                      {t.lastMessage.content}
+                    </p>
+                  ) : (
+                    <p className="text-xs text-gray-400 mt-0.5">No messages yet - start the conversation</p>
+                  )}
+                </div>
+                {t.lastMessage && (
+                  <span className="text-xs text-gray-400 flex-shrink-0 ml-3">
+                    {formatRelativeTime(t.lastMessage.created_at)}
+                  </span>
                 )}
-              </div>
-              {t.lastMessage && (
-                <span className="text-xs text-gray-400 flex-shrink-0 ml-3">
-                  {formatRelativeTime(t.lastMessage.created_at)}
-                </span>
-              )}
-            </Link>
-          ))}
+              </Link>
+            )
+          })}
         </div>
       )}
     </div>

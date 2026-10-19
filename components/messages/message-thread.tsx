@@ -6,15 +6,16 @@ import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { formatRelativeTime } from '@/lib/utils'
 import { sendMessage } from '@/app/actions/send-message'
+import { sendDirectMessage } from '@/app/actions/send-direct-message'
 import type { Database } from '@/lib/types/database'
 
 type Message = Database['public']['Tables']['messages']['Row']
 
 interface MessageThreadProps {
-  jobId: string
+  jobId?: string | null
   currentUserId: string
   receiverId: string
-  jobTitle: string
+  threadTitle: string
   initialMessages: Message[]
 }
 
@@ -22,7 +23,7 @@ export function MessageThread({
   jobId,
   currentUserId,
   receiverId,
-  jobTitle,
+  threadTitle,
   initialMessages,
 }: MessageThreadProps) {
   const [messages, setMessages]     = useState<Message[]>(initialMessages)
@@ -38,26 +39,37 @@ export function MessageThread({
 
   // Mark received messages as read on mount
   useEffect(() => {
-    supabase
+    const q = supabase
       .from('messages')
       .update({ is_read: true } as any)
-      .eq('job_id', jobId)
       .eq('receiver_id', currentUserId)
       .eq('is_read', false)
-      .then(() => {})
-  }, [jobId, currentUserId, supabase])
+
+    if (jobId) {
+      q.eq('job_id', jobId).then(() => {})
+    } else {
+      q.is('job_id', null).eq('sender_id', receiverId).then(() => {})
+    }
+  }, [jobId, currentUserId, receiverId, supabase])
 
   // Real-time subscription
   useEffect(() => {
+    const channelName = jobId ? `messages:${jobId}` : `direct:${currentUserId}`
+    const filter = jobId
+      ? `job_id=eq.${jobId}`
+      : `receiver_id=eq.${currentUserId}`
+
     const channel = supabase
-      .channel(`messages:${jobId}`)
+      .channel(channelName)
       .on(
         'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'messages', filter: `job_id=eq.${jobId}` },
+        { event: 'INSERT', schema: 'public', table: 'messages', filter },
         (payload) => {
           setMessages((prev) => {
             const msg = payload.new as Message
             if (prev.find((m) => m.id === msg.id)) return prev
+            // For direct threads, only accept messages from the right sender
+            if (!jobId && msg.sender_id !== receiverId) return prev
             return [...prev, msg]
           })
         }
@@ -65,7 +77,7 @@ export function MessageThread({
       .subscribe()
 
     return () => { supabase.removeChannel(channel) }
-  }, [jobId, supabase])
+  }, [jobId, currentUserId, receiverId, supabase])
 
   async function handleSend(e: React.FormEvent) {
     e.preventDefault()
@@ -77,25 +89,30 @@ export function MessageThread({
     setContent('')
 
     try {
-      const { message, wasModified, removedTypes } = await sendMessage({
-        jobId,
-        receiverId,
-        content: text,
-      })
-
-      // Add filtered message to local state (realtime deduplicates)
-      setMessages((prev) => {
-        if (prev.find((m) => m.id === message.id)) return prev
-        return [...prev, message as Message]
-      })
-
-      if (wasModified) {
-        setWarning(
-          `Your message was modified: ${removedTypes.join(', ')} removed. Sharing contact details is not allowed before a deal is made on the platform.`
-        )
+      if (jobId) {
+        const { message, wasModified, removedTypes } = await sendMessage({
+          jobId,
+          receiverId,
+          content: text,
+        })
+        setMessages((prev) => {
+          if (prev.find((m) => m.id === message.id)) return prev
+          return [...prev, message as Message]
+        })
+        if (wasModified) {
+          setWarning(
+            `Your message was modified: ${removedTypes.join(', ')} removed. Sharing contact details is not allowed before a deal is made on the platform.`
+          )
+        }
+      } else {
+        const { message } = await sendDirectMessage({ receiverId, content: text })
+        setMessages((prev) => {
+          if (prev.find((m) => m.id === message.id)) return prev
+          return [...prev, message as Message]
+        })
       }
     } catch (err) {
-      setContent(text) // restore on failure
+      setContent(text)
       alert(err instanceof Error ? err.message : 'Failed to send message.')
     }
 
@@ -106,10 +123,12 @@ export function MessageThread({
     <div className="flex flex-col h-[600px] card">
       {/* Header */}
       <div className="px-4 py-3 border-b border-gray-200">
-        <h3 className="font-semibold text-gray-900 text-sm truncate">Re: {jobTitle}</h3>
-        <p className="text-xs text-warm-400 mt-0.5">
-          Contact info (emails, phone numbers, social handles) is automatically removed from messages.
-        </p>
+        <h3 className="font-semibold text-gray-900 text-sm truncate">{threadTitle}</h3>
+        {jobId && (
+          <p className="text-xs text-warm-400 mt-0.5">
+            Contact info (emails, phone numbers, social handles) is automatically removed from messages.
+          </p>
+        )}
       </div>
 
       {/* Messages */}

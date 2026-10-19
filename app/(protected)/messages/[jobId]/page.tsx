@@ -98,7 +98,7 @@ export default async function MessageThreadPage({ params }: PageProps) {
         jobId={jobId}
         currentUserId={effectiveUserId}
         receiverId={receiverId}
-        jobTitle={job.title}
+        threadTitle={`Re: ${job.title}`}
         initialMessages={messages ?? []}
       />
     </div>
