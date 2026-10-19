@@ -43,8 +43,20 @@ export async function POST(req: NextRequest) {
       .eq('user_id', listing.maker_id)
       .single()
 
-    if (!makerProfile?.stripe_account_id || !makerProfile?.stripe_onboarding_complete) {
+    if (!makerProfile?.stripe_account_id) {
       return NextResponse.json({ error: 'Maker has not completed Stripe setup' }, { status: 400 })
+    }
+
+    // If the flag is stale (account connected but flag not set), verify live with Stripe
+    if (!makerProfile.stripe_onboarding_complete) {
+      const account = await stripe.accounts.retrieve(makerProfile.stripe_account_id)
+      if (account.details_submitted && account.charges_enabled) {
+        await admin.from('printer_profiles')
+          .update({ stripe_onboarding_complete: true } as any)
+          .eq('user_id', listing.maker_id)
+      } else {
+        return NextResponse.json({ error: 'Maker has not completed Stripe setup' }, { status: 400 })
+      }
     }
 
     const shippingFee = shippingMethod === 'shipping' ? (listing.shipping_price ?? 0) : 0

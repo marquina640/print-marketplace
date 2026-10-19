@@ -54,9 +54,26 @@ export async function POST(req: NextRequest) {
     .single()
 
   const makerAccountId      = (printerProfile as any)?.stripe_account_id as string | undefined
-  const makerPayoutsEnabled = (printerProfile as any)?.stripe_onboarding_complete === true
+  let   makerPayoutsEnabled = (printerProfile as any)?.stripe_onboarding_complete === true
 
-  if (!makerAccountId || !makerPayoutsEnabled) {
+  if (!makerAccountId) {
+    return NextResponse.json({
+      error: 'The maker has not connected their Stripe account yet. Ask them to complete their payment setup before you can pay.',
+    }, { status: 400 })
+  }
+
+  // If the flag is stale, verify live with Stripe and heal it
+  if (!makerPayoutsEnabled) {
+    const account = await stripe.accounts.retrieve(makerAccountId)
+    if (account.details_submitted && account.charges_enabled) {
+      await supabase.from('printer_profiles')
+        .update({ stripe_onboarding_complete: true } as any)
+        .eq('user_id', quote.printer_id)
+      makerPayoutsEnabled = true
+    }
+  }
+
+  if (!makerPayoutsEnabled) {
     return NextResponse.json({
       error: 'The maker has not connected their Stripe account yet. Ask them to complete their payment setup before you can pay.',
     }, { status: 400 })
