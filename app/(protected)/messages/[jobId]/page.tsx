@@ -2,6 +2,7 @@ import { redirect, notFound } from 'next/navigation'
 import { cookies } from 'next/headers'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { MessageThread } from '@/components/messages/message-thread'
 
 interface PageProps {
@@ -24,7 +25,9 @@ export default async function MessageThreadPage({ params }: PageProps) {
     ? cookieStore.get('admin_preview_as')?.value
     : viewMode === 'maker' ? 'printer_owner' : viewMode === 'client' ? 'client' : profile?.role
 
-  const { data: job } = await supabase
+  const db = (profile?.role === 'admin') ? createAdminClient() : supabase
+
+  const { data: job } = await db
     .from('jobs')
     .select('id, title, client_id, accepted_quote_id')
     .eq('id', jobId)
@@ -33,7 +36,7 @@ export default async function MessageThreadPage({ params }: PageProps) {
   if (!job) notFound()
 
   // Find the accepted quote to get the printer
-  const { data: acceptedQuote } = await supabase
+  const { data: acceptedQuote } = await db
     .from('quotes')
     .select('printer_id, profiles:printer_id(display_name, email)')
     .eq('job_id', jobId)
@@ -61,19 +64,19 @@ export default async function MessageThreadPage({ params }: PageProps) {
 
   const receiverId = isClient ? acceptedQuote.printer_id : isAdmin ? acceptedQuote.printer_id : job.client_id
 
-  const { data: printerProfile } = await supabase
+  const { data: printerProfile } = await db
     .from('profiles')
     .select('display_name, email')
     .eq('user_id', acceptedQuote.printer_id)
     .single()
 
-  const { data: clientProfile } = await supabase
+  const { data: clientProfile } = await db
     .from('profiles')
     .select('display_name, email')
     .eq('user_id', job.client_id)
     .single()
 
-  const { data: messages } = await supabase
+  const { data: messages } = await db
     .from('messages')
     .select('*')
     .eq('job_id', jobId)

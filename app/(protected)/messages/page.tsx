@@ -20,15 +20,18 @@ export default async function MessagesPage() {
 
   const admin = createAdminClient()
 
+  // Use admin client for all data queries so admin preview mode bypasses RLS
+  const db = admin
+
   // --- Job-based threads ---
-  const { data: clientJobs } = await supabase
+  const { data: clientJobs } = await db
     .from('jobs')
     .select('id, title, status, accepted_quote_id')
     .eq('client_id', effectiveUserId)
     .not('accepted_quote_id', 'is', null)
     .not('status', 'in', '("delivered","completed")')
 
-  const { data: printerQuotesRaw } = await supabase
+  const { data: printerQuotesRaw } = await db
     .from('quotes')
     .select('job_id, jobs(id, title, status, client_id)')
     .eq('printer_id', effectiveUserId)
@@ -45,7 +48,7 @@ export default async function MessagesPage() {
   ]
 
   const { data: lastJobMessages } = jobIds.length > 0
-    ? await supabase
+    ? await db
         .from('messages')
         .select('*')
         .in('job_id', jobIds)
