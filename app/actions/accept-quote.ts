@@ -13,6 +13,7 @@ export async function acceptQuote({
   priceAmount,
   jobTitle,
   message,
+  shippingAddress,
 }: {
   jobId: string
   quoteId: string
@@ -21,6 +22,14 @@ export async function acceptQuote({
   priceAmount?: number
   jobTitle?: string
   message?: string
+  shippingAddress?: {
+    name: string
+    line1: string
+    line2?: string
+    city: string
+    postalCode: string
+    country: string
+  }
 }) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -42,7 +51,11 @@ export async function acceptQuote({
 
   await admin.from('quotes').update({ status: 'rejected' }).eq('job_id', jobId).neq('id', quoteId)
   await admin.from('quotes').update({ status: 'accepted' }).eq('id', quoteId)
-  await admin.from('jobs').update({ status: 'accepted', accepted_quote_id: quoteId }).eq('id', jobId)
+  await admin.from('jobs').update({
+    status: 'accepted',
+    accepted_quote_id: quoteId,
+    ...(shippingAddress ? { shipping_address: shippingAddress } : {}),
+  } as any).eq('id', jobId)
 
   // Notifications and message are fire-and-forget
   if (printerEmail && priceAmount && jobTitle) {

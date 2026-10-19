@@ -462,6 +462,7 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
                         priceAmount={q.price}
                         jobTitle={job.title}
                         usePayPal={(() => { const c = countryByPrinter[q.printer_id]; return !!c && !STRIPE_CONNECT_COUNTRIES.has(c) })()}
+                        shippingIncluded={!!(q as any).includes_shipping}
                       />
                     </div>
                   )}
