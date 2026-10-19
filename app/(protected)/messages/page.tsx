@@ -6,6 +6,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { EmptyState } from '@/components/ui/empty-state'
 import { formatRelativeTime } from '@/lib/utils'
 
+export const dynamic = 'force-dynamic'
 export const metadata = { title: 'Messages' }
 
 export default async function MessagesPage() {
@@ -88,14 +89,14 @@ export default async function MessagesPage() {
 
   const directThreads: DirectThread[] = []
 
-  const { data: directMessages } = await admin
-    .from('messages')
-    .select('*')
-    .is('job_id', null)
-    .or(`sender_id.eq.${effectiveUserId},receiver_id.eq.${effectiveUserId}`)
-    .order('created_at', { ascending: false })
+  const [{ data: sentDirect }, { data: receivedDirect }] = await Promise.all([
+    admin.from('messages').select('*').is('job_id', null).eq('sender_id', effectiveUserId).order('created_at', { ascending: false }),
+    admin.from('messages').select('*').is('job_id', null).eq('receiver_id', effectiveUserId).order('created_at', { ascending: false }),
+  ])
+  const directMessages = [...(sentDirect ?? []), ...(receivedDirect ?? [])]
+    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
 
-  if (directMessages && directMessages.length > 0) {
+  if (directMessages.length > 0) {
     // Group by the other party
     const otherUserIds = new Set<string>()
     const directMap = new Map<string, typeof directMessages[0]>()
