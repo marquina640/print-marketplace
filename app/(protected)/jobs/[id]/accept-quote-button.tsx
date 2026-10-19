@@ -1,10 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
-import { notifyQuoteAccepted } from '@/app/actions/notifications'
-import { sendMessage } from '@/app/actions/send-message'
+import { acceptQuote } from '@/app/actions/accept-quote'
 
 interface Props {
   jobId: string
@@ -26,19 +24,8 @@ export function AcceptQuoteButton({ jobId, quoteId, printerId, printerEmail, pri
     setLoading(true)
     setError(null)
     try {
-      const supabase = createClient()
-
-      await supabase.from('quotes').update({ status: 'rejected' }).eq('job_id', jobId).neq('id', quoteId)
-      await supabase.from('quotes').update({ status: 'accepted' }).eq('id', quoteId)
-      await supabase.from('jobs').update({ status: 'accepted', accepted_quote_id: quoteId }).eq('id', jobId)
-
-      // Notifications and message are fire-and-forget — never block payment
-      if (printerEmail && priceAmount && jobTitle) {
-        notifyQuoteAccepted({ jobId, jobTitle, printerId, printerEmail, price: priceAmount }).catch(() => {})
-      }
-      if (message.trim()) {
-        sendMessage({ jobId, receiverId: printerId, content: message.trim() }).catch(() => {})
-      }
+      // Single server action handles all DB updates + notifications
+      await acceptQuote({ jobId, quoteId, printerId, printerEmail, priceAmount, jobTitle, message })
 
       // Redirect to checkout immediately
       const endpoint = usePayPal ? '/api/paypal/orders/create' : '/api/stripe/checkout'
