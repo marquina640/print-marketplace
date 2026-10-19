@@ -7,10 +7,12 @@ import { AdminPreviewButtons } from './preview-buttons'
 import { CertificationPanel } from './certification-panel'
 import { ReferralPanel } from './referral-panel'
 import { MarkPayoutButton } from '@/app/(protected)/jobs/[id]/mark-payout-button'
+import { FundAccount } from './fund-account'
 
 export const metadata = { title: 'Admin Dashboard' }
 
-export default async function AdminDashboardPage() {
+export default async function AdminDashboardPage({ searchParams }: { searchParams: Promise<{ funded?: string }> }) {
+  const { funded } = await searchParams
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
@@ -91,6 +93,15 @@ export default async function AdminDashboardPage() {
         <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
         <p className="text-gray-500 text-sm mt-0.5">Platform overview and management</p>
       </div>
+
+      {funded === '1' && (
+        <div className="rounded-xl bg-emerald-50 border border-emerald-200 px-5 py-3 text-sm text-emerald-800 font-medium">
+          ✓ Funds added successfully to the platform account.
+        </div>
+      )}
+
+      {/* Fund platform account */}
+      <FundAccount />
 
       {/* Preview Mode */}
       <AdminPreviewButtons
