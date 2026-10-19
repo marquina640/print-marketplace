@@ -14,9 +14,10 @@ interface Props {
   printerEmail?: string
   priceAmount?: number
   jobTitle?: string
+  usePayPal?: boolean
 }
 
-export function AcceptQuoteButton({ jobId, quoteId, printerId, printerEmail, priceAmount, jobTitle }: Props) {
+export function AcceptQuoteButton({ jobId, quoteId, printerId, printerEmail, priceAmount, jobTitle, usePayPal }: Props) {
   const router = useRouter()
   const [open, setOpen]       = useState(false)
   const [message, setMessage] = useState('')
@@ -41,8 +42,16 @@ export function AcceptQuoteButton({ jobId, quoteId, printerId, printerEmail, pri
         await sendMessage({ jobId, receiverId: printerId, content: message.trim() })
       }
 
-      setOpen(false)
-      router.refresh()
+      // Redirect to checkout immediately
+      const endpoint = usePayPal ? '/api/paypal/orders/create' : '/api/stripe/checkout'
+      const checkoutRes = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ jobId }),
+      })
+      const checkoutData = await checkoutRes.json()
+      if (!checkoutRes.ok) throw new Error(checkoutData.error ?? 'Checkout failed. Please try again.')
+      window.location.href = checkoutData.url
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.')
     } finally {
@@ -87,7 +96,7 @@ export function AcceptQuoteButton({ jobId, quoteId, printerId, printerEmail, pri
                   Cancel
                 </Button>
                 <Button type="button" variant="gold" className="flex-1" loading={loading} onClick={handleAccept}>
-                  Accept & send
+                  Accept & pay
                 </Button>
               </div>
             </div>

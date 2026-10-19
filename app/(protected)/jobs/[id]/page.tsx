@@ -57,10 +57,13 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
   // Fetch cert levels separately (no FK from quotes → printer_profiles)
   const printerIds = [...new Set(quotes?.map((q) => q.printer_id) ?? [])]
   const { data: printerProfiles } = printerIds.length > 0
-    ? await supabase.from('printer_profiles').select('user_id, certification_level').in('user_id', printerIds)
+    ? await supabase.from('printer_profiles').select('user_id, certification_level, country').in('user_id', printerIds)
     : { data: [] }
-  const certByPrinter = Object.fromEntries(
+  const certByPrinter    = Object.fromEntries(
     (printerProfiles ?? []).map((p) => [p.user_id, p.certification_level ?? 0])
+  )
+  const countryByPrinter = Object.fromEntries(
+    (printerProfiles ?? []).map((p) => [p.user_id, (p as any).country as string | null])
   )
 
   const myQuote         = isPrinter ? (quotes?.find((q) => q.printer_id === effectiveUserId) ?? null) : null
@@ -450,6 +453,7 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
                         printerEmail={(q.profiles as { email: string } | null)?.email}
                         priceAmount={q.price}
                         jobTitle={job.title}
+                        usePayPal={(() => { const c = countryByPrinter[q.printer_id]; return !!c && !STRIPE_CONNECT_COUNTRIES.has(c) })()}
                       />
                     </div>
                   )}
