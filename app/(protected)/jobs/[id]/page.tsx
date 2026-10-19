@@ -173,12 +173,17 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
       </Link>
 
       {payment === 'success' && (
-        <div className="rounded-xl bg-emerald-50 border border-emerald-200 px-5 py-4 flex items-center gap-3">
-          <span className="text-2xl">✓</span>
-          <div>
-            <p className="font-semibold text-emerald-900">Payment received!</p>
-            <p className="text-sm text-emerald-700">Your payment is protected. The maker will now prepare and ship your order.</p>
+        <div className="rounded-xl bg-emerald-50 border border-emerald-200 px-5 py-4 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <span className="text-2xl">✓</span>
+            <div>
+              <p className="font-semibold text-emerald-900">Payment received!</p>
+              <p className="text-sm text-emerald-700">Your payment is protected. The maker will now prepare and ship your order.</p>
+            </div>
           </div>
+          <Link href={`/messages/${id}`} className="flex-shrink-0 rounded-xl bg-emerald-600 text-white text-sm font-semibold px-4 py-2 hover:bg-emerald-700 transition-colors">
+            Message maker →
+          </Link>
         </div>
       )}
       {payment === 'cancelled' && (
