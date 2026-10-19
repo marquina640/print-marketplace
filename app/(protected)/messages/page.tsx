@@ -26,12 +26,18 @@ export default async function MessagesPage() {
     .select('id, title, status, accepted_quote_id')
     .eq('client_id', effectiveUserId)
     .not('accepted_quote_id', 'is', null)
+    .not('status', 'in', '("delivered","completed")')
 
-  const { data: printerQuotes } = await supabase
+  const { data: printerQuotesRaw } = await supabase
     .from('quotes')
     .select('job_id, jobs(id, title, status, client_id)')
     .eq('printer_id', effectiveUserId)
     .eq('status', 'accepted')
+
+  const printerQuotes = (printerQuotesRaw ?? []).filter((q) => {
+    const job = q.jobs as { status?: string } | null
+    return job && !['delivered', 'completed'].includes(job.status ?? '')
+  })
 
   const jobIds = [
     ...(clientJobs?.map((j) => j.id) ?? []),
