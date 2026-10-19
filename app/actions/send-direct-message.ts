@@ -94,7 +94,7 @@ async function notifyDirectMessageReceiver({
         <h2 style="margin:0 0 8px;font-size:20px;font-weight:800;color:#1a1625;">You have a new message</h2>
         <p style="margin:0 0 4px;color:#6b6760;font-size:14px;">From: <strong>${senderName}</strong></p>
         <div style="margin:12px 0;padding:12px 16px;background:#f9f8f6;border-left:3px solid #1a1625;border-radius:0 8px 8px 0;color:#1a1625;font-size:14px;line-height:1.6;white-space:pre-wrap;">${content.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>
-        <a href="${process.env.NEXT_PUBLIC_SITE_URL}/messages/direct/${senderId}" style="display:inline-block;margin-top:8px;padding:10px 20px;background:#1a1625;color:#fff;border-radius:8px;font-size:14px;font-weight:600;text-decoration:none;">Reply →</a>
+        <a href="${process.env.NEXT_PUBLIC_APP_URL ?? 'https://www.printmarkethub.com'}/messages/direct/${senderId}" style="display:inline-block;margin-top:8px;padding:10px 20px;background:#1a1625;color:#fff;border-radius:8px;font-size:14px;font-weight:600;text-decoration:none;">Reply →</a>
       `,
     })
   } catch {
