@@ -9,19 +9,20 @@ export default async function ListingSuccessPage({ searchParams }: { searchParam
           <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
         </svg>
       </div>
-      <h1 className="text-2xl font-bold text-ink-900">Order placed!</h1>
+      <h1 className="text-2xl font-bold text-ink-900">Payment received!</h1>
       <p className="text-warm-500 text-sm">
-        Your payment was successful. The maker will be in touch about your order.
+        Your payment is held securely. The maker will prepare and ship your item.
+        Once you receive it, confirm delivery from My Orders — that is when the maker gets paid.
       </p>
       <div className="flex gap-3 justify-center pt-4">
+        <Link href="/orders">
+          <button className="px-5 py-2.5 rounded-xl bg-[#D4A017] text-[#1a1535] text-sm font-bold hover:bg-[#c49015] transition-colors">
+            Go to My Orders
+          </button>
+        </Link>
         <Link href="/feed">
           <button className="px-5 py-2.5 rounded-xl border border-warm-300 text-sm font-medium text-ink-900 hover:bg-warm-50">
             Browse more
-          </button>
-        </Link>
-        <Link href="/messages">
-          <button className="px-5 py-2.5 rounded-xl bg-ink-900 text-white text-sm font-medium hover:bg-ink-700">
-            Message maker
           </button>
         </Link>
       </div>

@@ -95,10 +95,8 @@ export async function POST(req: NextRequest) {
       },
       quantity: 1,
     }],
-    payment_intent_data: {
-      application_fee_amount: feeCents,
-      transfer_data: { destination: makerAccountId },
-    },
+    // No transfer_data.destination — funds stay on platform until customer confirms delivery
+    // Platform collects 12% fee by only transferring 88% to maker on confirmJobDelivery
     metadata: { jobId: job.id },
     success_url: `${appUrl}/api/stripe/success?session_id={CHECKOUT_SESSION_ID}&jobId=${job.id}`,
     cancel_url:  `${appUrl}/jobs/${job.id}?payment=cancelled`,

@@ -98,6 +98,7 @@ const icons = {
 const clientNav: NavItem[] = [
   { href: '/dashboard/client', label: 'Dashboard',      icon: icons.home     },
   { href: '/feed',             label: 'Browse Prints',  icon: icons.feed     },
+  { href: '/orders',           label: 'My Orders',      icon: icons.shop     },
   { href: '/jobs/new',         label: 'Post a Request', icon: icons.plus     },
   { href: '/makers',           label: 'Browse Makers',  icon: icons.search   },
   { href: '/map',              label: 'Map',            icon: icons.map      },

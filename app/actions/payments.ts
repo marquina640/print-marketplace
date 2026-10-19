@@ -280,3 +280,66 @@ export async function markPayoutSent(jobId: string) {
   revalidatePath(`/jobs/${jobId}`)
   revalidatePath('/dashboard/admin')
 }
+
+export async function confirmListingDelivery(orderId: string, deliveryPhotoUrls: string[]) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Not authenticated')
+
+  const admin = createAdminClient()
+
+  const { data: order } = await admin
+    .from('listing_orders')
+    .select('*, listings(title)')
+    .eq('id', orderId)
+    .single()
+
+  if (!order) throw new Error('Order not found')
+  if ((order as any).buyer_id !== user.id) throw new Error('Not your order')
+  if (!['pending', 'paid'].includes((order as any).status)) throw new Error('Order already confirmed')
+
+  await admin.from('listing_orders').update({
+    status:           'delivered',
+    delivery_photos:  deliveryPhotoUrls,
+    delivered_at:     new Date().toISOString(),
+  } as any).eq('id', orderId)
+
+  const { data: makerProfile } = await admin
+    .from('printer_profiles')
+    .select('stripe_account_id')
+    .eq('user_id', (order as any).maker_id)
+    .single()
+
+  const stripeAccountId = (makerProfile as any)?.stripe_account_id as string | null
+  if (stripeAccountId) {
+    try {
+      const listingTitle = ((order as any).listings as any)?.title ?? 'Listing order'
+      await transferToMaker(
+        (order as any).amount,
+        stripeAccountId,
+        orderId,
+        listingTitle,
+        PLATFORM_FEE_PERCENT,
+        (order as any).currency,
+      )
+
+      await admin.from('listing_orders').update({
+        status:    'completed',
+        payout_at: new Date().toISOString(),
+      } as any).eq('id', orderId)
+
+      const makerShare = ((order as any).amount * (1 - PLATFORM_FEE_PERCENT)).toFixed(2)
+      await createNotification({
+        userId: (order as any).maker_id,
+        type:   'payout_sent',
+        title:  'Payment received!',
+        body:   `${(order as any).currency} ${makerShare} for your listing order has been sent to your bank account.`,
+        link:   '/profile/listings',
+      })
+    } catch (err) {
+      console.error('Listing payout failed for order', orderId, err)
+    }
+  }
+
+  revalidatePath('/orders')
+}

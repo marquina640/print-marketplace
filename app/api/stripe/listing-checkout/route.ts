@@ -68,7 +68,6 @@ export async function POST(req: NextRequest) {
     const totalAmount = listing.price + shippingFee
     const currency    = listing.currency.toLowerCase()
     const totalCents  = toCents(totalAmount, currency)
-    const feeCents    = platformFee(totalCents)
 
     // Create order record first
     const { data: order, error: orderErr } = await admin.from('listing_orders').insert({
@@ -99,10 +98,8 @@ export async function POST(req: NextRequest) {
         },
         quantity: 1,
       }],
-      payment_intent_data: {
-        application_fee_amount: feeCents,
-        transfer_data: { destination: makerProfile.stripe_account_id },
-      },
+      // No transfer_data.destination — funds stay on platform until customer confirms delivery
+      // Platform transfers 88% to maker on confirmListingDelivery, keeping 12% fee
       metadata: { order_id: order.id, listing_id: listingId },
       success_url: `${appUrl}/listings/${listingId}/success?order=${order.id}`,
       cancel_url:  `${appUrl}/listings/${listingId}`,
@@ -115,8 +112,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ url: session.url })
   } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err)
-    console.error('listing-checkout error:', msg)
-    return NextResponse.json({ error: msg }, { status: 500 })
+    console.error('listing-checkout error:', err instanceof Error ? err.message : String(err))
+    return NextResponse.json({ error: 'Checkout failed. Please try again.' }, { status: 500 })
   }
 }
