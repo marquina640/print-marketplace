@@ -119,13 +119,14 @@ const printerNav: NavItem[] = [
 ]
 
 const adminNav: NavItem[] = [
-  { href: '/dashboard/admin',                 label: 'Dashboard',    icon: icons.home      },
-  { href: '/dashboard/admin/certifications',  label: 'Certifications', icon: icons.users   },
-  { href: '/dashboard/admin/users',           label: 'Users',        icon: icons.users     },
-  { href: '/dashboard/admin/jobs',            label: 'Requests',     icon: icons.briefcase },
-  { href: '/dashboard/admin/quotes',          label: 'Quotes',       icon: icons.chat      },
-  { href: '/messages',                        label: 'Messages',     icon: icons.chat      },
-  { href: '/dashboard/admin/settings',        label: 'Settings',     icon: icons.cog       },
+  { href: '/dashboard/admin',                 label: 'Dashboard',      icon: icons.home      },
+  { href: '/dashboard/admin/certifications',  label: 'Certifications', icon: icons.users     },
+  { href: '/dashboard/admin/users',           label: 'Users',          icon: icons.users     },
+  { href: '/dashboard/admin/jobs',            label: 'Requests',       icon: icons.briefcase },
+  { href: '/dashboard/admin/quotes',          label: 'Quotes',         icon: icons.chat      },
+  { href: '/dashboard/admin/listings',        label: 'Listings',       icon: icons.shop      },
+  { href: '/messages',                        label: 'Messages',       icon: icons.chat      },
+  { href: '/dashboard/admin/settings',        label: 'Settings',       icon: icons.cog       },
 ]
 
 export function Sidebar({ role, unreadMessages = 0 }: { role: string; unreadMessages?: number }) {
