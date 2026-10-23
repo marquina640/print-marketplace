@@ -99,7 +99,7 @@ export default async function PrinterDashboardPage({ searchParams }: PageProps) 
     { label: 'At least one material', done: (mp?.materials?.length ?? 0) > 0, href: '/profile/setup', group: 'core' as const },
     { label: 'At least one color', done: (mp?.colors?.length ?? 0) > 0, href: '/profile/setup', group: 'core' as const },
     { label: 'Printer added', done: hasMachines, href: '/profile/machines', group: 'core' as const },
-    { label: usesPayPalByDesign ? 'PayPal email set' : 'Stripe connected', done: usesPayPalByDesign ? !!mp?.paypal_email : !!mp?.stripe_account_id, href: '/profile/setup', group: 'core' as const },
+    { label: usesPayPalByDesign ? 'PayPal email set' : 'Stripe connected', done: usesPayPalByDesign ? !!mp?.paypal_email : (!!mp?.stripe_account_id && !!mp?.stripe_onboarding_complete), href: '/profile/setup', group: 'core' as const },
     { label: 'Profile photo', done: !!(effectiveProfile as any)?.avatar_url, href: '/profile/setup', group: 'visibility' as const },
     { label: 'About / description', done: !!mp?.description, href: '/profile/setup', group: 'visibility' as const },
     { label: 'At least one service enabled', done: hasService, href: '/profile/setup', group: 'visibility' as const },
