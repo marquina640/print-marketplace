@@ -217,7 +217,7 @@ export function ProfileSetupForm({ effectiveUserId }: { effectiveUserId: string 
     e.preventDefault()
     setError(null)
     if (!form.display_name.trim()) { setError('Display name is required.'); return }
-    if (!form.city.trim()) { setError('City is required.'); return }
+    if (!form.location.trim()) { setError('Location is required. Start typing your city and pick a suggestion.'); return }
     if (!form.country.trim()) { setError('Country is required.'); return }
     if (form.materials.length === 0) { setError('Select at least one material.'); return }
 
@@ -239,10 +239,14 @@ export function ProfileSetupForm({ effectiveUserId }: { effectiveUserId: string 
       await supabase.from('profiles').update({ avatar_url: newAvatarUrl }).eq('user_id', effectiveUserId)
     }
 
+    // If autocomplete didn't extract a city (user typed without picking a suggestion),
+    // derive it from the first segment of the location string
+    const derivedCity = form.city.trim() || form.location.split(',')[0].trim()
+
     const payload = {
       user_id: effectiveUserId,
       display_name: form.display_name.trim(),
-      city: form.city.trim(),
+      city: derivedCity,
       country: form.country.trim() || null,
       location: form.location.trim() || null,
       materials: form.materials,
@@ -302,7 +306,7 @@ export function ProfileSetupForm({ effectiveUserId }: { effectiveUserId: string 
       .update({
         onboarding_complete: true,
         display_name: form.display_name.trim(),
-        city: form.city.trim() || null,
+        city: derivedCity || null,
         address: form.location.trim() || null,
         latitude: form.lat,
         longitude: form.lng,
