@@ -392,6 +392,10 @@ export const BENCHMARK_REQUIREMENTS: Record<number, {
   title: string
   parts: { name: string; purpose: string; criteria: string[] }[]
   extras: string[]
+  resinTrack?: {
+    parts: { name: string; purpose: string; criteria: string[] }[]
+    extras: string[]
+  }
 }> = {
   1: {
     title: 'Verified Quality - Level 1',
@@ -417,6 +421,29 @@ export const BENCHMARK_REQUIREMENTS: Record<number, {
       'Photograph the finished print from multiple angles in good lighting',
       'Include a close-up of the arch, bridge, and thin towers',
     ],
+    resinTrack: {
+      parts: [
+        {
+          name: 'Siraya Tech Test Model V5',
+          purpose: 'Tests resin exposure calibration, XY resolution, printability under stress, and shrinkage in one print',
+          criteria: [
+            'Pins 0.2 mm and above visible and fully formed',
+            'Negative text openings (especially 0.2 mm) clear and not filled in',
+            'Triangle feature edges sharp — rounded edges indicate overexposure',
+            'Cube printed clean with no failed supports or delamination',
+            '10 mm shrinkage bar within 0.1 mm of spec when measured after curing',
+            'No warping, layer separation, or surface blobs on any section',
+          ],
+        },
+      ],
+      extras: [
+        'Download the model at siraya.tech/pages/siraya-tech-test-model',
+        'Print using your calibrated exposure settings for your primary resin — do not tune specifically for this test',
+        'Clean and post-cure the print fully before photographing',
+        'Submit photos: full model top-down, close-up of the pins area, close-up of the cube and supports',
+        'Include your resin brand and name, layer height, normal exposure time, and bottom exposure time in your notes',
+      ],
+    },
   },
   2: {
     title: 'Engineering Certified - Level 2',

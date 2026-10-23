@@ -63,11 +63,17 @@ export function CertificationForm({ effectiveUserId }: { effectiveUserId: string
   const [photoUrls, setPhotoUrls]         = useState<string[]>([])
   const [notes, setNotes]                 = useState('')
   const [businessDesc, setBusinessDesc]   = useState('')
+  const [track, setTrack]                 = useState<'fdm' | 'resin'>('fdm')
   const photoRef                          = useRef<HTMLInputElement>(null)
 
   const hasPending = requests.some((r) => r.status === 'pending')
   const nextLevel  = certLevel < 3 ? certLevel + 1 : null
-  const benchmarks = nextLevel ? BENCHMARK_REQUIREMENTS[nextLevel] : null
+  const benchmarkEntry = nextLevel ? BENCHMARK_REQUIREMENTS[nextLevel] : null
+  const benchmarks = benchmarkEntry
+    ? (nextLevel === 1 && track === 'resin' && benchmarkEntry.resinTrack
+        ? { title: benchmarkEntry.title, ...benchmarkEntry.resinTrack }
+        : benchmarkEntry)
+    : null
 
   useEffect(() => { load() }, [effectiveUserId])
 
@@ -121,9 +127,10 @@ export function CertificationForm({ effectiveUserId }: { effectiveUserId: string
         uploadedUrls.push(publicUrl)
       }
 
+      const trackPrefix = nextLevel === 1 ? `Track: ${track === 'resin' ? 'Resin (Siraya Tech Test Model V5)' : 'FDM'}\n\n` : ''
       const combinedNotes = nextLevel === 3 && businessDesc.trim()
         ? `Business Description:\n${businessDesc.trim()}${notes.trim() ? `\n\nAdditional notes:\n${notes.trim()}` : ''}`
-        : notes
+        : `${trackPrefix}${notes}`
       await submitCertificationRequest(nextLevel, combinedNotes, uploadedUrls, certLevel)
       setSuccess(true)
       setPhotos([])
@@ -284,10 +291,24 @@ export function CertificationForm({ effectiveUserId }: { effectiveUserId: string
 
       {nextLevel && (
         <section>
-          <div className="mb-3">
+          <div className="mb-3 flex items-center justify-between flex-wrap gap-3">
             <h2 className="text-base font-bold text-ink-900">
               Path to Level {nextLevel} - {CERTIFICATION_LEVELS[nextLevel].name}
             </h2>
+            {nextLevel === 1 && benchmarkEntry?.resinTrack && (
+              <div className="flex rounded-xl border border-warm-300 overflow-hidden text-xs font-semibold">
+                <button
+                  type="button"
+                  onClick={() => setTrack('fdm')}
+                  className={`px-3 py-1.5 transition-colors ${track === 'fdm' ? 'bg-ink-900 text-white' : 'bg-white text-warm-600 hover:bg-warm-50'}`}
+                >FDM</button>
+                <button
+                  type="button"
+                  onClick={() => setTrack('resin')}
+                  className={`px-3 py-1.5 transition-colors ${track === 'resin' ? 'bg-ink-900 text-white' : 'bg-white text-warm-600 hover:bg-warm-50'}`}
+                >Resin</button>
+              </div>
+            )}
           </div>
 
           {benchmarks && (
@@ -332,6 +353,9 @@ export function CertificationForm({ effectiveUserId }: { effectiveUserId: string
                 ? 'Describe your print farm and upload photos of your setup. Our team reviews within 3–5 business days.'
                 : 'Print the benchmark parts above, photograph them, and submit. Our team reviews within 3–5 business days.'}
             </p>
+            {nextLevel === 1 && track === 'resin' && (
+              <p className="text-xs text-indigo-700 font-medium mt-1">Submitting via Resin track (Siraya Tech Test Model V5)</p>
+            )}
           </div>
 
           {success && (
