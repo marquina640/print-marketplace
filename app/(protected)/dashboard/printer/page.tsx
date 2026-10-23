@@ -141,8 +141,9 @@ export default async function PrinterDashboardPage({ searchParams }: PageProps) 
   const certLevel        = makerProfile?.certification_level ?? 0
   const cert             = getCertificationLevel(certLevel)
   const nextCert         = certLevel < 3 ? CERTIFICATION_LEVELS[certLevel + 1] : null
-  const stripeAccountId  = mp?.stripe_account_id as string | null
-  const paypalEmail      = mp?.paypal_email as string | null
+  const stripeAccountId          = mp?.stripe_account_id as string | null
+  const stripeOnboardingComplete = !!mp?.stripe_onboarding_complete
+  const paypalEmail              = mp?.paypal_email as string | null
   const needsPaypalMigration = !!paypalEmail && !stripeAccountId && !usesPayPalByDesign
   const isAdminPreview   = !!previewUserId
 
@@ -195,7 +196,7 @@ export default async function PrinterDashboardPage({ searchParams }: PageProps) 
       <ProfileCompletenessBanner items={completenessItems} />
 
       {/* Payout panel */}
-      {stripeAccountId ? (
+      {stripeAccountId && stripeOnboardingComplete ? (
         <div className="rounded-xl bg-emerald-50 border border-emerald-200 px-5 py-4 flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <div className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
@@ -206,6 +207,19 @@ export default async function PrinterDashboardPage({ searchParams }: PageProps) 
           </div>
           <Link href="/profile/setup">
             <Button variant="outline" size="sm">Update</Button>
+          </Link>
+        </div>
+      ) : stripeAccountId && !stripeOnboardingComplete ? (
+        <div className="rounded-xl bg-amber-50 border border-amber-300 px-5 py-4 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="h-2.5 w-2.5 rounded-full bg-amber-400" />
+            <div>
+              <p className="font-semibold text-amber-900 text-sm">Stripe account under review</p>
+              <p className="text-xs text-amber-700">Payouts will activate once Stripe approves your account, usually within 1–2 business days. No further action needed.</p>
+            </div>
+          </div>
+          <Link href="/profile/setup">
+            <Button variant="outline" size="sm">Add missing info or check status on Stripe →</Button>
           </Link>
         </div>
       ) : (
