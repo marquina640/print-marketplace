@@ -85,7 +85,7 @@ export default async function MapPage() {
       const coords = jobCoords[i]
       if (!coords) return null
       const { lat, lng } = scramble(j.id, coords.lat, coords.lng)
-      return { id: j.id as string, title: j.title as string, material: j.material as string, budget: j.budget as number, lat, lng }
+      return { id: j.id as string, title: j.title as string, material: j.material as string, budget: (j.budget as number | null), lat, lng }
     })
     .filter((j): j is NonNullable<typeof j> => j !== null)
 

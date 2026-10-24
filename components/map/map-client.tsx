@@ -8,7 +8,7 @@ const LeafletMap = dynamic(
   { ssr: false, loading: () => <div className="flex items-center justify-center h-[580px] rounded-2xl border border-warm-200 bg-warm-50"><div className="animate-spin h-8 w-8 rounded-full border-4 border-ink-600 border-t-transparent" /></div> }
 )
 
-type Job = { id: string; title: string; material: string; budget: number; lat: number; lng: number }
+type Job = { id: string; title: string; material: string; budget: number | null; lat: number; lng: number }
 type Printer = { id: string; display_name: string | null; city: string | null; certLevel: number; lat: number; lng: number }
 
 interface Props {
