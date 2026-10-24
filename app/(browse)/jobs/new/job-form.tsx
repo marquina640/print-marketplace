@@ -27,6 +27,9 @@ export function NewJobForm({ clientId, clientLocation, isGuest, makerProcesses, 
 
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [geoStatus, setGeoStatus] = useState<'idle' | 'searching' | 'found' | 'notfound'>(
+    clientLocation.lat != null && clientLocation.lng != null ? 'found' : 'idle'
+  )
   const [modelFiles, setModelFiles] = useState<File[]>([])
   const [modelInputMode, setModelInputMode] = useState<'file' | 'link'>('file')
   const [modelUrl, setModelUrl] = useState('')
@@ -81,8 +84,34 @@ export function NewJobForm({ clientId, clientLocation, isGuest, makerProcesses, 
   })
 
   function set(field: string, value: string | boolean) {
-    setForm((prev) => ({ ...prev, [field]: value }))
+    setForm((prev) => {
+      const next = { ...prev, [field]: value }
+      if (field === 'location') { next.lat = null; next.lng = null }
+      return next
+    })
   }
+
+  useEffect(() => {
+    const loc = form.location.trim()
+    if (!loc) { setGeoStatus('idle'); return }
+    if (form.lat != null && form.lng != null) return // already have coords from prior geocode
+    setGeoStatus('searching')
+    const timer = setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/geocode?q=${encodeURIComponent(loc)}`)
+        if (res.ok) {
+          const { lat, lng } = await res.json()
+          setForm((prev) => ({ ...prev, lat, lng }))
+          setGeoStatus('found')
+        } else {
+          setGeoStatus('notfound')
+        }
+      } catch {
+        setGeoStatus('notfound')
+      }
+    }, 700)
+    return () => clearTimeout(timer)
+  }, [form.location]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Auto-fetch og:image when a model link is pasted
   useEffect(() => {
@@ -190,6 +219,8 @@ export function NewJobForm({ clientId, clientLocation, isGuest, makerProcesses, 
     e.preventDefault()
     setError(null)
 
+    if (!form.location.trim()) { setError('Please enter a location for your request.'); return }
+    if (form.lat == null || form.lng == null) { setError('We couldn\'t find coordinates for that location. Try a more specific address or city name.'); return }
     if (!form.material) { setError('Please select a material.'); return }
     if (form.needs_design) {
       if (refImages.length === 0) { setError('Please upload at least one reference photo so makers can understand what to design.'); return }
@@ -416,6 +447,31 @@ export function NewJobForm({ clientId, clientLocation, isGuest, makerProcesses, 
             rows={4}
             placeholder="Describe dimensions, tolerances, intended use, any special requirements…"
           />
+        </div>
+
+        {/* Location */}
+        <div className="card p-6 space-y-3">
+          <div>
+            <h2 className="font-semibold text-ink-900">Location <span className="text-red-500">*</span></h2>
+            <p className="text-xs text-warm-500 mt-0.5">Makers nearby will be notified. Your exact address is never shared.</p>
+          </div>
+          <div className="relative">
+            <input
+              type="text"
+              value={form.location}
+              onChange={(e) => set('location', e.target.value)}
+              placeholder="e.g. Dublin, Ireland or Zurich, Switzerland"
+              className="w-full rounded-xl border border-warm-200 px-4 py-2.5 text-sm text-ink-900 placeholder-warm-400 focus:outline-none focus:ring-2 focus:ring-ink-400 pr-28"
+            />
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-medium">
+              {geoStatus === 'searching' && <span className="text-warm-400 animate-pulse">Searching…</span>}
+              {geoStatus === 'found' && <span className="text-emerald-600">Location found</span>}
+              {geoStatus === 'notfound' && <span className="text-red-500">Not found</span>}
+            </span>
+          </div>
+          {geoStatus === 'notfound' && (
+            <p className="text-xs text-red-600">Try a different address or add the country name (e.g. "Dublin, Ireland").</p>
+          )}
         </div>
 
         {/* Job type */}
