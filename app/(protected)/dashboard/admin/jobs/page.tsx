@@ -5,6 +5,7 @@ import { formatDate, formatCurrency } from '@/lib/utils'
 import Link from 'next/link'
 import { DeleteJobButton } from './delete-job-button'
 import { RelistJobButton } from './relist-job-button'
+import { NotifyMakersButton } from './notify-makers-button'
 
 export const metadata = { title: 'All Requests - Admin' }
 
@@ -18,7 +19,7 @@ export default async function AdminJobsPage() {
 
   const { data: jobs } = await supabase
     .from('jobs')
-    .select('*, profiles!client_id(display_name, email, is_test)')
+    .select('*, profiles!client_id(display_name, email, is_test), lat, lng, job_type')
     .order('created_at', { ascending: false })
     .limit(100)
 
@@ -62,6 +63,14 @@ export default async function AdminJobsPage() {
                     <td className="px-4 py-3 text-sm text-warm-400">{formatDate(j.created_at)}</td>
                     <td className="px-4 py-3 text-sm">
                       <div className="flex items-center gap-3">
+                        <NotifyMakersButton
+                          jobId={j.id}
+                          jobLat={j.lat ?? null}
+                          jobLng={j.lng ?? null}
+                          jobTitle={j.title}
+                          jobMaterial={j.material}
+                          jobType={j.job_type ?? ''}
+                        />
                         {effectiveStatus(j) === 'delisted' && <RelistJobButton jobId={j.id} />}
                         <DeleteJobButton jobId={j.id} title={j.title} />
                       </div>
