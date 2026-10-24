@@ -19,7 +19,7 @@ export default async function AdminJobsPage() {
 
   const { data: jobs } = await supabase
     .from('jobs')
-    .select('*, profiles!client_id(display_name, email, is_test), lat, lng, job_type')
+    .select('*, profiles!client_id(display_name, email, is_test)')
     .order('created_at', { ascending: false })
     .limit(100)
 
@@ -65,8 +65,8 @@ export default async function AdminJobsPage() {
                       <div className="flex items-center gap-3">
                         <NotifyMakersButton
                           jobId={j.id}
-                          jobLat={j.lat ?? null}
-                          jobLng={j.lng ?? null}
+                          jobLat={j.latitude ?? null}
+                          jobLng={j.longitude ?? null}
                           jobTitle={j.title}
                           jobMaterial={j.material}
                           jobType={j.job_type ?? ''}
