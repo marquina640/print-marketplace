@@ -115,22 +115,36 @@ export function LeafletMap({ jobs, printers, filter }: LeafletMapProps) {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   function renderMarkers({ map, L }: { map: any; L: any }) {
+    const iconStyle = 'border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:bold;border:2px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.3);cursor:pointer;pointer-events:auto;'
     const jobIcon = L.divIcon({
-      html: `<div style="background:#4f46e5;color:white;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:bold;border:2px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.3)">J</div>`,
-      className: '',
+      html: `<div style="background:#4f46e5;color:white;${iconStyle}">J</div>`,
+      className: 'pmh-marker',
       iconSize: [28, 28],
       iconAnchor: [14, 14],
     })
     const printerIcon = L.divIcon({
-      html: `<div style="background:#ca8a04;color:white;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:bold;border:2px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.3)">P</div>`,
-      className: '',
+      html: `<div style="background:#ca8a04;color:white;${iconStyle}">P</div>`,
+      className: 'pmh-marker',
       iconSize: [28, 28],
       iconAnchor: [14, 14],
     })
 
+    // Track coordinate usage to jitter duplicate positions
+    const coordCount: Record<string, number> = {}
+    function jitter(lat: number, lng: number): [number, number] {
+      const key = `${lat.toFixed(5)},${lng.toFixed(5)}`
+      coordCount[key] = (coordCount[key] ?? 0) + 1
+      const n = coordCount[key] - 1
+      if (n === 0) return [lat, lng]
+      const angle = (n * 137.5 * Math.PI) / 180
+      const offset = 0.0006 * Math.ceil(n / 6)
+      return [lat + offset * Math.cos(angle), lng + offset * Math.sin(angle)]
+    }
+
     if (filter !== 'printers') {
       jobs.forEach((job) => {
-        const m = L.marker([job.lat, job.lng], { icon: jobIcon })
+        const [jLat, jLng] = jitter(job.lat, job.lng)
+        const m = L.marker([jLat, jLng], { icon: jobIcon })
           .addTo(map)
           .bindPopup(`
             <div style="font-family:sans-serif;min-width:160px">
@@ -149,7 +163,8 @@ export function LeafletMap({ jobs, printers, filter }: LeafletMapProps) {
         const name = printer.display_name ?? 'Maker'
         const certLabels = ['Community', 'Verified', 'Engineering', 'Production']
         const certLabel = certLabels[printer.certLevel] ?? 'Community'
-        const m = L.marker([printer.lat, printer.lng], { icon: printerIcon })
+        const [jLat, jLng] = jitter(printer.lat, printer.lng)
+        const m = L.marker([jLat, jLng], { icon: printerIcon })
           .addTo(map)
           .bindPopup(`
             <div style="font-family:sans-serif;min-width:140px">
