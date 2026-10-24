@@ -1,7 +1,7 @@
 ﻿import { cookies } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 import { MapClient } from '@/components/map/map-client'
-import { cityToCoords } from '@/lib/utils'
+import { cityToCoords, geocodeAddress } from '@/lib/utils'
 
 function scramble(id: string, lat: number, lng: number) {
   let h = 0
@@ -63,22 +63,37 @@ export default async function MapPage() {
 
   const [{ data: jobsRaw }, { data: printersRaw }] = await Promise.all([jobsQuery, printersQuery])
 
+  async function resolveCoords(
+    storedLat: number | null,
+    storedLng: number | null,
+    locationText: string | null | undefined,
+  ): Promise<{ lat: number; lng: number } | null> {
+    if (storedLat != null && storedLng != null) return { lat: storedLat, lng: storedLng }
+    const cached = cityToCoords(locationText)
+    if (cached) return cached
+    if (locationText) return geocodeAddress(locationText)
+    return null
+  }
+
+  const [jobCoords, printerCoords] = await Promise.all([
+    Promise.all((jobsRaw ?? []).map((j) => resolveCoords(j.latitude, j.longitude, j.location))),
+    Promise.all((printersRaw ?? []).map((p) => resolveCoords(p.latitude, p.longitude, p.city))),
+  ])
+
   const jobs = (jobsRaw ?? [])
-    .map((j) => {
-      const rawLat = j.latitude ?? cityToCoords(j.location)?.lat ?? null
-      const rawLng = j.longitude ?? cityToCoords(j.location)?.lng ?? null
-      if (rawLat == null || rawLng == null) return null
-      const { lat, lng } = scramble(j.id, rawLat, rawLng)
+    .map((j, i) => {
+      const coords = jobCoords[i]
+      if (!coords) return null
+      const { lat, lng } = scramble(j.id, coords.lat, coords.lng)
       return { id: j.id as string, title: j.title as string, material: j.material as string, budget: j.budget as number, lat, lng }
     })
     .filter((j): j is NonNullable<typeof j> => j !== null)
 
   const printers = (printersRaw ?? [])
-    .map((p) => {
-      const rawLat = p.latitude ?? cityToCoords(p.city)?.lat ?? null
-      const rawLng = p.longitude ?? cityToCoords(p.city)?.lng ?? null
-      if (rawLat == null || rawLng == null) return null
-      const { lat, lng } = scramble(p.user_id, rawLat, rawLng)
+    .map((p, i) => {
+      const coords = printerCoords[i]
+      if (!coords) return null
+      const { lat, lng } = scramble(p.user_id, coords.lat, coords.lng)
       return { id: p.user_id as string, display_name: p.display_name as string | null, city: p.city as string | null, certLevel: (p.certification_level as number) ?? 0, lat, lng }
     })
     .filter((p): p is NonNullable<typeof p> => p !== null)

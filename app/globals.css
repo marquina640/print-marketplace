@@ -147,3 +147,8 @@ html, body {
 .leaflet-tile-pane {
   filter: brightness(1) saturate(1);
 }
+
+.leaflet-marker-icon.pmh-marker {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+}
