@@ -30,9 +30,12 @@ export async function POST(req: NextRequest) {
   for (const accountId of accountIds) {
     try {
       const account = await stripe.accounts.retrieve(accountId)
-      if (!account.business_profile?.url) {
+      const needsUrl = !account.business_profile?.url
+      const needsType = !account.business_type
+      if (needsUrl || needsType) {
         await stripe.accounts.update(accountId, {
-          business_profile: { url: 'https://www.printmarkethub.com' },
+          ...(needsType ? { business_type: 'individual' } : {}),
+          ...(needsUrl ? { business_profile: { url: 'https://www.printmarkethub.com' } } : {}),
         })
         results.push({ id: accountId, status: 'patched' })
       } else {
