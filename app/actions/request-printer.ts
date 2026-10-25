@@ -16,7 +16,7 @@ export async function requestPrinter(brand: string, model: string) {
     const resend = new Resend(process.env.RESEND_API_KEY)
     await resend.emails.send({
       from: 'PrintMarketHub <hello@printmarkethub.com>',
-      to: 'fermarquina640@gmail.com',
+      to: 'admin@printmarkethub.com',
       subject: `Printer request: ${brandTrimmed} ${modelTrimmed}`,
       html: `
         <p>A maker has requested a printer to be added to the list.</p>
