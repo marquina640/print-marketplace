@@ -1,10 +1,11 @@
 ﻿'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useTransition } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { PRINTER_BRANDS, ALL_PRINTER_BRAND_NAMES, MANUFACTURING_PROCESSES } from '@/lib/utils'
+import { requestPrinter } from '@/app/actions/request-printer'
 
 interface Machine {
   id: string
@@ -49,6 +50,27 @@ export function MachinesForm({ effectiveUserId }: { effectiveUserId: string }) {
 
   const modelOptions = selectedBrand ? (PRINTER_BRANDS[selectedBrand] ?? []) : []
   const availableProcesses = MANUFACTURING_PROCESSES.filter((p) => p.available)
+
+  const [showRequestForm, setShowRequestForm] = useState(false)
+  const [requestBrand, setRequestBrand] = useState('')
+  const [requestModel, setRequestModel] = useState('')
+  const [requestStatus, setRequestStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle')
+  const [, startRequestTransition] = useTransition()
+
+  function submitRequest() {
+    if (!requestBrand.trim() || !requestModel.trim()) return
+    setRequestStatus('sending')
+    startRequestTransition(async () => {
+      const result = await requestPrinter(requestBrand, requestModel)
+      if (result.ok) {
+        setRequestStatus('sent')
+        setRequestBrand('')
+        setRequestModel('')
+      } else {
+        setRequestStatus('error')
+      }
+    })
+  }
 
   useEffect(() => { loadMachines() }, [effectiveUserId])
 
@@ -230,6 +252,47 @@ export function MachinesForm({ effectiveUserId }: { effectiveUserId: string }) {
                 </button>
               ))}
             </div>
+          </div>
+
+          {/* Request a printer */}
+          <div className="pt-1">
+            {!showRequestForm ? (
+              <button type="button" onClick={() => { setShowRequestForm(true); setRequestStatus('idle') }}
+                className="text-xs text-warm-400 hover:text-ink-600 underline underline-offset-2 transition-colors">
+                Don't see your printer? Request it
+              </button>
+            ) : (
+              <div className="rounded-xl border border-warm-200 bg-warm-50 p-4 space-y-3">
+                <p className="text-sm font-medium text-ink-800">Request a printer to be added</p>
+                {requestStatus === 'sent' ? (
+                  <p className="text-sm text-green-700">Request sent! We will add it shortly.</p>
+                ) : (
+                  <>
+                    <div className="flex gap-2">
+                      <input value={requestBrand} onChange={(e) => setRequestBrand(e.target.value)}
+                        placeholder="Brand (e.g. BambuLab)"
+                        className="flex-1 rounded-lg border border-warm-300 bg-white px-3 py-2 text-sm text-ink-900 placeholder:text-warm-400 focus:outline-none focus:ring-2 focus:ring-gold-400" />
+                      <input value={requestModel} onChange={(e) => setRequestModel(e.target.value)}
+                        placeholder="Model (e.g. H2D)"
+                        className="flex-1 rounded-lg border border-warm-300 bg-white px-3 py-2 text-sm text-ink-900 placeholder:text-warm-400 focus:outline-none focus:ring-2 focus:ring-gold-400" />
+                    </div>
+                    {requestStatus === 'error' && (
+                      <p className="text-xs text-red-600">Something went wrong. Please try again.</p>
+                    )}
+                    <div className="flex gap-2">
+                      <button type="button" onClick={submitRequest} disabled={requestStatus === 'sending' || !requestBrand.trim() || !requestModel.trim()}
+                        className="rounded-lg bg-ink-900 text-white px-4 py-1.5 text-xs font-medium disabled:opacity-50 hover:bg-ink-800 transition-colors">
+                        {requestStatus === 'sending' ? 'Sending…' : 'Send request'}
+                      </button>
+                      <button type="button" onClick={() => setShowRequestForm(false)}
+                        className="text-xs text-warm-400 hover:text-warm-700 transition-colors px-2">
+                        Cancel
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
           </div>
 
           {selectedBrand && modelOptions.length > 0 ? (
