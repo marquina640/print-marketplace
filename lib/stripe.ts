@@ -52,6 +52,9 @@ export async function createConnectedAccount(email: string, country = 'CH'): Pro
     capabilities: {
       transfers: { requested: true },
     },
+    business_profile: {
+      url: 'https://www.printmarkethub.com',
+    },
   })
   return account.id
 }
