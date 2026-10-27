@@ -127,6 +127,7 @@ export function ProfileSetupForm({ effectiveUserId }: { effectiveUserId: string 
     local_delivery: false,
     pickup: true,
     hourly_rate: '',
+    hourly_rate_currency: 'CHF',
     description: '',
     paypal_email: '', // kept for DB compat but no longer shown in UI
     lat: null as number | null,
@@ -179,6 +180,7 @@ export function ProfileSetupForm({ effectiveUserId }: { effectiveUserId: string 
           local_delivery: data.local_delivery,
           pickup: data.pickup,
           hourly_rate: data.hourly_rate?.toString() ?? '',
+          hourly_rate_currency: (data as any).hourly_rate_currency ?? 'CHF',
           description: data.description ?? '',
           paypal_email: (data as any).paypal_email ?? '',
           lat: data.latitude ?? null,
@@ -256,6 +258,7 @@ export function ProfileSetupForm({ effectiveUserId }: { effectiveUserId: string 
       local_delivery: form.local_delivery,
       pickup: form.pickup,
       hourly_rate: form.design_services && form.hourly_rate ? parseFloat(form.hourly_rate) : null,
+      hourly_rate_currency: form.hourly_rate_currency,
       description: form.description.trim() || null,
       paypal_email: form.paypal_email.trim() || null,
       latitude: form.lat,
@@ -497,9 +500,29 @@ export function ProfileSetupForm({ effectiveUserId }: { effectiveUserId: string 
         {form.design_services && (
           <div className="card p-6 space-y-4">
             <h2 className="font-semibold text-warm-900">Design / Engineering Pricing (optional)</h2>
-            <Input label="Hourly rate (CHF/hr)" type="number" min="0" step="0.01"
-              value={form.hourly_rate} onChange={(e) => set('hourly_rate', e.target.value)}
-              placeholder="45.00" hint="Design and engineering labor rate" />
+            <div className="space-y-1">
+              <label className="block text-sm font-medium text-warm-800">Hourly rate (optional)</label>
+              <div className="flex gap-2">
+                <select
+                  value={form.hourly_rate_currency}
+                  onChange={(e) => set('hourly_rate_currency', e.target.value)}
+                  className="rounded-xl border border-warm-300 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ink-400 w-24"
+                >
+                  <option value="CHF">CHF</option>
+                  <option value="EUR">EUR</option>
+                  <option value="USD">USD</option>
+                  <option value="GBP">GBP</option>
+                </select>
+                <input
+                  type="number" min="0" step="0.01"
+                  value={form.hourly_rate}
+                  onChange={(e) => set('hourly_rate', e.target.value)}
+                  placeholder="45.00"
+                  className="flex-1 rounded-xl border border-warm-300 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ink-400"
+                />
+              </div>
+              <p className="text-xs text-warm-500">Design and engineering labor rate</p>
+            </div>
           </div>
         )}
 

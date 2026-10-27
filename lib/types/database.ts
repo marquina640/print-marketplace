@@ -52,6 +52,7 @@ export interface Database {
           local_delivery: boolean
           pickup: boolean
           hourly_rate: number | null
+          hourly_rate_currency: string
           price_per_gram: number | null
           description: string | null
           is_active: boolean
@@ -74,6 +75,7 @@ export interface Database {
           local_delivery?: boolean
           pickup?: boolean
           hourly_rate?: number | null
+          hourly_rate_currency?: string
           price_per_gram?: number | null
           description?: string | null
           is_active?: boolean
