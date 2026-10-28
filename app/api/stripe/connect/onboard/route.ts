@@ -69,7 +69,8 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ url: onboardingUrl })
   } catch (err) {
-    console.error('Stripe Connect onboard error:', err instanceof Error ? err.message : String(err))
-    return NextResponse.json({ error: 'Failed to start Stripe onboarding' }, { status: 500 })
+    const msg = err instanceof Error ? err.message : String(err)
+    console.error('Stripe Connect onboard error:', msg)
+    return NextResponse.json({ error: `Failed to start Stripe onboarding: ${msg}` }, { status: 500 })
   }
 }

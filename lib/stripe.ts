@@ -45,13 +45,17 @@ export async function createConnectOnboardingLink(
  * Defaults to the platform country (CH) if not provided.
  */
 export async function createConnectedAccount(email: string, country = 'CH'): Promise<string> {
+  // US Express accounts require card_payments in addition to transfers
+  const capabilities: Stripe.AccountCreateParams['capabilities'] =
+    country === 'US'
+      ? { card_payments: { requested: true }, transfers: { requested: true } }
+      : { transfers: { requested: true } }
+
   const account = await stripe.accounts.create({
     type:  'express',
     email,
     country,
-    capabilities: {
-      transfers: { requested: true },
-    },
+    capabilities,
     business_type: 'individual',
     business_profile: {
       url: 'https://www.printmarkethub.com',
