@@ -154,7 +154,7 @@ export const PRINTER_BRANDS: Record<string, string[]> = {
     'Saturn 4', 'Saturn 4 Ultra', 'Saturn 3 Ultra',
   ],
   'Anycubic':     [
-    'Kobra 2', 'Kobra 2 Neo', 'Kobra 2 Max', 'Kobra 2 Pro', 'Kobra 3', 'Kobra 3 Max',
+    'Kobra 2', 'Kobra 2 Neo', 'Kobra 2 Max', 'Kobra 2 Pro', 'Kobra 3', 'Kobra 3 Max', 'Kobra S1',
     'Photon Mono M5S', 'Photon Mono M7 Pro', 'Photon M3 Max', 'Photon D2',
   ],
   'Qidi Tech':    ['X-Max 3', 'X-Plus 3', 'X-Smart 3', 'Q1 Pro', 'X-CF Pro', 'iFast'],
