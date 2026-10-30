@@ -4,17 +4,18 @@ import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 
-export function EmailChangeSection() {
-  const [currentEmail, setCurrentEmail] = useState('')
+export function EmailChangeSection({ email, readOnly }: { email?: string | null; readOnly?: boolean }) {
+  const [currentEmail, setCurrentEmail] = useState(email ?? '')
   const [newEmail, setNewEmail] = useState('')
   const [status, setStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle')
   const [errorMsg, setErrorMsg] = useState('')
 
   useEffect(() => {
+    if (email) { setCurrentEmail(email); return }
     createClient().auth.getUser().then(({ data }) => {
       if (data.user?.email) setCurrentEmail(data.user.email)
     })
-  }, [])
+  }, [email])
 
   async function handleSend(e: React.FormEvent) {
     e.preventDefault()
@@ -40,7 +41,9 @@ export function EmailChangeSection() {
       <div className="rounded-xl bg-warm-50 border border-warm-200 px-4 py-2.5 text-sm text-warm-700">
         Current: <span className="font-medium text-ink-900">{currentEmail || '…'}</span>
       </div>
-      {status === 'sent' ? (
+      {readOnly ? (
+        <p className="text-xs text-warm-400">Email changes are not available in preview mode.</p>
+      ) : status === 'sent' ? (
         <div className="rounded-xl bg-emerald-50 border border-emerald-200 px-4 py-3 text-sm text-emerald-800">
           Confirmation email sent to <strong>{newEmail}</strong>. Click the link in that email to complete the change.
         </div>
@@ -59,7 +62,8 @@ export function EmailChangeSection() {
           </Button>
         </form>
       )}
-      {status === 'error' && (
+      )}
+      {!readOnly && status === 'error' && (
         <p className="text-xs text-red-600">{errorMsg}</p>
       )}
     </div>

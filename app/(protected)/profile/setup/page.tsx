@@ -20,7 +20,7 @@ export default async function ProfileSetupPage() {
         <div className="animate-spin h-8 w-8 rounded-full border-4 border-ink-600 border-t-transparent" />
       </div>
     }>
-      <ProfileSetupForm effectiveUserId={effectiveUserId} />
+      <ProfileSetupForm effectiveUserId={effectiveUserId} isPreview={!!previewUserId} />
     </Suspense>
   )
 }

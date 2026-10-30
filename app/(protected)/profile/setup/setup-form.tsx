@@ -100,7 +100,7 @@ function Toggle({ label, checked, onChange }: { label: string; checked: boolean;
   )
 }
 
-export function ProfileSetupForm({ effectiveUserId }: { effectiveUserId: string }) {
+export function ProfileSetupForm({ effectiveUserId, isPreview }: { effectiveUserId: string; isPreview?: boolean }) {
   const router = useRouter()
   const avatarFileRef = useRef<HTMLInputElement>(null)
   const [loading, setLoading] = useState(false)
@@ -110,6 +110,7 @@ export function ProfileSetupForm({ effectiveUserId }: { effectiveUserId: string 
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
 
   const [stripeStatus, setStripeStatus] = useState<{ connected: boolean; detailsSubmitted: boolean; hasAccount: boolean } | null>(null)
+  const [makerEmail, setMakerEmail] = useState<string | null>(null)
   const [certLevel, setCertLevel] = useState(0)
   const [isNewProfile, setIsNewProfile] = useState(false)
   const searchParams = useSearchParams()
@@ -141,7 +142,7 @@ export function ProfileSetupForm({ effectiveUserId }: { effectiveUserId: string 
       const supabase = createClient()
       const [{ data }, { data: clientProfile }] = await Promise.all([
         supabase.from('printer_profiles').select('*').eq('user_id', effectiveUserId).single(),
-        supabase.from('profiles').select('display_name, city, address, latitude, longitude, avatar_url').eq('user_id', effectiveUserId).single(),
+        supabase.from('profiles').select('display_name, city, address, latitude, longitude, avatar_url, email').eq('user_id', effectiveUserId).single(),
       ])
 
       // Load Stripe account status if connected
@@ -165,6 +166,7 @@ export function ProfileSetupForm({ effectiveUserId }: { effectiveUserId: string 
       }
 
       if (clientProfile?.avatar_url) setAvatarPreview(clientProfile.avatar_url)
+      if ((clientProfile as any)?.email) setMakerEmail((clientProfile as any).email)
 
       setIsNewProfile(!data)
 
@@ -582,7 +584,7 @@ export function ProfileSetupForm({ effectiveUserId }: { effectiveUserId: string 
       </form>
 
       <div className="mt-5">
-        <EmailChangeSection />
+        <EmailChangeSection email={makerEmail} readOnly={isPreview} />
       </div>
 
       <div className="mt-8 pt-6 border-t border-warm-200 text-center">
