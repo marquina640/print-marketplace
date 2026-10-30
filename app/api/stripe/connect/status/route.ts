@@ -24,8 +24,19 @@ export async function GET(req: NextRequest) {
     }
 
     const status = await getConnectedAccountStatus(accountId)
+    const connected = status.chargesEnabled && status.payoutsEnabled
+
+    // Sync DB so dashboard completeness reflects live Stripe status
+    if (connected) {
+      await admin
+        .from('printer_profiles')
+        .update({ stripe_onboarding_complete: true } as any)
+        .eq('stripe_account_id', accountId)
+        .eq('user_id', user.id)
+    }
+
     return NextResponse.json({
-      connected:        status.chargesEnabled && status.payoutsEnabled,
+      connected,
       detailsSubmitted: status.detailsSubmitted,
     })
   } catch {
