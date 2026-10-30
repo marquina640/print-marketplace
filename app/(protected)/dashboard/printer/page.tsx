@@ -93,7 +93,7 @@ export default async function PrinterDashboardPage({ searchParams }: PageProps) 
   if (mp?.stripe_account_id && !mp?.stripe_onboarding_complete) {
     try {
       const status = await getConnectedAccountStatus(mp.stripe_account_id)
-      if (status.chargesEnabled || status.payoutsEnabled) {
+      if (status.chargesEnabled || status.payoutsEnabled || status.detailsSubmitted) {
         await createAdminClient()
           .from('printer_profiles')
           .update({ stripe_onboarding_complete: true } as any)

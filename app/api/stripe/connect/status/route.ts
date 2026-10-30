@@ -24,7 +24,7 @@ export async function GET(req: NextRequest) {
     }
 
     const status = await getConnectedAccountStatus(accountId)
-    const connected = status.chargesEnabled && status.payoutsEnabled
+    const connected = status.chargesEnabled || status.payoutsEnabled
 
     // Sync DB so dashboard completeness reflects live Stripe status
     if (connected) {
