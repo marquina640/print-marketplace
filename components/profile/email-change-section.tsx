@@ -62,7 +62,6 @@ export function EmailChangeSection({ email, readOnly }: { email?: string | null;
           </Button>
         </form>
       )}
-      )}
       {!readOnly && status === 'error' && (
         <p className="text-xs text-red-600">{errorMsg}</p>
       )}
