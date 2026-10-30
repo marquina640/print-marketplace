@@ -146,17 +146,19 @@ export function ProfileSetupForm({ effectiveUserId }: { effectiveUserId: string 
 
       // Load Stripe account status if connected
       const stripeAccountId = (data as any)?.stripe_account_id as string | null
+      const dbComplete = !!(data as any)?.stripe_onboarding_complete
       if (stripeAccountId) {
         try {
           const res = await fetch(`/api/stripe/connect/status?accountId=${stripeAccountId}`)
           if (res.ok) {
             const s = await res.json()
-            setStripeStatus({ ...s, hasAccount: true })
+            // If DB says complete but live API says not, trust DB (avoids false "under review")
+            setStripeStatus({ ...s, connected: s.connected || dbComplete, hasAccount: true })
           } else {
-            setStripeStatus({ connected: false, detailsSubmitted: false, hasAccount: true })
+            setStripeStatus({ connected: dbComplete, detailsSubmitted: dbComplete, hasAccount: true })
           }
         } catch {
-          setStripeStatus({ connected: false, detailsSubmitted: false, hasAccount: true })
+          setStripeStatus({ connected: dbComplete, detailsSubmitted: dbComplete, hasAccount: true })
         }
       } else {
         setStripeStatus({ connected: false, detailsSubmitted: false, hasAccount: false })
