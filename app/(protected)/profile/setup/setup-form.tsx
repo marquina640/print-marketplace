@@ -153,8 +153,14 @@ export function ProfileSetupForm({ effectiveUserId, isPreview }: { effectiveUser
           const res = await fetch(`/api/stripe/connect/status?accountId=${stripeAccountId}`)
           if (res.ok) {
             const s = await res.json()
-            // If DB says complete but live API says not, trust DB (avoids false "under review")
-            setStripeStatus({ ...s, connected: s.connected || dbComplete, hasAccount: true })
+            // If DB says complete but live API says not (e.g. admin preview security check blocks),
+            // trust DB for both connected and detailsSubmitted to show the green "connected" state
+            setStripeStatus({
+              ...s,
+              connected: s.connected || dbComplete,
+              detailsSubmitted: s.detailsSubmitted || dbComplete,
+              hasAccount: true,
+            })
           } else {
             setStripeStatus({ connected: dbComplete, detailsSubmitted: dbComplete, hasAccount: true })
           }
