@@ -60,6 +60,16 @@ export default async function AdminUsersPage() {
         .in('user_id', onboardedMakerIds)
     : { data: [] }
   const ppByUser = Object.fromEntries((completenessRows ?? []).map((p) => [p.user_id, p]))
+  const hasStripe = new Set(
+    (completenessRows ?? [])
+      .filter((p) => (p as any).stripe_onboarding_complete === true)
+      .map((p) => p.user_id)
+  )
+  const hasPaypal = new Set(
+    (completenessRows ?? [])
+      .filter((p) => !!(p as any).paypal_email)
+      .map((p) => p.user_id)
+  )
   const incompleteCount = onboardedMakerIds.filter((uid) => {
     const pp = ppByUser[uid]
     if (!pp?.display_name) return true
@@ -126,7 +136,7 @@ export default async function AdminUsersPage() {
       <UserTable title="Customers" users={clients} showPreview showMessage />
 
       {/* Makers */}
-      <UserTable title="Makers" users={makers} hasProfile={hasProfile} hasMachines={hasMachines} showPreview showMessage />
+      <UserTable title="Makers" users={makers} hasProfile={hasProfile} hasMachines={hasMachines} hasStripe={hasStripe} hasPaypal={hasPaypal} showPreview showMessage />
 
       {/* Admins */}
       {admins.length > 0 && <UserTable title="Admins" users={admins} />}
@@ -140,7 +150,7 @@ function Pill({ yes }: { yes: boolean }) {
     : <span className="text-red-400 font-medium">✗ No</span>
 }
 
-function UserTable({ title, users, highlight, hasProfile, hasMachines, showRemind, showPreview, showMessage }: {
+function UserTable({ title, users, highlight, hasProfile, hasMachines, hasStripe, hasPaypal, showRemind, showPreview, showMessage }: {
   title: string
   highlight?: boolean
   showRemind?: boolean
@@ -148,10 +158,13 @@ function UserTable({ title, users, highlight, hasProfile, hasMachines, showRemin
   showMessage?: boolean
   hasProfile?: Set<string>
   hasMachines?: Set<string>
+  hasStripe?: Set<string>
+  hasPaypal?: Set<string>
   users: { user_id: string; email: string; display_name: string | null; role: string; created_at: string; onboarding_complete: boolean | null }[]
 }) {
   const showMakerCols = !!(hasProfile || hasMachines)
-  const headers = ['Name', 'Email', 'Role', 'Onboarded', ...(showMakerCols ? ['Profile', 'Machines'] : []), 'Joined', ...(showMakerCols ? [''] : []), ...(showRemind ? [''] : []), ...(showPreview ? [''] : []), ...(showMessage ? [''] : []), '']
+  const showPayoutCol = !!(hasStripe || hasPaypal)
+  const headers = ['Name', 'Email', 'Role', 'Onboarded', ...(showMakerCols ? ['Profile', 'Machines'] : []), ...(showPayoutCol ? ['Payout'] : []), 'Joined', ...(showMakerCols ? [''] : []), ...(showRemind ? [''] : []), ...(showPreview ? [''] : []), ...(showMessage ? [''] : []), '']
 
   return (
     <section>
@@ -192,6 +205,16 @@ function UserTable({ title, users, highlight, hasProfile, hasMachines, showRemin
                       <td className="px-4 py-3 text-sm"><Pill yes={hasProfile?.has(u.user_id) ?? false} /></td>
                       <td className="px-4 py-3 text-sm"><Pill yes={hasMachines?.has(u.user_id) ?? false} /></td>
                     </>
+                  )}
+                  {showPayoutCol && (
+                    <td className="px-4 py-3 text-sm">
+                      {hasStripe?.has(u.user_id)
+                        ? <span className="text-emerald-600 font-medium">✓ Stripe</span>
+                        : hasPaypal?.has(u.user_id)
+                          ? <span className="text-blue-600 font-medium">✓ PayPal</span>
+                          : <span className="text-red-400 font-medium">✗ None</span>
+                      }
+                    </td>
                   )}
                   <td className="px-4 py-3 text-sm text-warm-400">{formatDate(u.created_at)}</td>
                   {showMakerCols && (
