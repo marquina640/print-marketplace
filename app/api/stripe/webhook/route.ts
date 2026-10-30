@@ -6,9 +6,10 @@ export const dynamic = 'force-dynamic'
 
 export async function POST(req: NextRequest) {
   const secret = process.env.STRIPE_SECRET_KEY
-  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET
+  const webhookSecret        = process.env.STRIPE_WEBHOOK_SECRET
+  const webhookSecretConnect = process.env.STRIPE_WEBHOOK_SECRET_CONNECT
 
-  if (!secret || !webhookSecret) {
+  if (!secret || (!webhookSecret && !webhookSecretConnect)) {
     return NextResponse.json({ error: 'Stripe not configured' }, { status: 503 })
   }
 
@@ -16,13 +17,21 @@ export async function POST(req: NextRequest) {
   const body = await req.text()
   const sig = req.headers.get('stripe-signature') ?? ''
 
-  let event: Stripe.Event
-  try {
-    event = stripe.webhooks.constructEvent(body, sig, webhookSecret)
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err)
-    console.error('Webhook signature error:', msg)
-    return NextResponse.json({ error: `Webhook Error: ${msg}` }, { status: 400 })
+  // Try the connect secret first (account.updated), then the account secret (checkout events)
+  let event: Stripe.Event | null = null
+  for (const s of [webhookSecretConnect, webhookSecret]) {
+    if (!s) continue
+    try {
+      event = stripe.webhooks.constructEvent(body, sig, s)
+      break
+    } catch {
+      // try next secret
+    }
+  }
+
+  if (!event) {
+    console.error('Webhook signature error: no matching secret')
+    return NextResponse.json({ error: 'Webhook signature verification failed' }, { status: 400 })
   }
 
   // When Stripe approves or restricts a connected account, update onboarding status
