@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { cookies } from 'next/headers'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { JobFeedCard } from '@/components/jobs/job-feed-card'
 import { StatusBadge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -10,7 +11,7 @@ import { EmptyState } from '@/components/ui/empty-state'
 import { formatCurrency, formatDate, getCertificationLevel, CERTIFICATION_LEVELS } from '@/lib/utils'
 import { CertificationBadge } from '@/components/ui/badge'
 import { ProfileCompletenessBanner } from '@/components/dashboard/profile-completeness-banner'
-import { STRIPE_CONNECT_COUNTRIES } from '@/lib/stripe'
+import { STRIPE_CONNECT_COUNTRIES, getConnectedAccountStatus } from '@/lib/stripe'
 
 export const metadata = { title: 'Printer Dashboard' }
 
@@ -87,6 +88,21 @@ export default async function PrinterDashboardPage({ searchParams }: PageProps) 
   const hasMachines = (machineCount ?? 0) > 0
 
   const mp = makerProfile as any
+
+  // Sync Stripe onboarding status live so the banner reflects reality
+  if (mp?.stripe_account_id && !mp?.stripe_onboarding_complete) {
+    try {
+      const status = await getConnectedAccountStatus(mp.stripe_account_id)
+      if (status.chargesEnabled || status.payoutsEnabled) {
+        await createAdminClient()
+          .from('printer_profiles')
+          .update({ stripe_onboarding_complete: true } as any)
+          .eq('stripe_account_id', mp.stripe_account_id)
+        mp.stripe_onboarding_complete = true
+      }
+    } catch { /* non-fatal */ }
+  }
+
   const makerCountry       = mp?.country as string | null
   const usesPayPalByDesign = !!makerCountry && !STRIPE_CONNECT_COUNTRIES.has(makerCountry)
   const hasService = !!(mp?.shipping || mp?.pickup || mp?.local_delivery || mp?.design_services)
