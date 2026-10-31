@@ -160,7 +160,7 @@ export const PRINTER_BRANDS: Record<string, string[]> = {
   'Qidi Tech':    ['X-Max 3', 'X-Plus 3', 'X-Smart 3', 'Q1 Pro', 'X-CF Pro', 'iFast'],
   'Sovol':        ['SV06', 'SV06 Plus', 'SV07', 'SV07 Plus', 'SV08'],
   'AnkerMake':    ['M5', 'M5C', 'M7'],
-  'Snapmaker':    ['2.0 A150', '2.0 A250', '2.0 A350', 'Artisan', 'J1s'],
+  'Snapmaker':    ['2.0 A150', '2.0 A250', '2.0 A350', 'Artisan', 'J1s', 'U1'],
   'Ultimaker':    ['S3', 'S5', 'S7 Pro Bundle', 'Factor 4', 'Method X (rebranded)'],
   'Formlabs':     ['Form 3', 'Form 3+', 'Form 3BL', 'Form 4', 'Form 4L', 'Form 3B'],
   'Raise3D':      ['N2', 'N2 Plus', 'N4', 'N4 Plus', 'E2', 'E2CF', 'Pro3', 'Pro3 Plus'],
