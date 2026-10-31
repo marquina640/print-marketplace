@@ -35,6 +35,7 @@ const clientNav = [
   { href: '/makers',           label: 'Browse Makers' },
   { href: '/map',              label: 'Map' },
   { href: '/messages',         label: 'Messages' },
+  { href: '/orders',           label: 'My Orders' },
   { href: '/profile/client',   label: 'My Profile' },
 ]
 
@@ -55,6 +56,9 @@ const adminNav = [
   { href: '/dashboard/admin/certifications', label: 'Certifications' },
   { href: '/dashboard/admin/users',          label: 'Users' },
   { href: '/dashboard/admin/jobs',           label: 'Jobs' },
+  { href: '/dashboard/admin/quotes',         label: 'Quotes' },
+  { href: '/dashboard/admin/listings',       label: 'Listings' },
+  { href: '/messages',                       label: 'Messages' },
   { href: '/dashboard/admin/settings',       label: 'Settings' },
 ]
 
@@ -89,7 +93,10 @@ export function Navbar({ userEmail, userRole, unreadMessages = 0, notifications 
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
-      if (bellRef.current && !bellRef.current.contains(e.target as Node)) {
+      const target = e.target as Element
+      // Don't close if clicking a bell button — handleBellOpen handles the toggle
+      if (target.closest('[data-bell-btn]')) return
+      if (bellRef.current && !bellRef.current.contains(target)) {
         setBellOpen(false)
       }
     }
@@ -164,50 +171,19 @@ export function Navbar({ userEmail, userRole, unreadMessages = 0, notifications 
                 )}
               </Link>
               {/* Notification bell */}
-              <div ref={bellRef} className="relative">
-                <button
-                  onClick={handleBellOpen}
-                  className="relative p-2 rounded-lg text-warm-500 hover:bg-warm-200 transition-colors"
-                  aria-label="Notifications"
-                >
-                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                  </svg>
-                  {unreadNotifications.length > 0 && (
-                    <span className="absolute top-1 right-1 h-2.5 w-2.5 rounded-full bg-red-500 border-2 border-white" />
-                  )}
-                </button>
-
-                {bellOpen && (
-                  <div className="absolute right-0 top-full mt-1 w-80 bg-warm-100 rounded-2xl border border-warm-200 shadow-lift overflow-hidden z-50">
-                    <div className="px-4 py-3 border-b border-warm-200">
-                      <p className="text-sm font-semibold text-warm-900">Notifications</p>
-                    </div>
-                    {notifications.length === 0 ? (
-                      <p className="px-4 py-6 text-sm text-warm-500 text-center">No notifications yet.</p>
-                    ) : (
-                      <ul className="divide-y divide-warm-200 max-h-80 overflow-y-auto">
-                        {notifications.map((n) => (
-                          <li key={n.id}>
-                            {n.link ? (
-                              <Link href={n.link} onClick={() => setBellOpen(false)}
-                                className={cn('block px-4 py-3 hover:bg-warm-200 transition-colors', !n.is_read && 'border-l-2 border-gold-500')}>
-                                <p className="text-sm font-medium text-warm-900">{n.title}</p>
-                                {n.body && <p className="text-xs text-warm-500 mt-0.5">{n.body}</p>}
-                              </Link>
-                            ) : (
-                              <div className={cn('px-4 py-3', !n.is_read && 'border-l-2 border-gold-500')}>
-                                <p className="text-sm font-medium text-warm-900">{n.title}</p>
-                                {n.body && <p className="text-xs text-warm-500 mt-0.5">{n.body}</p>}
-                              </div>
-                            )}
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </div>
+              <button
+                data-bell-btn
+                onClick={handleBellOpen}
+                className="relative p-2 rounded-lg text-warm-500 hover:bg-warm-200 transition-colors"
+                aria-label="Notifications"
+              >
+                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                </svg>
+                {unreadNotifications.length > 0 && (
+                  <span className="absolute top-1 right-1 h-2.5 w-2.5 rounded-full bg-red-500 border-2 border-white" />
                 )}
-              </div>
+              </button>
 
               {/* Role switcher - only for non-admins (or admin in preview) */}
               {(userRole !== 'admin' || isPreview) && (
@@ -265,12 +241,14 @@ export function Navbar({ userEmail, userRole, unreadMessages = 0, notifications 
 
         {/* Mobile right side */}
         <div className="lg:hidden flex items-center gap-1">
-          {userEmail && unreadNotifications.length > 0 && (
-            <button onClick={handleBellOpen} className="relative p-2 rounded-lg text-warm-500 hover:bg-warm-200 transition-colors">
+          {userEmail && (
+            <button data-bell-btn onClick={handleBellOpen} className="relative p-2 rounded-lg text-warm-500 hover:bg-warm-200 transition-colors" aria-label="Notifications">
               <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
               </svg>
-              <span className="absolute top-1 right-1 h-2.5 w-2.5 rounded-full bg-red-500 border-2 border-white" />
+              {unreadNotifications.length > 0 && (
+                <span className="absolute top-1 right-1 h-2.5 w-2.5 rounded-full bg-red-500 border-2 border-white" />
+              )}
             </button>
           )}
           {userEmail && unreadMessages > 0 && (
@@ -294,6 +272,37 @@ export function Navbar({ userEmail, userRole, unreadMessages = 0, notifications 
           </button>
         </div>
       </div>
+
+      {/* Notification dropdown — shared, fixed top-right, works on all screen sizes */}
+      {bellOpen && userEmail && (
+        <div ref={bellRef} className="fixed top-14 right-2 w-80 bg-warm-100 rounded-2xl border border-warm-200 shadow-lift overflow-hidden z-50">
+          <div className="px-4 py-3 border-b border-warm-200">
+            <p className="text-sm font-semibold text-warm-900">Notifications</p>
+          </div>
+          {notifications.length === 0 ? (
+            <p className="px-4 py-6 text-sm text-warm-500 text-center">No notifications yet.</p>
+          ) : (
+            <ul className="divide-y divide-warm-200 max-h-80 overflow-y-auto">
+              {notifications.map((n) => (
+                <li key={n.id}>
+                  {n.link ? (
+                    <Link href={n.link} onClick={() => setBellOpen(false)}
+                      className={cn('block px-4 py-3 hover:bg-warm-200 transition-colors', !n.is_read && 'border-l-2 border-gold-500')}>
+                      <p className="text-sm font-medium text-warm-900">{n.title}</p>
+                      {n.body && <p className="text-xs text-warm-500 mt-0.5">{n.body}</p>}
+                    </Link>
+                  ) : (
+                    <div className={cn('px-4 py-3', !n.is_read && 'border-l-2 border-gold-500')}>
+                      <p className="text-sm font-medium text-warm-900">{n.title}</p>
+                      {n.body && <p className="text-xs text-warm-500 mt-0.5">{n.body}</p>}
+                    </div>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
 
       {/* Mobile menu - full role-based nav */}
       {menuOpen && (
