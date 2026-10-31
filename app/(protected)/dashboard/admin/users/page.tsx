@@ -11,6 +11,7 @@ import { PaypalMigrationButton } from './paypal-migration-button'
 import { ProfileReminderButton } from './profile-reminder-button'
 import { PreviewAsButton } from './preview-as-button'
 import { MessageUserButton } from './message-user-button'
+import { RemindAllButton } from './remind-all-button'
 import { STRIPE_CONNECT_COUNTRIES } from '@/lib/stripe'
 
 export const metadata = { title: 'Users - Admin' }
@@ -147,7 +148,18 @@ export default async function AdminUsersPage() {
       <CreateUserForm />
 
       {/* Not onboarded */}
-      {notOnboarded.length > 0 && <UserTable title="Not Onboarded" users={notOnboarded} highlight showRemind showMessage />}
+      {notOnboarded.length > 0 && (
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-amber-700">
+              <span className="mr-1.5">⚠</span>
+              Not Onboarded <span className="text-warm-400 font-normal text-base">({notOnboarded.length})</span>
+            </h2>
+            <RemindAllButton count={notOnboarded.length} />
+          </div>
+          <UserTable title="Not Onboarded" users={notOnboarded} highlight showRemind showMessage hideTitle />
+        </div>
+      )}
 
       {/* Clients */}
       <UserTable title="Customers" users={clients} showPreview showMessage />
@@ -167,9 +179,10 @@ function Pill({ yes }: { yes: boolean }) {
     : <span className="text-red-400 font-medium">✗ No</span>
 }
 
-function UserTable({ title, users, highlight, hasProfile, hasMachines, hasStripe, hasPaypal, showRemind, showPreview, showMessage }: {
+function UserTable({ title, users, highlight, hideTitle, hasProfile, hasMachines, hasStripe, hasPaypal, showRemind, showPreview, showMessage }: {
   title: string
   highlight?: boolean
+  hideTitle?: boolean
   showRemind?: boolean
   showPreview?: boolean
   showMessage?: boolean
@@ -185,10 +198,12 @@ function UserTable({ title, users, highlight, hasProfile, hasMachines, hasStripe
 
   return (
     <section>
-      <h2 className={`text-lg font-semibold mb-3 ${highlight ? 'text-amber-700' : 'text-warm-900'}`}>
-        {highlight && <span className="mr-1.5">⚠</span>}
-        {title} <span className="text-warm-400 font-normal text-base">({users.length})</span>
-      </h2>
+      {!hideTitle && (
+        <h2 className={`text-lg font-semibold mb-3 ${highlight ? 'text-amber-700' : 'text-warm-900'}`}>
+          {highlight && <span className="mr-1.5">⚠</span>}
+          {title} <span className="text-warm-400 font-normal text-base">({users.length})</span>
+        </h2>
+      )}
       {users.length === 0 ? (
         <div className="card p-6 text-center text-sm text-warm-400">No {title.toLowerCase()} yet.</div>
       ) : (
