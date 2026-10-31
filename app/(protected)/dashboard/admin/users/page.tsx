@@ -82,6 +82,23 @@ export default async function AdminUsersPage() {
     return false
   }).length
 
+  // Fetch open jobs with coordinates for the map
+  const { data: openJobs } = await supabase
+    .from('jobs')
+    .select('id, title, material, budget, latitude, longitude')
+    .eq('status', 'open')
+    .not('latitude', 'is', null)
+    .not('longitude', 'is', null)
+
+  const jobPins = (openJobs ?? []).map((j) => ({
+    id: j.id,
+    title: j.title,
+    material: j.material,
+    budget: j.budget,
+    lat: (j as any).latitude as number,
+    lng: (j as any).longitude as number,
+  }))
+
   // Build map pins for makers with coordinates
   const makerPins = (printerProfileRows ?? [])
     .filter((p) => p.latitude != null && p.longitude != null)
@@ -116,7 +133,7 @@ export default async function AdminUsersPage() {
           <p className="text-xs font-semibold text-warm-400 uppercase tracking-wider mb-2">
             {makerPins.length} maker{makerPins.length !== 1 ? 's' : ''} with location
           </p>
-          <MapClient jobs={[]} printers={makerPins} defaultMode="printers" />
+          <MapClient jobs={jobPins} printers={makerPins} defaultMode="printers" />
         </div>
       )}
 
