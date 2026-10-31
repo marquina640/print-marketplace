@@ -61,6 +61,7 @@ export default async function PrinterDashboardPage({ searchParams }: PageProps) 
     { data: makerProfile },
     { count: machineCount },
     { count: activePortfolioCount },
+    { count: listingCount },
   ] = await Promise.all([
     supabase
       .from('quotes')
@@ -82,6 +83,10 @@ export default async function PrinterDashboardPage({ searchParams }: PageProps) 
       .eq('is_active', true),
     supabase
       .from('portfolio_items')
+      .select('*', { count: 'exact', head: true })
+      .eq('maker_id', effectiveUserId),
+    supabase
+      .from('listings')
       .select('*', { count: 'exact', head: true })
       .eq('maker_id', effectiveUserId),
   ])
@@ -282,6 +287,23 @@ export default async function PrinterDashboardPage({ searchParams }: PageProps) 
             </p>
             <Link href="/profile/machines">
               <Button variant="gold" size="sm">Add a machine →</Button>
+            </Link>
+          </div>
+        </div>
+      )}
+
+      {/* Listings upsell — only shown when maker has no listings yet */}
+      {(listingCount ?? 0) === 0 && (
+        <div className="rounded-xl border border-gold-300 bg-gold-50 px-5 py-4 flex items-start gap-4">
+          <div className="text-2xl flex-shrink-0">🏷️</div>
+          <div className="flex-1 min-w-0">
+            <p className="font-semibold text-ink-900">Sell ready-made prints — no custom requests needed</p>
+            <p className="text-sm text-warm-700 mt-1 leading-relaxed">
+              Add a listing with a photo, title, and price. Customers near you can browse, pay instantly, and pick up or receive the item locally.
+              It's passive income on top of your custom jobs.
+            </p>
+            <Link href="/profile/listings" className="inline-block mt-3">
+              <Button variant="gold" size="sm">Create your first listing →</Button>
             </Link>
           </div>
         </div>
