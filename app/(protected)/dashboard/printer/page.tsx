@@ -1,4 +1,5 @@
 ﻿import { CreditCard, AlertTriangle, Printer } from 'lucide-react'
+import { MarkShippedButton } from '@/app/(protected)/jobs/[id]/mark-shipped-button'
 import { redirect } from 'next/navigation'
 import { cookies } from 'next/headers'
 import Link from 'next/link'
@@ -380,37 +381,53 @@ export default async function PrinterDashboardPage({ searchParams }: PageProps) 
           <div className="card divide-y divide-warm-100">
             {acceptedQuotes.filter(q => !completedStatuses.has(activeJobStatusById[q.job_id])).map((q) => {
               const job = quotedJobsById[q.job_id] ?? null
+              const jobStatus        = activeJobStatusById[q.job_id] ?? 'accepted'
               const reviewState      = reviewStateByJob.get(q.job_id)
               const needsMyReview    = deliveredJobIds.has(q.job_id) && reviewState && !reviewState.makerReviewed
               const waitingForClient = deliveredJobIds.has(q.job_id) && reviewState && reviewState.makerReviewed && !reviewState.otherReviewed
+              const needsShipment    = jobStatus === 'accepted' || jobStatus === 'paid'
+              const isShipped        = jobStatus === 'shipped'
               return (
-                <div key={q.id} className="flex items-center justify-between p-4 hover:bg-warm-50 transition-colors">
-                  <div className="min-w-0">
-                    <p className="font-semibold text-warm-900 truncate">{job?.title}</p>
-                    <p className="text-xs text-warm-400 mt-0.5">
-                      {job?.material} · Due {formatDate(job?.deadline ?? null)}
-                    </p>
+                <div key={q.id} className="p-4 hover:bg-warm-50 transition-colors">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="font-semibold text-warm-900 truncate">{job?.title}</p>
+                      <p className="text-xs text-warm-400 mt-0.5">
+                        {job?.material} · Due {formatDate(job?.deadline ?? null)}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      <span className="font-bold text-warm-900">{formatCurrency(q.price)}</span>
+                      <StatusBadge status={jobStatus} />
+                    </div>
                   </div>
-                  <div className="flex items-center gap-3 flex-shrink-0">
-                    <span className="font-bold text-warm-900">{formatCurrency(q.price)}</span>
-                    <StatusBadge status="accepted" />
-                    {needsMyReview && (
-                      <span className="rounded-full bg-amber-100 border border-amber-300 text-amber-800 text-xs font-semibold px-2.5 py-0.5">
-                        ⭐ Review missing
-                      </span>
-                    )}
-                    {waitingForClient && (
-                      <span className="rounded-full bg-warm-100 border border-warm-200 text-warm-600 text-xs font-medium px-2.5 py-0.5">
-                        Waiting for client review
-                      </span>
-                    )}
-                    <div className="flex gap-2">
+
+                  {/* Next-step action row */}
+                  <div className="mt-3 flex items-center justify-between gap-2">
+                    <div className="text-xs">
+                      {needsShipment && (
+                        <span className="text-amber-700 font-semibold">→ Your next step: mark this job as shipped once the item is on its way</span>
+                      )}
+                      {isShipped && (
+                        <span className="text-indigo-700 font-medium">Waiting for the customer to confirm delivery</span>
+                      )}
+                      {needsMyReview && (
+                        <span className="text-amber-700 font-semibold">⭐ Please leave a review for this job</span>
+                      )}
+                      {waitingForClient && (
+                        <span className="text-warm-500">Review submitted — waiting for client</span>
+                      )}
+                    </div>
+                    <div className="flex gap-2 flex-shrink-0">
                       {job?.id && (
                         <Link href={`/messages/${job.id}`}>
                           <Button variant="outline" size="sm">Message</Button>
                         </Link>
                       )}
-                      {job?.id && (
+                      {needsShipment && job?.id && (
+                        <MarkShippedButton jobId={job.id} />
+                      )}
+                      {!needsShipment && job?.id && (
                         <Link href={`/jobs/${job.id}`}>
                           <Button variant={needsMyReview ? 'gold' : 'outline'} size="sm">
                             {needsMyReview ? 'Leave Review →' : 'View Job'}
