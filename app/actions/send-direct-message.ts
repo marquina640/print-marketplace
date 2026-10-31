@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { sendEmail } from '@/lib/email'
+import { filterContactInfo } from '@/lib/contact-filter'
 
 export async function sendDirectMessage({
   receiverId,
@@ -20,6 +21,8 @@ export async function sendDirectMessage({
 
   const { data: profile } = await supabase.from('profiles').select('role').eq('user_id', user.id).single()
   const isAdmin = profile?.role === 'admin'
+
+  const { filtered, wasModified, removedTypes } = filterContactInfo(content.trim())
 
   if (!isAdmin) {
     // Regular user can only reply if admin has already sent them a message in this direct thread
@@ -39,7 +42,7 @@ export async function sendDirectMessage({
       job_id:      null,
       sender_id:   user.id,
       receiver_id: receiverId,
-      content:     content.trim(),
+      content:     filtered,
     })
     .select()
     .single()
@@ -47,9 +50,9 @@ export async function sendDirectMessage({
   if (error) throw new Error(error.message)
 
   // Non-blocking email notification to receiver
-  notifyDirectMessageReceiver({ senderId: user.id, receiverId, content: content.trim() }).catch(() => {})
+  notifyDirectMessageReceiver({ senderId: user.id, receiverId, content: filtered }).catch(() => {})
 
-  return { message: data }
+  return { message: data, wasModified, removedTypes }
 }
 
 async function notifyDirectMessageReceiver({

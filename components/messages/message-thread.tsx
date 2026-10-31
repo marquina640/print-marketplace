@@ -105,11 +105,16 @@ export function MessageThread({
           )
         }
       } else {
-        const { message } = await sendDirectMessage({ receiverId, content: text })
+        const { message, wasModified, removedTypes } = await sendDirectMessage({ receiverId, content: text })
         setMessages((prev) => {
           if (prev.find((m) => m.id === message.id)) return prev
           return [...prev, message as Message]
         })
+        if (wasModified) {
+          setWarning(
+            `Your message was modified: ${removedTypes.join(', ')} removed. Sharing contact details is not allowed before a deal is made on the platform.`
+          )
+        }
       }
     } catch (err) {
       setContent(text)
@@ -124,11 +129,9 @@ export function MessageThread({
       {/* Header */}
       <div className="px-4 py-3 border-b border-gray-200">
         <h3 className="font-semibold text-gray-900 text-sm truncate">{threadTitle}</h3>
-        {jobId && (
-          <p className="text-xs text-warm-400 mt-0.5">
-            Contact info (emails, phone numbers, social handles) is automatically removed from messages.
-          </p>
-        )}
+        <p className="text-xs text-warm-400 mt-0.5">
+          Contact info (emails, phone numbers, social handles) is automatically removed from messages.
+        </p>
       </div>
 
       {/* Messages */}
