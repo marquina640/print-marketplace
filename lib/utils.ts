@@ -138,7 +138,7 @@ export const COLORS = [
 
 // ── Printer brands → models ───────────────────────────────
 export const PRINTER_BRANDS: Record<string, string[]> = {
-  'Bambu Lab':    ['H2D', 'X2D', 'X1 Carbon', 'X1 Carbon Combo', 'X1E', 'P1S', 'P1P', 'A1', 'A1 Combo', 'A1 Mini', 'A1 Mini Combo'],
+  'Bambu Lab':    ['H2D', 'X2D', 'X1 Carbon', 'X1 Carbon Combo', 'X1E', 'P2S', 'P1S', 'P1P', 'A1', 'A1 Combo', 'A1 Mini', 'A1 Mini Combo'],
   'Prusa':        ['MK4S', 'MK4', 'MK3S+', 'MK3S', 'MK3.5', 'CORE One', 'XL', 'XL 5-Tool', 'MINI+', 'SL1S Speed', 'SL1'],
   'Creality':     [
     'Ender 3', 'Ender 3 Pro', 'Ender 3 V2', 'Ender 3 S1', 'Ender 3 S1 Pro', 'Ender 3 V3', 'Ender 3 V3 KE', 'Ender 3 Max Neo',
