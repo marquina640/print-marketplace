@@ -51,8 +51,9 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
   const { data: job } = await jobClient.from('jobs').select('*').eq('id', id).single()
   if (!job) notFound()
 
-  const isOwner   = job.client_id === effectiveUserId
-  const isPrinter = effectiveRole === 'printer_owner'
+  const isOwner      = job.client_id === effectiveUserId
+  const isPrinter    = effectiveRole === 'printer_owner'
+  const isRealPrinter = profile?.role === 'printer_owner'
   const { data: quotes } = await quotesClient
     .from('quotes')
     .select('*, profiles:printer_id(display_name, email)')
@@ -89,8 +90,8 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
     ? (myQuote ? [myQuote] : [])
     : []
 
-  const canSeeFiles = isOwner || isAdmin || (isPrinter && effectiveUserId === acceptedPrinter)
-  const canSeeLinks = isOwner || isAdmin || isPrinter
+  const canSeeFiles = isOwner || isAdmin || (isRealPrinter && effectiveUserId === acceptedPrinter)
+  const canSeeLinks = isOwner || isAdmin || isRealPrinter
 
   const { data: fetchedFiles } = canSeeFiles
     ? await supabase.from('job_files').select('*').eq('job_id', id)
