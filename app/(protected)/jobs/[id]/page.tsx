@@ -90,13 +90,11 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
     ? (myQuote ? [myQuote] : [])
     : []
 
-  const canSeeFiles = isOwner || isAdmin || (isRealPrinter && effectiveUserId === acceptedPrinter)
+  const canSeeFiles = isOwner || isAdmin || isRealPrinter || (isRealPrinter && effectiveUserId === acceptedPrinter)
   const canSeeLinks = isOwner || isAdmin || isRealPrinter
 
   const { data: fetchedFiles } = canSeeFiles
     ? await supabase.from('job_files').select('*').eq('job_id', id)
-    : canSeeLinks
-    ? await supabase.from('job_files').select('*').eq('job_id', id).in('file_type', ['link', 'reference'])
     : { data: [] }
   const files = fetchedFiles ?? []
 
