@@ -95,7 +95,7 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
   const { data: fetchedFiles } = canSeeFiles
     ? await supabase.from('job_files').select('*').eq('job_id', id)
     : canSeeLinks
-    ? await supabase.from('job_files').select('*').eq('job_id', id).eq('file_type', 'link')
+    ? await supabase.from('job_files').select('*').eq('job_id', id).in('file_type', ['link', 'reference'])
     : { data: [] }
   const files = fetchedFiles ?? []
 
