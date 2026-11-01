@@ -16,6 +16,7 @@ import { STRIPE_CONNECT_COUNTRIES } from '@/lib/stripe'
 import { MarkShippedButton } from './mark-shipped-button'
 import { ConfirmReceiptButton } from './confirm-receipt-button'
 import { MarkPayoutButton } from './mark-payout-button'
+import { RaiseDisputeButton } from './raise-dispute-button'
 import { CancelJobButton } from './cancel-job-button'
 import { WithdrawQuoteButton } from './withdraw-quote-button'
 
@@ -147,6 +148,15 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
   const canMarkShipped    = isPrinter && effectiveUserId === acceptedPrinter && (job as any).status === 'paid'
   const canConfirmReceipt = isOwner && (job as any).status === 'shipped'
   const needsPayout       = isAdmin && ['delivered', 'completed'].includes((job as any).status) && !(job as any).payout_at
+
+  // Show dispute option if job is shipped and either past the job deadline or shipped > 7 days ago
+  const shippedAt = (job as any).shipped_at ? new Date((job as any).shipped_at) : null
+  const jobDeadline = job.deadline ? new Date(job.deadline) : null
+  const sevenDaysAfterShip = shippedAt ? new Date(shippedAt.getTime() + 7 * 24 * 60 * 60 * 1000) : null
+  const isOverdue = isOwner && (job as any).status === 'shipped' && (
+    (jobDeadline && jobDeadline < new Date()) ||
+    (sevenDaysAfterShip && sevenDaysAfterShip < new Date())
+  )
 
   // Reviews show after delivered or completed
   const isCompleted   = job.status === 'completed' || (job as any).status === 'delivered'
@@ -529,6 +539,12 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
                             </>
                           )}
                           {isPrinter && <p className="text-xs text-amber-700">Waiting for the client to confirm they received the order.</p>}
+                          {isOverdue && (
+                            <div className="pt-1 border-t border-amber-200">
+                              <p className="text-xs text-orange-700 mb-1">Did not receive it? You can raise a dispute and our team will look into it.</p>
+                              <RaiseDisputeButton jobId={job.id} />
+                            </div>
+                          )}
                         </div>
                       )}
 

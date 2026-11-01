@@ -435,3 +435,67 @@ export function emailOnboardingReminder({ to, name }: { to: string; name: string
     `,
   })
 }
+
+export function emailDeliveryReminder({
+  to, name, jobTitle, jobUrl, isSecondReminder, autoReleaseDate,
+}: {
+  to: string
+  name: string | null
+  jobTitle: string
+  jobUrl: string
+  isSecondReminder: boolean
+  autoReleaseDate: string
+}) {
+  const greeting = name ? `Hi ${name},` : 'Hi there,'
+  const subject = isSecondReminder
+    ? `Final reminder: confirm receipt of "${jobTitle}"`
+    : `Did you receive your order from "${jobTitle}"?`
+  return sendEmail({
+    to,
+    subject,
+    html: emailTemplate({
+      previewText: subject,
+      heroLabel:   isSecondReminder ? 'Final notice' : 'Delivery check',
+      heroTitle:   isSecondReminder
+        ? 'Last chance to confirm or dispute'
+        : 'Did you receive your order?',
+      heroSubtitle: isSecondReminder
+        ? `Payment will be released automatically on ${autoReleaseDate} if we don't hear from you.`
+        : 'Let us know so the maker can get paid.',
+      body: `
+        <p style="margin:0 0 16px;color:#6b6760;font-size:14px;line-height:1.6;">
+          ${greeting} Your order for <strong>${jobTitle}</strong> was shipped a while ago.
+          ${isSecondReminder
+            ? `This is your final reminder. If we don&apos;t hear from you by <strong>${autoReleaseDate}</strong>, payment will be automatically released to the maker.`
+            : 'Please confirm you received it so the maker can be paid, or raise a dispute if there is a problem.'}
+        </p>
+        ${ctaButton('View order', `${APP_URL}${jobUrl}`)}
+      `,
+    }),
+  })
+}
+
+export function emailAutoReleased({
+  to, name, jobTitle, jobUrl,
+}: { to: string; name: string | null; jobTitle: string; jobUrl: string }) {
+  const greeting = name ? `Hi ${name},` : 'Hi there,'
+  return sendEmail({
+    to,
+    subject: `Payment released for "${jobTitle}"`,
+    html: emailTemplate({
+      previewText: `Payment automatically released for ${jobTitle}`,
+      heroLabel:   'Auto-release',
+      heroTitle:   'Payment released to maker',
+      heroSubtitle: 'Your order has been auto-confirmed.',
+      body: `
+        <p style="margin:0 0 16px;color:#6b6760;font-size:14px;line-height:1.6;">
+          ${greeting} Because we didn&apos;t receive confirmation for <strong>${jobTitle}</strong> within 14 days of shipping, payment has been automatically released to the maker.
+        </p>
+        <p style="margin:0 0 16px;color:#6b6760;font-size:14px;line-height:1.6;">
+          If you have an issue with your order, please contact us at <a href="mailto:hello@printmarkethub.com" style="color:#D4A017;">hello@printmarkethub.com</a>.
+        </p>
+        ${ctaButton('View order', `${APP_URL}${jobUrl}`)}
+      `,
+    }),
+  })
+}

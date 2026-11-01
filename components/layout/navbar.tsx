@@ -58,6 +58,7 @@ const adminNav = [
   { href: '/dashboard/admin/jobs',           label: 'Jobs' },
   { href: '/dashboard/admin/quotes',         label: 'Quotes' },
   { href: '/dashboard/admin/listings',       label: 'Listings' },
+  { href: '/dashboard/admin/disputes',       label: 'Disputes' },
   { href: '/messages',                       label: 'Messages' },
   { href: '/dashboard/admin/settings',       label: 'Settings' },
 ]
