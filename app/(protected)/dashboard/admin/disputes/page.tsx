@@ -27,7 +27,7 @@ export default async function AdminDisputesPage() {
   const clientIds = [...new Set((disputes ?? []).map((d) => (d as any).client_id))]
 
   const { data: jobs } = jobIds.length > 0
-    ? await admin.from('jobs').select('id, title').in('id', jobIds)
+    ? await admin.from('jobs').select('id, title, stripe_session_id').in('id', jobIds)
     : { data: [] }
 
   const { data: clients } = clientIds.length > 0
@@ -121,7 +121,7 @@ function DisputeCard({ dispute, job, client, resolved }: {
         )}
       </div>
 
-      {!resolved && <ResolveDisputeButton disputeId={dispute.id} />}
+      {!resolved && <ResolveDisputeButton disputeId={dispute.id} hasStripeSession={!!(job as any)?.stripe_session_id} />}
       {dispute.resolved_at && (
         <p className="text-xs text-warm-400">Resolved on {formatDate(dispute.resolved_at)}</p>
       )}

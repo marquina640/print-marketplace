@@ -25,10 +25,23 @@ export async function GET(req: NextRequest) {
     .eq('status', 'shipped')
     .not('shipped_at', 'is', null)
 
-  const results = { reminder1: 0, reminder2: 0, released: 0, errors: [] as string[] }
+  // Fetch IDs of shipped jobs that have an open dispute — skip auto-release for these
+  const shippedIds = (shippedJobs ?? []).map((j) => (j as any).id)
+  const { data: openDisputeRows } = shippedIds.length > 0
+    ? await admin.from('disputes').select('job_id').eq('status', 'open').in('job_id', shippedIds)
+    : { data: [] }
+  const jobsWithOpenDispute = new Set((openDisputeRows ?? []).map((d) => (d as any).job_id))
+
+  const results = { reminder1: 0, reminder2: 0, released: 0, skipped_dispute: 0, errors: [] as string[] }
 
   for (const job of shippedJobs ?? []) {
     try {
+      // Never auto-release if there is an open dispute — wait for admin to resolve it
+      if (jobsWithOpenDispute.has((job as any).id)) {
+        results.skipped_dispute++
+        continue
+      }
+
       const shippedAt = new Date((job as any).shipped_at)
       const daysSinceShip = (now.getTime() - shippedAt.getTime()) / (1000 * 60 * 60 * 24)
 
