@@ -162,7 +162,7 @@ export const PRINTER_BRANDS: Record<string, string[]> = {
   'AnkerMake':    ['M5', 'M5C', 'M7'],
   'Snapmaker':    ['2.0 A150', '2.0 A250', '2.0 A350', 'Artisan', 'J1s', 'U1'],
   'Ultimaker':    ['S3', 'S5', 'S7 Pro Bundle', 'Factor 4', 'Method X (rebranded)'],
-  'Formlabs':     ['Form 3', 'Form 3+', 'Form 3BL', 'Form 4', 'Form 4L', 'Form 3B'],
+  'Formlabs':     ['Form 3', 'Form 3+', 'Form 3BL', 'Form 4', 'Form 4L', 'Form 3B', 'Studio 1'],
   'Raise3D':      ['N2', 'N2 Plus', 'N4', 'N4 Plus', 'E2', 'E2CF', 'Pro3', 'Pro3 Plus'],
   'MakerBot':     ['Sketch', 'Sketch Large', 'Method', 'Method X', 'Method XCF', 'Replicator+'],
   'Stratasys':    ['F170', 'F270', 'F370', 'F380cf', 'Fortus 380mc', 'Fortus 450mc', 'J55', 'J826'],
