@@ -3,11 +3,29 @@
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { Resend } from 'resend'
-import { emailTemplate, ctaButton } from '@/lib/email'
 import { createNotification } from './notifications'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 const APP_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://printmarkethub.com'
+
+function shell(content: string) {
+  return `<!DOCTYPE html><html><head><meta charset="UTF-8"/></head>
+<body style="margin:0;padding:0;background:#f5f4f0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f4f0;padding:32px 16px;"><tr><td align="center">
+<table width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;">
+<tr><td style="padding-bottom:20px;text-align:center;">
+  <span style="font-size:20px;font-weight:900;letter-spacing:-0.5px;color:#1a1625;">PrintMarket<span style="color:#D4A017;">Hub</span></span>
+</td></tr>
+<tr><td style="background:#ffffff;border-radius:16px;border:1px solid #e5e1d8;padding:36px 40px;">${content}</td></tr>
+<tr><td style="padding-top:20px;text-align:center;font-size:11px;color:#9e9b94;">
+  &copy; 2025 PrintMarketHub &middot; Switzerland
+</td></tr>
+</table></td></tr></table></body></html>`
+}
+
+function cta(label: string, url: string) {
+  return `<p style="margin:24px 0 0;"><a href="${url}" style="display:inline-block;background:#D4A017;color:#1a1625;font-weight:700;font-size:14px;padding:12px 28px;border-radius:10px;text-decoration:none;">${label}</a></p>`
+}
 
 export async function raiseDispute(jobId: string, reason: string, details: string) {
   const supabase = await createClient()
@@ -82,25 +100,19 @@ export async function raiseDispute(jobId: string, reason: string, details: strin
   }
 
   if (makerProfile?.email) {
-    const makerHtml = emailTemplate({
-      previewText:  `Dispute raised on your order: ${job.title}`,
-      heroLabel:    'Dispute notice',
-      heroTitle:    `A dispute was raised on "${job.title}"`,
-      heroSubtitle: 'Our team is reviewing the situation.',
-      body: `
-        <p style="margin:0 0 16px;color:#6b6760;font-size:14px;line-height:1.6;">
-          Hi ${makerProfile.display_name ?? 'there'}, the client has raised a dispute on this order.
-          No action is needed from you right now — our team will investigate and be in touch.
-        </p>
-        ${disputeBlock}
-        ${ctaButton('View order', `${APP_URL}${jobUrl}`)}
-      `,
-    })
     await resend.emails.send({
       from:    'PrintMarketHub <hello@printmarkethub.com>',
       to:      makerProfile.email,
       subject: `Dispute raised on your order: ${job.title}`,
-      html:    makerHtml,
+      html: shell(`
+        <h2 style="margin:0 0 8px;font-size:20px;font-weight:800;color:#1a1625;">A dispute was raised on your order</h2>
+        <p style="margin:0 0 16px;color:#6b6760;font-size:14px;line-height:1.6;">
+          Hi ${makerProfile.display_name ?? 'there'}, the client has raised a dispute on <strong>${job.title}</strong>.
+          No action is needed from you right now — our team will investigate and be in touch.
+        </p>
+        ${disputeBlock}
+        ${cta('View order', `${APP_URL}${jobUrl}`)}
+      `),
     })
   }
 
@@ -109,24 +121,18 @@ export async function raiseDispute(jobId: string, reason: string, details: strin
   const adminEmails = (adminUsers ?? []).map((a) => a.email).filter(Boolean)
 
   if (adminEmails.length > 0) {
-    const adminHtml = emailTemplate({
-      previewText:  `Dispute raised on job: ${job.title}`,
-      heroLabel:    'Support ticket',
-      heroTitle:    `Dispute raised on "${job.title}"`,
-      heroSubtitle: 'A client needs your attention.',
-      body: `
-        <p style="margin:0 0 16px;color:#6b6760;font-size:14px;line-height:1.6;">
-          <strong>${clientName}</strong> has raised a dispute.
-        </p>
-        ${disputeBlock}
-        ${ctaButton('View dispute', `${APP_URL}/dashboard/admin/disputes`)}
-      `,
-    })
     await resend.emails.send({
       from:    'PrintMarketHub <hello@printmarkethub.com>',
       to:      adminEmails as string[],
       subject: `Dispute raised: ${job.title}`,
-      html:    adminHtml,
+      html: shell(`
+        <h2 style="margin:0 0 8px;font-size:20px;font-weight:800;color:#1a1625;">Dispute raised: ${job.title}</h2>
+        <p style="margin:0 0 16px;color:#6b6760;font-size:14px;line-height:1.6;">
+          <strong>${clientName}</strong> has raised a dispute on this order.
+        </p>
+        ${disputeBlock}
+        ${cta('View dispute', `${APP_URL}/dashboard/admin/disputes`)}
+      `),
     })
   }
 }
