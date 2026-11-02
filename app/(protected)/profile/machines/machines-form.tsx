@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useTransition } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { PRINTER_BRANDS, ALL_PRINTER_BRAND_NAMES, MANUFACTURING_PROCESSES } from '@/lib/utils'
+import { PRINTER_BRANDS, MANUFACTURING_PROCESSES, CATEGORY_BRANDS, BRAND_MODELS_FOR_CATEGORY, type MachineCategory } from '@/lib/utils'
 import { requestPrinter } from '@/app/actions/request-printer'
 
 interface Machine {
@@ -35,40 +35,51 @@ const EMPTY_FORM = {
   photo_url: null as string | null,
 }
 
+function processToCategoryKey(process: string): MachineCategory | '' {
+  if (['fdm', 'sls', 'cnc', 'other'].includes(process)) return 'fdm'
+  if (process === 'resin') return 'resin'
+  if (process === 'laser') return 'laser'
+  return ''
+}
+
+const CATEGORY_META: { key: MachineCategory; label: string; description: string }[] = [
+  { key: 'fdm',   label: 'FDM Printer',  description: 'Filament-based (PLA, PETG, ABS…)' },
+  { key: 'resin', label: 'Resin Printer', description: 'SLA / MSLA / DLP' },
+  { key: 'laser', label: 'Laser Cutter',  description: 'Cutting & engraving' },
+]
+
 export function MachinesForm({ effectiveUserId }: { effectiveUserId: string }) {
   const photoFileRef = useRef<HTMLInputElement>(null)
-  const [machines, setMachines] = useState<Machine[]>([])
-  const [loading, setLoading]   = useState(true)
-  const [saving, setSaving]     = useState(false)
-  const [error, setError]       = useState<string | null>(null)
-  const [showForm, setShowForm] = useState(false)
-  const [editingId, setEditingId] = useState<string | null>(null)
+  const [machines, setMachines]     = useState<Machine[]>([])
+  const [loading, setLoading]       = useState(true)
+  const [saving, setSaving]         = useState(false)
+  const [error, setError]           = useState<string | null>(null)
+  const [showForm, setShowForm]     = useState(false)
+  const [editingId, setEditingId]   = useState<string | null>(null)
+  const [category, setCategory]     = useState<MachineCategory | ''>('')
   const [selectedBrand, setSelectedBrand] = useState('')
-  const [form, setForm] = useState(EMPTY_FORM)
-  const [photoFile, setPhotoFile] = useState<File | null>(null)
+  const [form, setForm]             = useState(EMPTY_FORM)
+  const [photoFile, setPhotoFile]   = useState<File | null>(null)
   const [photoPreview, setPhotoPreview] = useState<string | null>(null)
 
-  const modelOptions = selectedBrand ? (PRINTER_BRANDS[selectedBrand] ?? []) : []
-  const availableProcesses = MANUFACTURING_PROCESSES.filter((p) => p.available)
+  const brandOptions = category ? CATEGORY_BRANDS[category] : []
+  const modelOptions = selectedBrand && category
+    ? (BRAND_MODELS_FOR_CATEGORY[selectedBrand]?.[category] ?? PRINTER_BRANDS[selectedBrand] ?? [])
+    : []
 
   const [showRequestForm, setShowRequestForm] = useState(false)
-  const [requestBrand, setRequestBrand] = useState('')
-  const [requestModel, setRequestModel] = useState('')
-  const [requestStatus, setRequestStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle')
-  const [, startRequestTransition] = useTransition()
+  const [requestBrand, setRequestBrand]       = useState('')
+  const [requestModel, setRequestModel]       = useState('')
+  const [requestStatus, setRequestStatus]     = useState<'idle' | 'sending' | 'sent' | 'error'>('idle')
+  const [, startRequestTransition]            = useTransition()
 
   function submitRequest() {
     if (!requestBrand.trim() || !requestModel.trim()) return
     setRequestStatus('sending')
     startRequestTransition(async () => {
       const result = await requestPrinter(requestBrand, requestModel)
-      if (result.ok) {
-        setRequestStatus('sent')
-        setRequestBrand('')
-        setRequestModel('')
-      } else {
-        setRequestStatus('error')
-      }
+      if (result.ok) { setRequestStatus('sent'); setRequestBrand(''); setRequestModel('') }
+      else setRequestStatus('error')
     })
   }
 
@@ -95,6 +106,12 @@ export function MachinesForm({ effectiveUserId }: { effectiveUserId: string }) {
     }))
   }
 
+  function pickCategory(cat: MachineCategory) {
+    setCategory(cat)
+    setSelectedBrand('')
+    setForm((prev) => ({ ...prev, brand: '', model: '', process: cat }))
+  }
+
   function handlePhotoChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
@@ -105,6 +122,7 @@ export function MachinesForm({ effectiveUserId }: { effectiveUserId: string }) {
 
   function openAdd() {
     setEditingId(null)
+    setCategory('')
     setForm(EMPTY_FORM)
     setSelectedBrand('')
     setPhotoFile(null)
@@ -114,7 +132,9 @@ export function MachinesForm({ effectiveUserId }: { effectiveUserId: string }) {
   }
 
   function openEdit(m: Machine) {
+    const cat = processToCategoryKey(m.process)
     setEditingId(m.id)
+    setCategory(cat)
     setSelectedBrand(m.brand)
     setForm({
       brand: m.brand,
@@ -137,6 +157,7 @@ export function MachinesForm({ effectiveUserId }: { effectiveUserId: string }) {
   function cancelForm() {
     setShowForm(false)
     setEditingId(null)
+    setCategory('')
     setForm(EMPTY_FORM)
     setSelectedBrand('')
     setPhotoFile(null)
@@ -147,6 +168,7 @@ export function MachinesForm({ effectiveUserId }: { effectiveUserId: string }) {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError(null)
+    if (!category) { setError('Select a machine type.'); return }
     if (!form.brand) { setError('Select a brand.'); return }
     if (!form.model.trim()) { setError('Enter a model name.'); return }
     if (!photoFile && !form.photo_url) { setError('Upload a photo of your machine.'); return }
@@ -154,7 +176,6 @@ export function MachinesForm({ effectiveUserId }: { effectiveUserId: string }) {
     setSaving(true)
     const supabase = createClient()
 
-    // Upload machine photo if provided
     let photoUrl = form.photo_url
     if (photoFile) {
       const ext = photoFile.name.split('.').pop()
@@ -167,24 +188,22 @@ export function MachinesForm({ effectiveUserId }: { effectiveUserId: string }) {
     }
 
     const payload = {
-      brand:           form.brand,
-      model:           form.model.trim(),
-      process:         form.process,
-      build_volume_x:  form.build_volume_x ? parseFloat(form.build_volume_x) : null,
-      build_volume_y:  form.build_volume_y ? parseFloat(form.build_volume_y) : null,
-      build_volume_z:  form.build_volume_z ? parseFloat(form.build_volume_z) : null,
-      nozzle_diameters: form.nozzle_diameters,
-      notes:           form.notes.trim() || null,
-      photo_url:       photoUrl,
+      brand:            form.brand,
+      model:            form.model.trim(),
+      process:          form.process,
+      build_volume_x:   form.build_volume_x ? parseFloat(form.build_volume_x) : null,
+      build_volume_y:   form.build_volume_y ? parseFloat(form.build_volume_y) : null,
+      build_volume_z:   category !== 'laser' && form.build_volume_z ? parseFloat(form.build_volume_z) : null,
+      nozzle_diameters: category === 'fdm' ? form.nozzle_diameters : [],
+      notes:            form.notes.trim() || null,
+      photo_url:        photoUrl,
     }
 
     if (editingId) {
-      const { error: updateError } = await supabase
-        .from('machines').update(payload).eq('id', editingId)
+      const { error: updateError } = await supabase.from('machines').update(payload).eq('id', editingId)
       if (updateError) { setError(updateError.message); setSaving(false); return }
     } else {
-      const { error: insertError } = await supabase
-        .from('machines').insert({ ...payload, maker_id: effectiveUserId })
+      const { error: insertError } = await supabase.from('machines').insert({ ...payload, maker_id: effectiveUserId })
       if (insertError) { setError(insertError.message); setSaving(false); return }
     }
 
@@ -238,63 +257,90 @@ export function MachinesForm({ effectiveUserId }: { effectiveUserId: string }) {
             </button>
           </div>
 
+          {/* Category picker */}
           <div>
-            <p className="form-label mb-2">Brand *</p>
-            <div className="flex flex-wrap gap-2">
-              {ALL_PRINTER_BRAND_NAMES.map((brand) => (
-                <button key={brand} type="button"
-                  onClick={() => { setSelectedBrand(brand); set('brand', brand); set('model', '') }}
-                  className={`rounded-xl border px-3 py-1.5 text-sm font-medium transition-all ${
-                    selectedBrand === brand
+            <p className="form-label mb-2">Machine type *</p>
+            <div className="grid grid-cols-3 gap-2">
+              {CATEGORY_META.map(({ key, label, description }) => (
+                <button key={key} type="button" onClick={() => pickCategory(key)}
+                  className={`rounded-xl border px-3 py-3 text-left transition-all ${
+                    category === key
                       ? 'bg-ink-900 text-white border-ink-900'
-                      : 'bg-white text-warm-700 border-warm-300 hover:border-ink-400'}`}>
-                  {brand}
+                      : 'bg-white text-warm-800 border-warm-300 hover:border-ink-400'
+                  }`}>
+                  <span className="block text-sm font-semibold">{label}</span>
+                  <span className={`block text-xs mt-0.5 ${category === key ? 'text-warm-300' : 'text-warm-400'}`}>
+                    {description}
+                  </span>
                 </button>
               ))}
             </div>
           </div>
 
-          {/* Request a printer */}
-          <div className="pt-1">
-            {!showRequestForm ? (
-              <button type="button" onClick={() => { setShowRequestForm(true); setRequestStatus('idle') }}
-                className="text-xs text-warm-400 hover:text-ink-600 underline underline-offset-2 transition-colors">
-                Don't see your printer? Request it
-              </button>
-            ) : (
-              <div className="rounded-xl border border-warm-200 bg-warm-50 p-4 space-y-3">
-                <p className="text-sm font-medium text-ink-800">Request a printer to be added</p>
-                {requestStatus === 'sent' ? (
-                  <p className="text-sm text-green-700">Request sent! We will add it shortly.</p>
-                ) : (
-                  <>
-                    <div className="flex gap-2">
-                      <input value={requestBrand} onChange={(e) => setRequestBrand(e.target.value)}
-                        placeholder="Brand (e.g. BambuLab)"
-                        className="flex-1 rounded-lg border border-warm-300 bg-white px-3 py-2 text-sm text-ink-900 placeholder:text-warm-400 focus:outline-none focus:ring-2 focus:ring-gold-400" />
-                      <input value={requestModel} onChange={(e) => setRequestModel(e.target.value)}
-                        placeholder="Model (e.g. H2D)"
-                        className="flex-1 rounded-lg border border-warm-300 bg-white px-3 py-2 text-sm text-ink-900 placeholder:text-warm-400 focus:outline-none focus:ring-2 focus:ring-gold-400" />
-                    </div>
-                    {requestStatus === 'error' && (
-                      <p className="text-xs text-red-600">Something went wrong. Please try again.</p>
-                    )}
-                    <div className="flex gap-2">
-                      <button type="button" onClick={submitRequest} disabled={requestStatus === 'sending' || !requestBrand.trim() || !requestModel.trim()}
-                        className="rounded-lg bg-ink-900 text-white px-4 py-1.5 text-xs font-medium disabled:opacity-50 hover:bg-ink-800 transition-colors">
-                        {requestStatus === 'sending' ? 'Sending…' : 'Send request'}
-                      </button>
-                      <button type="button" onClick={() => setShowRequestForm(false)}
-                        className="text-xs text-warm-400 hover:text-warm-700 transition-colors px-2">
-                        Cancel
-                      </button>
-                    </div>
-                  </>
-                )}
+          {/* Brand (shown after category) */}
+          {category && (
+            <div>
+              <p className="form-label mb-2">Brand *</p>
+              <div className="flex flex-wrap gap-2">
+                {brandOptions.map((brand) => (
+                  <button key={brand} type="button"
+                    onClick={() => { setSelectedBrand(brand); setForm((prev) => ({ ...prev, brand, model: '' })) }}
+                    className={`rounded-xl border px-3 py-1.5 text-sm font-medium transition-all ${
+                      selectedBrand === brand
+                        ? 'bg-ink-900 text-white border-ink-900'
+                        : 'bg-white text-warm-700 border-warm-300 hover:border-ink-400'}`}>
+                    {brand}
+                  </button>
+                ))}
               </div>
-            )}
-          </div>
+            </div>
+          )}
 
+          {/* Request a printer */}
+          {category && (
+            <div className="pt-1">
+              {!showRequestForm ? (
+                <button type="button" onClick={() => { setShowRequestForm(true); setRequestStatus('idle') }}
+                  className="text-xs text-warm-400 hover:text-ink-600 underline underline-offset-2 transition-colors">
+                  Don&apos;t see your printer? Request it
+                </button>
+              ) : (
+                <div className="rounded-xl border border-warm-200 bg-warm-50 p-4 space-y-3">
+                  <p className="text-sm font-medium text-ink-800">Request a printer to be added</p>
+                  {requestStatus === 'sent' ? (
+                    <p className="text-sm text-green-700">Request sent! We will add it shortly.</p>
+                  ) : (
+                    <>
+                      <div className="flex gap-2">
+                        <input value={requestBrand} onChange={(e) => setRequestBrand(e.target.value)}
+                          placeholder="Brand (e.g. BambuLab)"
+                          className="flex-1 rounded-lg border border-warm-300 bg-white px-3 py-2 text-sm text-ink-900 placeholder:text-warm-400 focus:outline-none focus:ring-2 focus:ring-gold-400" />
+                        <input value={requestModel} onChange={(e) => setRequestModel(e.target.value)}
+                          placeholder="Model (e.g. H2D)"
+                          className="flex-1 rounded-lg border border-warm-300 bg-white px-3 py-2 text-sm text-ink-900 placeholder:text-warm-400 focus:outline-none focus:ring-2 focus:ring-gold-400" />
+                      </div>
+                      {requestStatus === 'error' && (
+                        <p className="text-xs text-red-600">Something went wrong. Please try again.</p>
+                      )}
+                      <div className="flex gap-2">
+                        <button type="button" onClick={submitRequest}
+                          disabled={requestStatus === 'sending' || !requestBrand.trim() || !requestModel.trim()}
+                          className="rounded-lg bg-ink-900 text-white px-4 py-1.5 text-xs font-medium disabled:opacity-50 hover:bg-ink-800 transition-colors">
+                          {requestStatus === 'sending' ? 'Sending…' : 'Send request'}
+                        </button>
+                        <button type="button" onClick={() => setShowRequestForm(false)}
+                          className="text-xs text-warm-400 hover:text-warm-700 transition-colors px-2">
+                          Cancel
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Model */}
           {selectedBrand && modelOptions.length > 0 ? (
             <div>
               <p className="form-label mb-2">Model *</p>
@@ -316,84 +362,80 @@ export function MachinesForm({ effectiveUserId }: { effectiveUserId: string }) {
               onChange={(e) => set('model', e.target.value)} placeholder="Custom / enter model name" />
           )}
 
-          <div>
-            <p className="form-label mb-2">Process *</p>
-            <div className="flex flex-wrap gap-2">
-              {availableProcesses.map((p) => (
-                <button key={p.value} type="button"
-                  onClick={() => set('process', p.value)}
-                  className={`rounded-xl border px-3 py-1.5 text-sm font-medium transition-all ${
-                    form.process === p.value
-                      ? 'bg-ink-900 text-white border-ink-900'
-                      : 'bg-white text-warm-700 border-warm-300 hover:border-ink-400'}`}>
-                  {p.label}
-                </button>
-              ))}
+          {/* Build volume / Work area */}
+          {category && (
+            <div>
+              <p className="form-label mb-2">{category === 'laser' ? 'Work Area (mm)' : 'Build Volume (mm)'}</p>
+              <div className={`grid gap-3 ${category === 'laser' ? 'grid-cols-2' : 'grid-cols-3'}`}>
+                <Input label="X (Width)"  type="number" min="0" value={form.build_volume_x} onChange={(e) => set('build_volume_x', e.target.value)} placeholder="220" />
+                <Input label="Y (Depth)"  type="number" min="0" value={form.build_volume_y} onChange={(e) => set('build_volume_y', e.target.value)} placeholder="220" />
+                {category !== 'laser' && (
+                  <Input label="Z (Height)" type="number" min="0" value={form.build_volume_z} onChange={(e) => set('build_volume_z', e.target.value)} placeholder="250" />
+                )}
+              </div>
             </div>
-          </div>
+          )}
 
-          <div>
-            <p className="form-label mb-2">Build Volume (mm)</p>
-            <div className="grid grid-cols-3 gap-3">
-              <Input label="X (Width)"  type="number" min="0" value={form.build_volume_x} onChange={(e) => set('build_volume_x', e.target.value)} placeholder="220" />
-              <Input label="Y (Depth)"  type="number" min="0" value={form.build_volume_y} onChange={(e) => set('build_volume_y', e.target.value)} placeholder="220" />
-              <Input label="Z (Height)" type="number" min="0" value={form.build_volume_z} onChange={(e) => set('build_volume_z', e.target.value)} placeholder="250" />
+          {/* Nozzle sizes — FDM only */}
+          {category === 'fdm' && (
+            <div>
+              <p className="form-label mb-2">Available nozzle sizes (mm)</p>
+              <div className="flex gap-2">
+                {NOZZLE_SIZES.map((size) => {
+                  const active = form.nozzle_diameters.includes(size)
+                  return (
+                    <button key={size} type="button" onClick={() => toggleNozzle(size)}
+                      className={`rounded-xl border px-4 py-2 text-sm font-mono font-semibold transition-all ${
+                        active
+                          ? 'bg-ink-900 text-white border-ink-900'
+                          : 'bg-white text-warm-700 border-warm-300 hover:border-ink-400'}`}>
+                      {size}
+                    </button>
+                  )
+                })}
+              </div>
+              <p className="text-xs text-warm-400 mt-1.5">Select all sizes you have available for this printer</p>
             </div>
-          </div>
+          )}
 
-          <div>
-            <p className="form-label mb-2">Available nozzle sizes (mm)</p>
-            <div className="flex gap-2">
-              {NOZZLE_SIZES.map((size) => {
-                const active = form.nozzle_diameters.includes(size)
-                return (
-                  <button key={size} type="button" onClick={() => toggleNozzle(size)}
-                    className={`rounded-xl border px-4 py-2 text-sm font-mono font-semibold transition-all ${
-                      active
-                        ? 'bg-ink-900 text-white border-ink-900'
-                        : 'bg-white text-warm-700 border-warm-300 hover:border-ink-400'}`}>
-                    {size}
-                  </button>
-                )
-              })}
-            </div>
-            <p className="text-xs text-warm-400 mt-1.5">Select all sizes you have available for this printer</p>
-          </div>
-
-          {/* Machine photo - required for verification */}
-          <div>
-            <p className="form-label mb-1">
-              Machine photo <span className="text-red-500">*</span>
-              <span className="ml-1 font-normal text-warm-400 text-xs">Hold a paper with your name next to the machine</span>
-            </p>
-            <div onClick={() => photoFileRef.current?.click()}
-              className={`relative cursor-pointer rounded-xl border-2 border-dashed transition-colors overflow-hidden
-                ${photoPreview ? 'border-ink-300' : 'border-warm-300 hover:border-ink-400'}`}>
-              {photoPreview ? (
-                <div className="relative">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={photoPreview} alt="Machine" className="w-full h-40 object-cover" />
-                  <div className="absolute inset-0 bg-black/30 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center">
-                    <span className="text-white text-sm font-medium">Click to change</span>
+          {/* Machine photo */}
+          {category && (
+            <div>
+              <p className="form-label mb-1">
+                Machine photo <span className="text-red-500">*</span>
+                <span className="ml-1 font-normal text-warm-400 text-xs">Hold a paper with your name next to the machine</span>
+              </p>
+              <div onClick={() => photoFileRef.current?.click()}
+                className={`relative cursor-pointer rounded-xl border-2 border-dashed transition-colors overflow-hidden
+                  ${photoPreview ? 'border-ink-300' : 'border-warm-300 hover:border-ink-400'}`}>
+                {photoPreview ? (
+                  <div className="relative">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={photoPreview} alt="Machine" className="w-full h-40 object-cover" />
+                    <div className="absolute inset-0 bg-black/30 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <span className="text-white text-sm font-medium">Click to change</span>
+                    </div>
                   </div>
-                </div>
-              ) : (
-                <div className="p-6 text-center">
-                  <svg className="mx-auto h-8 w-8 text-warm-300 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                  <p className="text-sm text-warm-500">Upload a photo of your machine</p>
-                  <p className="text-xs text-warm-400 mt-1">PNG, JPG, WEBP - max 10 MB</p>
-                </div>
-              )}
-              <input ref={photoFileRef} type="file" accept="image/*" onChange={handlePhotoChange} className="hidden" />
+                ) : (
+                  <div className="p-6 text-center">
+                    <svg className="mx-auto h-8 w-8 text-warm-300 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <p className="text-sm text-warm-500">Upload a photo of your machine</p>
+                    <p className="text-xs text-warm-400 mt-1">PNG, JPG, WEBP - max 10 MB</p>
+                  </div>
+                )}
+                <input ref={photoFileRef} type="file" accept="image/*" onChange={handlePhotoChange} className="hidden" />
+              </div>
             </div>
-          </div>
+          )}
 
-          <Input label="Notes (optional)" value={form.notes}
-            onChange={(e) => set('notes', e.target.value)}
-            placeholder="e.g. Enclosed, heated chamber, dual extruder…" />
+          {category && (
+            <Input label="Notes (optional)" value={form.notes}
+              onChange={(e) => set('notes', e.target.value)}
+              placeholder={category === 'laser' ? 'e.g. CO2 laser, air assist, rotary attachment…' : 'e.g. Enclosed, heated chamber, dual extruder…'} />
+          )}
 
           {error && (
             <div className="rounded-xl bg-red-50 border border-red-200 p-3 text-sm text-red-700">{error}</div>
@@ -436,8 +478,10 @@ export function MachinesForm({ effectiveUserId }: { effectiveUserId: string }) {
                     )}
                   </div>
                   <div className="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-xs text-warm-500">
-                    {m.build_volume_x && m.build_volume_y && m.build_volume_z && (
-                      <span>{m.build_volume_x}×{m.build_volume_y}×{m.build_volume_z} mm</span>
+                    {m.build_volume_x && m.build_volume_y && (
+                      <span>
+                        {m.build_volume_x}×{m.build_volume_y}{m.build_volume_z ? `×${m.build_volume_z}` : ''} mm
+                      </span>
                     )}
                     {m.nozzle_diameters?.length > 0 && (
                       <span>⌀ {m.nozzle_diameters.join(', ')} mm nozzle{m.nozzle_diameters.length > 1 ? 's' : ''}</span>

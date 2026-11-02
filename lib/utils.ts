@@ -198,6 +198,23 @@ export const PRINTER_BRANDS: Record<string, string[]> = {
 
 export const ALL_PRINTER_BRAND_NAMES = Object.keys(PRINTER_BRANDS)
 
+export type MachineCategory = 'fdm' | 'resin' | 'laser'
+
+export const CATEGORY_BRANDS: Record<MachineCategory, string[]> = {
+  fdm:   ['Bambu Lab', 'Prusa', 'Creality', 'Voron', 'Elegoo', 'Anycubic', 'Qidi Tech', 'Sovol', 'AnkerMake', 'Snapmaker', 'Ultimaker', 'Raise3D', 'MakerBot', 'Stratasys', 'BCN3D', 'Zortrax', 'Sindoh', 'FlashForge', 'Artillery', 'Markforged', 'Desktop Metal', 'Other / DIY'],
+  resin: ['Formlabs', 'Phrozen', 'Peopoly', 'Elegoo', 'Anycubic', 'Prusa', 'Creality', 'Zortrax'],
+  laser: ['xTool', 'Sculpfun', 'Atomstack', 'Ortur', 'Glowforge', 'Thunder Laser', 'Trotec', 'Creality Laser', 'ComMarker', 'Boss Laser', 'K40 / Generic', 'Snapmaker'],
+}
+
+export const BRAND_MODELS_FOR_CATEGORY: Record<string, Partial<Record<MachineCategory, string[]>>> = {
+  'Elegoo':    { fdm: ['Neptune 4', 'Neptune 4 Max', 'Neptune 4 Pro', 'Neptune 4 Plus'], resin: ['Mars 4', 'Mars 4 Max', 'Mars 4 Ultra', 'Mars 5 Ultra', 'Saturn 4', 'Saturn 4 Ultra', 'Saturn 3 Ultra'] },
+  'Anycubic':  { fdm: ['Kobra 2', 'Kobra 2 Neo', 'Kobra 2 Max', 'Kobra 2 Pro', 'Kobra 3', 'Kobra 3 Max', 'Kobra S1'], resin: ['Photon Mono M5S', 'Photon Mono M7 Pro', 'Photon M3 Max', 'Photon D2'] },
+  'Creality':  { fdm: ['Ender 3', 'Ender 3 Pro', 'Ender 3 V2', 'Ender 3 S1', 'Ender 3 S1 Pro', 'Ender 3 V3', 'Ender 3 V3 KE', 'Ender 3 Max Neo', 'Ender 5', 'Ender 5 Pro', 'Ender 5 Plus', 'Ender 5 S1', 'CR-10', 'CR-10 V2', 'CR-10 V3', 'CR-10 Smart Pro', 'CR-M4', 'K1', 'K1 Max', 'K1C', 'K2', 'K2 Plus'], resin: ['Halot One', 'Halot Mage', 'Halot Mage Pro'] },
+  'Prusa':     { fdm: ['MK4S', 'MK4', 'MK3S+', 'MK3S', 'MK3.5', 'CORE One', 'XL', 'XL 5-Tool', 'MINI+'], resin: ['SL1S Speed', 'SL1'] },
+  'Zortrax':   { fdm: ['M200 Plus', 'M300 Plus'], resin: ['Inkspire 2'] },
+  'Snapmaker': { fdm: ['2.0 A150', '2.0 A250', '2.0 A350', 'Artisan', 'J1s', 'U1'], laser: ['2.0 A150', '2.0 A250', '2.0 A350', 'Artisan'] },
+}
+
 export const SWISS_CITY_COORDS: Record<string, { lat: number; lng: number }> = {
   'zurich':             { lat: 47.3769, lng: 8.5417 },
   'zürich':             { lat: 47.3769, lng: 8.5417 },
