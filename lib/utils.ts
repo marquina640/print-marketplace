@@ -144,7 +144,7 @@ export const PRINTER_BRANDS: Record<string, string[]> = {
     'Ender 3', 'Ender 3 Pro', 'Ender 3 V2', 'Ender 3 S1', 'Ender 3 S1 Pro', 'Ender 3 V3', 'Ender 3 V3 KE', 'Ender 3 Max Neo',
     'Ender 5', 'Ender 5 Pro', 'Ender 5 Plus', 'Ender 5 S1',
     'CR-10', 'CR-10 V2', 'CR-10 V3', 'CR-10 Smart Pro', 'CR-M4',
-    'K1', 'K1 Max', 'K1C', 'K2 Plus',
+    'K1', 'K1 Max', 'K1C', 'K2', 'K2 Plus',
     'Halot One', 'Halot Mage', 'Halot Mage Pro',
   ],
   'Voron':        ['0.1', '0.2', '1.8', '2.4', 'Switchwire', 'Trident'],
