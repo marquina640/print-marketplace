@@ -306,11 +306,11 @@ export function MachinesForm({ effectiveUserId }: { effectiveUserId: string }) {
               {!showRequestForm ? (
                 <button type="button" onClick={() => { setShowRequestForm(true); setRequestStatus('idle') }}
                   className="text-xs text-warm-400 hover:text-ink-600 underline underline-offset-2 transition-colors">
-                  Don&apos;t see your printer? Request it
+                  Don&apos;t see your machine? Request it
                 </button>
               ) : (
                 <div className="rounded-xl border border-warm-200 bg-warm-50 p-4 space-y-3">
-                  <p className="text-sm font-medium text-ink-800">Request a printer to be added</p>
+                  <p className="text-sm font-medium text-ink-800">Request a machine to be added</p>
                   {requestStatus === 'sent' ? (
                     <p className="text-sm text-green-700">Request sent! We will add it shortly.</p>
                   ) : (
