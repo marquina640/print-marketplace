@@ -34,7 +34,7 @@ export async function raiseDispute(jobId: string, reason: string, details: strin
 
   const { data: job } = await supabase
     .from('jobs')
-    .select('id, title, status, client_id')
+    .select('id, title, status, client_id, shipping_carrier, tracking_number, shipped_date')
     .eq('id', jobId)
     .single()
 
@@ -77,11 +77,23 @@ export async function raiseDispute(jobId: string, reason: string, details: strin
   const jobUrl   = `/jobs/${jobId}`
   const clientName = clientProfile?.display_name ?? clientProfile?.email ?? 'A client'
 
+  const carrier        = (job as any).shipping_carrier as string | null
+  const trackingNumber = (job as any).tracking_number  as string | null
+  const shippedDate    = (job as any).shipped_date     as string | null
+  const trackingBlock  = (carrier || trackingNumber) ? `
+    <div style="background:#f9f8f5;border-radius:8px;padding:10px 14px;margin-top:10px;font-size:13px;color:#6b6760;line-height:1.8;">
+      ${carrier        ? `<div><span style="font-weight:600;color:#1a1625;">Carrier:</span> ${carrier}</div>`                                                                            : ''}
+      ${trackingNumber ? `<div><span style="font-weight:600;color:#1a1625;">Tracking:</span> <span style="font-family:monospace;">${trackingNumber}</span></div>`                       : ''}
+      ${shippedDate    ? `<div><span style="font-weight:600;color:#1a1625;">Shipped on:</span> ${new Date(shippedDate).toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric' })}</div>` : ''}
+    </div>
+  ` : ''
+
   const disputeBlock = `
     <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:12px;padding:16px 20px;margin-bottom:20px;">
       <p style="margin:0 0 8px;font-size:13px;font-weight:700;color:#c2410c;">Reason</p>
       <p style="margin:0 0 12px;font-size:14px;color:#1a1625;">${reason}</p>
       ${details ? `<p style="margin:0 0 4px;font-size:13px;font-weight:700;color:#c2410c;">Details</p><p style="margin:0;font-size:14px;color:#1a1625;">${details}</p>` : ''}
+      ${trackingBlock}
     </div>
   `
 

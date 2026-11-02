@@ -149,13 +149,19 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
   const canConfirmReceipt = isOwner && (job as any).status === 'shipped'
   const needsPayout       = isAdmin && ['delivered', 'completed'].includes((job as any).status) && !(job as any).payout_at
 
-  // Show dispute option if job is shipped and either past the job deadline or shipped > 7 days ago
+  // Show dispute option when:
+  // - shipped + (deadline passed OR 7 days since shipping)
+  // - paid but never shipped + deadline passed
+  const now = new Date()
   const shippedAt = (job as any).shipped_at ? new Date((job as any).shipped_at) : null
   const jobDeadline = job.deadline ? new Date(job.deadline) : null
   const sevenDaysAfterShip = shippedAt ? new Date(shippedAt.getTime() + 7 * 24 * 60 * 60 * 1000) : null
-  const isOverdue = isOwner && (job as any).status === 'shipped' && (
-    (jobDeadline && jobDeadline < new Date()) ||
-    (sevenDaysAfterShip && sevenDaysAfterShip < new Date())
+  const isOverdue = isOwner && (
+    ((job as any).status === 'shipped' && (
+      (jobDeadline && jobDeadline < now) ||
+      (sevenDaysAfterShip && sevenDaysAfterShip < now)
+    )) ||
+    ((job as any).status === 'paid' && jobDeadline && jobDeadline < now)
   )
 
   // Reviews show after delivered or completed
@@ -509,6 +515,12 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
                             </>
                           )}
                           {isOwner && <p className="text-xs text-blue-700">The maker will mark your order as shipped once it's dispatched.</p>}
+                          {isOverdue && (
+                            <div className="pt-1 border-t border-blue-200">
+                              <p className="text-xs text-orange-700 mb-1">Your deadline has passed and the order has not shipped. You can raise a dispute.</p>
+                              <RaiseDisputeButton jobId={job.id} />
+                            </div>
+                          )}
                         </div>
                       )}
 
