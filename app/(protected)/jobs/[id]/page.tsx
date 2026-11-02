@@ -152,7 +152,6 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
   // Show dispute option when:
   // - shipped + (deadline passed OR 7 days since shipping)
   // - paid but never shipped + deadline passed
-  const now = new Date()
   const shippedAt = (job as any).shipped_at ? new Date((job as any).shipped_at) : null
   const jobDeadline = job.deadline ? new Date(job.deadline) : null
   const sevenDaysAfterShip = shippedAt ? new Date(shippedAt.getTime() + 7 * 24 * 60 * 60 * 1000) : null
@@ -161,7 +160,7 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
       (jobDeadline && jobDeadline < now) ||
       (sevenDaysAfterShip && sevenDaysAfterShip < now)
     )) ||
-    ((job as any).status === 'paid' && jobDeadline && jobDeadline < now)
+    ((job as any).status === 'paid' && !!jobDeadline && jobDeadline < now)
   )
 
   // Reviews show after delivered or completed
