@@ -16,6 +16,7 @@ interface Machine {
   build_volume_y: number | null
   build_volume_z: number | null
   nozzle_diameters: number[]
+  is_enclosed: boolean
   is_active: boolean
   notes: string | null
   photo_url: string | null
@@ -31,6 +32,7 @@ const EMPTY_FORM = {
   build_volume_y: '',
   build_volume_z: '',
   nozzle_diameters: [] as number[],
+  is_enclosed: false,
   notes: '',
   photo_url: null as string | null,
 }
@@ -144,6 +146,7 @@ export function MachinesForm({ effectiveUserId }: { effectiveUserId: string }) {
       build_volume_y: m.build_volume_y?.toString() ?? '',
       build_volume_z: m.build_volume_z?.toString() ?? '',
       nozzle_diameters: m.nozzle_diameters ?? [],
+      is_enclosed: m.is_enclosed ?? false,
       notes: m.notes ?? '',
       photo_url: m.photo_url,
     })
@@ -195,6 +198,7 @@ export function MachinesForm({ effectiveUserId }: { effectiveUserId: string }) {
       build_volume_y:   form.build_volume_y ? parseFloat(form.build_volume_y) : null,
       build_volume_z:   category !== 'laser' && form.build_volume_z ? parseFloat(form.build_volume_z) : null,
       nozzle_diameters: category === 'fdm' ? form.nozzle_diameters : [],
+      is_enclosed:      category === 'fdm' ? form.is_enclosed : false,
       notes:            form.notes.trim() || null,
       photo_url:        photoUrl,
     }
@@ -376,26 +380,48 @@ export function MachinesForm({ effectiveUserId }: { effectiveUserId: string }) {
             </div>
           )}
 
-          {/* Nozzle sizes — FDM only */}
+          {/* Nozzle sizes + enclosed — FDM only */}
           {category === 'fdm' && (
-            <div>
-              <p className="form-label mb-2">Available nozzle sizes (mm)</p>
-              <div className="flex gap-2">
-                {NOZZLE_SIZES.map((size) => {
-                  const active = form.nozzle_diameters.includes(size)
-                  return (
-                    <button key={size} type="button" onClick={() => toggleNozzle(size)}
-                      className={`rounded-xl border px-4 py-2 text-sm font-mono font-semibold transition-all ${
-                        active
-                          ? 'bg-ink-900 text-white border-ink-900'
-                          : 'bg-white text-warm-700 border-warm-300 hover:border-ink-400'}`}>
-                      {size}
-                    </button>
-                  )
-                })}
+            <>
+              <div>
+                <p className="form-label mb-2">Available nozzle sizes (mm)</p>
+                <div className="flex gap-2">
+                  {NOZZLE_SIZES.map((size) => {
+                    const active = form.nozzle_diameters.includes(size)
+                    return (
+                      <button key={size} type="button" onClick={() => toggleNozzle(size)}
+                        className={`rounded-xl border px-4 py-2 text-sm font-mono font-semibold transition-all ${
+                          active
+                            ? 'bg-ink-900 text-white border-ink-900'
+                            : 'bg-white text-warm-700 border-warm-300 hover:border-ink-400'}`}>
+                        {size}
+                      </button>
+                    )
+                  })}
+                </div>
+                <p className="text-xs text-warm-400 mt-1.5">Select all sizes you have available for this printer</p>
               </div>
-              <p className="text-xs text-warm-400 mt-1.5">Select all sizes you have available for this printer</p>
-            </div>
+
+              <div>
+                <p className="form-label mb-2">Enclosure</p>
+                <div className="flex gap-2">
+                  <button type="button" onClick={() => setForm((prev) => ({ ...prev, is_enclosed: false }))}
+                    className={`rounded-xl border px-4 py-2 text-sm font-medium transition-all ${
+                      !form.is_enclosed
+                        ? 'bg-ink-900 text-white border-ink-900'
+                        : 'bg-white text-warm-700 border-warm-300 hover:border-ink-400'}`}>
+                    Open frame
+                  </button>
+                  <button type="button" onClick={() => setForm((prev) => ({ ...prev, is_enclosed: true }))}
+                    className={`rounded-xl border px-4 py-2 text-sm font-medium transition-all ${
+                      form.is_enclosed
+                        ? 'bg-ink-900 text-white border-ink-900'
+                        : 'bg-white text-warm-700 border-warm-300 hover:border-ink-400'}`}>
+                    Enclosed
+                  </button>
+                </div>
+              </div>
+            </>
           )}
 
           {/* Machine photo */}
@@ -486,6 +512,7 @@ export function MachinesForm({ effectiveUserId }: { effectiveUserId: string }) {
                     {m.nozzle_diameters?.length > 0 && (
                       <span>⌀ {m.nozzle_diameters.join(', ')} mm nozzle{m.nozzle_diameters.length > 1 ? 's' : ''}</span>
                     )}
+                    {m.is_enclosed && <span>Enclosed</span>}
                   </div>
                   {m.notes && <p className="mt-1.5 text-xs text-warm-400">{m.notes}</p>}
                 </div>
