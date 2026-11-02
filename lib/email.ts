@@ -468,6 +468,27 @@ export function emailDeliveryReminder({
   })
 }
 
+export function emailDeadlinePassed({
+  to, name, jobTitle, jobUrl,
+}: { to: string; name: string | null; jobTitle: string; jobUrl: string }) {
+  const greeting = name ? `Hi ${name},` : 'Hi there,'
+  return sendEmail({
+    to,
+    subject: `Your print request "${jobTitle}" has expired`,
+    html: emailTemplate(`
+      <h2 style="margin:0 0 8px;font-size:20px;font-weight:800;color:#1a1625;">Your request has expired</h2>
+      <p style="margin:0 0 16px;color:#6b6760;font-size:14px;line-height:1.6;">
+        ${greeting} Your request <strong>${jobTitle}</strong> reached its deadline without receiving any quotes.
+      </p>
+      <p style="margin:0 0 16px;color:#6b6760;font-size:14px;line-height:1.6;">
+        You can extend the deadline to give makers more time, or close the request if you no longer need it.
+        The request stays visible to you but won&apos;t appear on the public feed until you update the deadline.
+      </p>
+      ${ctaButton('Extend or close my request', `${APP_URL}${jobUrl}`)}
+    `),
+  })
+}
+
 export function emailAutoReleased({
   to, name, jobTitle, jobUrl,
 }: { to: string; name: string | null; jobTitle: string; jobUrl: string }) {
