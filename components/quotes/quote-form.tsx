@@ -1,6 +1,6 @@
 ﻿'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { PriceCalculator } from './price-calculator'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
@@ -37,6 +37,14 @@ export function QuoteForm({ jobId, jobCurrency = 'CHF', printerId: printerIdProp
   const [includesShipping, setIncludesShipping] = useState(!!(existingQuote as any)?.includes_shipping ?? false)
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState<string | null>(existingQuote?.image_url ?? null)
+  const [rates, setRates] = useState<Record<string, number> | null>(null)
+
+  useEffect(() => {
+    fetch(`https://open.er-api.com/v6/latest/${jobCurrency}`)
+      .then((r) => r.json())
+      .then((d) => { if (d?.rates) setRates(d.rates) })
+      .catch(() => {})
+  }, [jobCurrency])
 
   function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
@@ -209,11 +217,23 @@ export function QuoteForm({ jobId, jobCurrency = 'CHF', printerId: printerIdProp
       )}
 
       <div className="grid grid-cols-2 gap-4">
-        <Input
-          label={shippingRequired ? `Your price incl. shipping (${jobCurrency})` : `Your price (${jobCurrency})`}
-          type="number" min="0" step="0.01" required
-          value={price} onChange={(e) => setPrice(e.target.value)} placeholder="49.00"
-        />
+        <div>
+          <Input
+            label={shippingRequired ? `Your price incl. shipping (${jobCurrency})` : `Your price (${jobCurrency})`}
+            type="number" min="0" step="0.01" required
+            value={price} onChange={(e) => setPrice(e.target.value)} placeholder="49.00"
+          />
+          {rates && price && parseFloat(price) > 0 && (() => {
+            const amt = parseFloat(price)
+            const hints = (['CHF', 'EUR', 'USD', 'GBP'] as const)
+              .filter((c) => c !== jobCurrency && rates[c])
+              .slice(0, 3)
+              .map((c) => `${c} ${(amt * rates[c]).toFixed(0)}`)
+            return hints.length > 0 ? (
+              <p className="text-xs text-warm-400 mt-1">≈ {hints.join(' · ')}</p>
+            ) : null
+          })()}
+        </div>
         <Input label="Lead time (days)" type="number" min="1" required
           value={leadTime} onChange={(e) => setLeadTime(e.target.value)} placeholder="7" />
       </div>
