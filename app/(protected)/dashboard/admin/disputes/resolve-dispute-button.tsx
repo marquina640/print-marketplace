@@ -3,11 +3,13 @@
 import { useState, useTransition } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { refundDispute } from '@/app/actions/refund-dispute'
+import { sendDisputeWarning } from '@/app/actions/dispute-warning'
 import { useRouter } from 'next/navigation'
 
 export function ResolveDisputeButton({ disputeId, hasStripeSession }: { disputeId: string; hasStripeSession: boolean }) {
   const [pending, start]         = useTransition()
   const [confirming, setConfirm] = useState(false)
+  const [warned, setWarned]      = useState(false)
   const [error, setError]        = useState<string | null>(null)
   const router = useRouter()
 
@@ -62,8 +64,27 @@ export function ResolveDisputeButton({ disputeId, hasStripeSession }: { disputeI
     )
   }
 
+  function warnMaker() {
+    setError(null)
+    start(async () => {
+      try {
+        await sendDisputeWarning(disputeId)
+        setWarned(true)
+      } catch (e) {
+        setError(e instanceof Error ? e.message : 'Failed to send email')
+      }
+    })
+  }
+
   return (
     <div className="flex flex-wrap gap-2 items-center">
+      <button
+        onClick={warnMaker}
+        disabled={pending || warned}
+        className="text-sm font-semibold text-orange-700 hover:text-orange-900 border border-orange-200 bg-orange-50 hover:bg-orange-100 px-3 py-1.5 rounded-lg transition-colors disabled:opacity-50"
+      >
+        {warned ? '✓ Warning sent to maker' : pending ? 'Sending...' : 'Warn maker (2-day deadline)'}
+      </button>
       <button
         onClick={() => resolve('resolved')}
         disabled={pending}

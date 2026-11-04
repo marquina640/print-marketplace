@@ -243,6 +243,32 @@ export function emailNewMessage({
   })
 }
 
+export function emailDisputeWarning({
+  to, name, jobTitle, jobUrl, disputeReason,
+}: { to: string; name: string | null; jobTitle: string; jobUrl: string; disputeReason: string }) {
+  const greeting = name ? `Hi ${name},` : 'Hi there,'
+  return sendEmail({
+    to,
+    subject: `Action required: complaint opened for "${jobTitle}"`,
+    html: emailTemplate(`
+      <h2 style="margin:0 0 8px;font-size:20px;font-weight:800;color:#dc2626;">Complaint opened — your response needed</h2>
+      <p style="margin:0 0 16px;color:#6b6760;font-size:14px;line-height:1.6;">
+        ${greeting} A complaint has been filed for the order <strong>${jobTitle}</strong>.
+      </p>
+      <div style="margin:0 0 20px;padding:12px 16px;background:#fef2f2;border-left:3px solid #dc2626;border-radius:0 8px 8px 0;color:#1a1625;font-size:14px;line-height:1.6;">
+        <strong>Complaint:</strong> ${disputeReason}
+      </div>
+      <p style="margin:0 0 16px;color:#6b6760;font-size:14px;line-height:1.6;">
+        You have <strong>2 days</strong> to respond. If we do not hear from you, the payment will be refunded to the customer automatically.
+      </p>
+      <p style="margin:0 0 20px;color:#6b6760;font-size:14px;line-height:1.6;">
+        Please open the job, review the complaint, and reply to the customer or contact support with any evidence.
+      </p>
+      ${ctaButton('View job and respond', `${APP_URL}${jobUrl}`)}
+    `),
+  })
+}
+
 export function emailReviewsPublished({
   to, reviewerName, jobTitle, rating, comment, jobUrl,
 }: { to: string; reviewerName: string; jobTitle: string; rating: number; comment: string | null; jobUrl: string }) {
