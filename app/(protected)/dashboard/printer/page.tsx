@@ -183,8 +183,8 @@ export default async function PrinterDashboardPage({ searchParams }: PageProps) 
   // Jobs by pipeline status
   const allAcceptedJobIds = acceptedQuotes.map((q) => q.job_id)
   const { data: pipelineJobs } = allAcceptedJobIds.length > 0
-    ? await supabase.from('jobs').select('id, status').in('id', allAcceptedJobIds)
-    : { data: [] as { id: string; status: string }[] }
+    ? await supabase.from('jobs').select('id, status, paid_at').in('id', allAcceptedJobIds)
+    : { data: [] as { id: string; status: string; paid_at: string | null }[] }
   const pipelineCounts = (pipelineJobs ?? []).reduce<Record<string, number>>((acc, j) => {
     acc[j.status] = (acc[j.status] ?? 0) + 1
     return acc
@@ -192,6 +192,7 @@ export default async function PrinterDashboardPage({ searchParams }: PageProps) 
 
   const completedStatuses = new Set(['completed', 'delivered'])
   const activeJobStatusById = Object.fromEntries((pipelineJobs ?? []).map(j => [j.id, j.status]))
+  const paidAtById = Object.fromEntries((pipelineJobs ?? []).map(j => [j.id, (j as any).paid_at as string | null]))
   const activeJobsCount = acceptedQuotes.filter(q => !completedStatuses.has(activeJobStatusById[q.job_id])).length
 
   const stats = [
@@ -409,8 +410,17 @@ export default async function PrinterDashboardPage({ searchParams }: PageProps) 
               const waitingForClient = deliveredJobIds.has(q.job_id) && reviewState && reviewState.makerReviewed && !reviewState.otherReviewed
               const needsShipment    = jobStatus === 'accepted' || jobStatus === 'paid'
               const isShipped        = jobStatus === 'shipped'
+
+              const paidAt = paidAtById[q.job_id]
+              const dueDate = (paidAt && q.lead_time_days)
+                ? new Date(new Date(paidAt).getTime() + q.lead_time_days * 86400000)
+                : null
+              const daysLeft = dueDate ? Math.ceil((dueDate.getTime() - Date.now()) / 86400000) : null
+              const shipOverdue  = needsShipment && daysLeft !== null && daysLeft <= 0
+              const shipUrgent   = needsShipment && daysLeft !== null && daysLeft > 0 && daysLeft <= 2
+
               return (
-                <div key={q.id} className="p-4 hover:bg-warm-50 transition-colors">
+                <div key={q.id} className={`p-4 hover:bg-warm-50 transition-colors ${shipOverdue ? 'bg-red-50' : ''}`}>
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
                       <p className="font-semibold text-warm-900 truncate">{job?.title}</p>
@@ -420,6 +430,16 @@ export default async function PrinterDashboardPage({ searchParams }: PageProps) 
                     </div>
                     <div className="flex items-center gap-2 flex-shrink-0">
                       <span className="font-bold text-warm-900">{formatCurrency(q.price)}</span>
+                      {shipOverdue && (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-red-100 border border-red-300 px-2 py-0.5 text-xs font-bold text-red-700">
+                          ⚠ Due date passed
+                        </span>
+                      )}
+                      {shipUrgent && (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 border border-amber-300 px-2 py-0.5 text-xs font-bold text-amber-700">
+                          {daysLeft}d left
+                        </span>
+                      )}
                       <StatusBadge status={jobStatus} />
                     </div>
                   </div>

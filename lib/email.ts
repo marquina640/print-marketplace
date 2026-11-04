@@ -489,6 +489,29 @@ export function emailDeadlinePassed({
   })
 }
 
+export function emailShipReminder({
+  to, name, jobTitle, jobUrl, daysLeft,
+}: { to: string; name: string | null; jobTitle: string; jobUrl: string; daysLeft: number }) {
+  const greeting = name ? `Hi ${name},` : 'Hi there,'
+  const isOverdue = daysLeft <= 0
+  const subject = isOverdue
+    ? `Shipping overdue: "${jobTitle}"`
+    : `${daysLeft} day${daysLeft === 1 ? '' : 's'} left to ship "${jobTitle}"`
+  const headline = isOverdue ? 'Your shipping deadline has passed' : `${daysLeft} day${daysLeft === 1 ? '' : 's'} left to ship`
+  const body = isOverdue
+    ? `${greeting} The shipping deadline for <strong>${jobTitle}</strong> has passed. Please ship the item as soon as possible and mark it as shipped so the customer knows it&apos;s on its way.`
+    : `${greeting} You have <strong>${daysLeft} day${daysLeft === 1 ? '' : 's'}</strong> left to ship <strong>${jobTitle}</strong>. Please ship the item and mark it as shipped before the deadline.`
+  return sendEmail({
+    to,
+    subject,
+    html: emailTemplate(`
+      <h2 style="margin:0 0 8px;font-size:20px;font-weight:800;color:${isOverdue ? '#dc2626' : '#1a1625'};">${headline}</h2>
+      <p style="margin:0 0 16px;color:#6b6760;font-size:14px;line-height:1.6;">${body}</p>
+      ${ctaButton('Mark as shipped', `${APP_URL}${jobUrl}`)}
+    `),
+  })
+}
+
 export function emailAutoReleased({
   to, name, jobTitle, jobUrl,
 }: { to: string; name: string | null; jobTitle: string; jobUrl: string }) {
