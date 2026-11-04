@@ -52,4 +52,9 @@ export async function sendDisputeWarning(disputeId: string) {
     jobUrl:        `/jobs/${job.id}`,
     disputeReason,
   })
+
+  await admin
+    .from('disputes')
+    .update({ warning_sent_at: new Date().toISOString() } as any)
+    .eq('id', disputeId)
 }

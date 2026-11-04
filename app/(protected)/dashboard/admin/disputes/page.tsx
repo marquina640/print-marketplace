@@ -121,7 +121,7 @@ function DisputeCard({ dispute, job, client, resolved }: {
         )}
       </div>
 
-      {!resolved && <ResolveDisputeButton disputeId={dispute.id} hasStripeSession={!!(job as any)?.stripe_session_id} />}
+      {!resolved && <ResolveDisputeButton disputeId={dispute.id} hasStripeSession={!!(job as any)?.stripe_session_id} warningSentAt={dispute.warning_sent_at ?? null} />}
       {dispute.resolved_at && (
         <p className="text-xs text-warm-400">Resolved on {formatDate(dispute.resolved_at)}</p>
       )}

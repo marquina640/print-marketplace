@@ -6,10 +6,18 @@ import { refundDispute } from '@/app/actions/refund-dispute'
 import { sendDisputeWarning } from '@/app/actions/dispute-warning'
 import { useRouter } from 'next/navigation'
 
-export function ResolveDisputeButton({ disputeId, hasStripeSession }: { disputeId: string; hasStripeSession: boolean }) {
+function daysAgoLabel(iso: string): string {
+  const days = Math.floor((Date.now() - new Date(iso).getTime()) / 86400000)
+  if (days === 0) return 'Sent today'
+  if (days === 1) return 'Sent 1 day ago'
+  return `Sent ${days} days ago`
+}
+
+export function ResolveDisputeButton({ disputeId, hasStripeSession, warningSentAt }: { disputeId: string; hasStripeSession: boolean; warningSentAt: string | null }) {
   const [pending, start]         = useTransition()
   const [confirming, setConfirm] = useState(false)
   const [warned, setWarned]      = useState(false)
+  const [warnedAt, setWarnedAt]  = useState<string | null>(warningSentAt)
   const [error, setError]        = useState<string | null>(null)
   const router = useRouter()
 
@@ -69,7 +77,9 @@ export function ResolveDisputeButton({ disputeId, hasStripeSession }: { disputeI
     start(async () => {
       try {
         await sendDisputeWarning(disputeId)
+        const now = new Date().toISOString()
         setWarned(true)
+        setWarnedAt(now)
       } catch (e) {
         setError(e instanceof Error ? e.message : 'Failed to send email')
       }
@@ -80,10 +90,10 @@ export function ResolveDisputeButton({ disputeId, hasStripeSession }: { disputeI
     <div className="flex flex-wrap gap-2 items-center">
       <button
         onClick={warnMaker}
-        disabled={pending || warned}
+        disabled={pending || !!warnedAt}
         className="text-sm font-semibold text-orange-700 hover:text-orange-900 border border-orange-200 bg-orange-50 hover:bg-orange-100 px-3 py-1.5 rounded-lg transition-colors disabled:opacity-50"
       >
-        {warned ? '✓ Warning sent to maker' : pending ? 'Sending...' : 'Warn maker (2-day deadline)'}
+        {warnedAt ? `✓ ${daysAgoLabel(warnedAt)}` : pending ? 'Sending...' : 'Warn maker (2-day deadline)'}
       </button>
       <button
         onClick={() => resolve('resolved')}
