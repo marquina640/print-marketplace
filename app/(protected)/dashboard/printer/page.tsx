@@ -140,7 +140,10 @@ export default async function PrinterDashboardPage({ searchParams }: PageProps) 
 
   // Split quotes by status
   const acceptedQuotes = allMyQuotes?.filter((q) => q.status === 'accepted') ?? []
+  const threeDaysMs    = 3 * 24 * 60 * 60 * 1000
   const pendingQuotes  = allMyQuotes?.filter((q) => q.status === 'pending')  ?? []
+  const activePendingQuotes  = pendingQuotes.filter(q => Date.now() - new Date(q.created_at).getTime() < threeDaysMs)
+  const expiredPendingQuotes = pendingQuotes.filter(q => Date.now() - new Date(q.created_at).getTime() >= threeDaysMs)
 
   // Check review state for delivered active jobs
   const activeJobIds = acceptedQuotes.map(q => q.job_id)
@@ -203,7 +206,7 @@ export default async function PrinterDashboardPage({ searchParams }: PageProps) 
 
   const stats = [
     { label: 'Active Jobs',      value: activeJobsCount,                          color: 'text-emerald-600' },
-    { label: 'Pending Quotes',   value: pendingQuotes.length,                     color: 'text-amber-600'   },
+    { label: 'Pending Quotes',   value: activePendingQuotes.length,               color: 'text-amber-600'   },
     { label: 'Total Earned',     value: `$${totalEarned.toFixed(0)}`,             color: 'text-ink-900', isText: true },
     { label: 'Acceptance Rate',  value: `${acceptanceRate}%`,                     color: acceptanceRate >= 50 ? 'text-emerald-600' : 'text-warm-500', isText: true },
   ]
@@ -505,14 +508,20 @@ export default async function PrinterDashboardPage({ searchParams }: PageProps) 
             <h2 className="text-lg font-semibold text-warm-900 flex items-center gap-2">
               <span className="h-2 w-2 rounded-full bg-amber-400 inline-block" />
               Pending Quotes
-              <span className="text-xs text-warm-400 font-normal">({pendingQuotes.length})</span>
+              {activePendingQuotes.length > 0 && (
+                <span className="text-xs text-warm-400 font-normal">({activePendingQuotes.length} active{expiredPendingQuotes.length > 0 ? `, ${expiredPendingQuotes.length} expired` : ''})</span>
+              )}
+              {activePendingQuotes.length === 0 && expiredPendingQuotes.length > 0 && (
+                <span className="text-xs text-warm-400 font-normal">({expiredPendingQuotes.length} expired)</span>
+              )}
             </h2>
           </div>
           <div className="card divide-y divide-warm-100">
             {pendingQuotes.map((q) => {
               const job = quotedJobsById[q.job_id] ?? null
+              const isExpired = Date.now() - new Date(q.created_at).getTime() >= threeDaysMs
               return (
-                <div key={q.id} className="flex items-center justify-between p-4 hover:bg-warm-50 transition-colors">
+                <div key={q.id} className={`flex items-center justify-between p-4 hover:bg-warm-50 transition-colors ${isExpired ? 'opacity-60' : ''}`}>
                   <div className="min-w-0">
                     <p className="text-sm font-semibold text-warm-900 truncate">{job?.title}</p>
                     <p className="text-xs text-warm-400 mt-0.5">
@@ -525,7 +534,7 @@ export default async function PrinterDashboardPage({ searchParams }: PageProps) 
                       <p className="font-bold text-warm-900">{formatCurrency(q.price)}</p>
                       <p className="text-xs text-warm-400">{q.lead_time_days}d lead</p>
                     </div>
-                    <StatusBadge status="pending" />
+                    <StatusBadge status={isExpired ? 'expired' : 'pending'} />
                     {job?.id && (
                       <Link href={`/jobs/${job.id}`}>
                         <Button variant="outline" size="sm">View</Button>
