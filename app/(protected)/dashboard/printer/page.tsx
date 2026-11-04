@@ -195,6 +195,12 @@ export default async function PrinterDashboardPage({ searchParams }: PageProps) 
   const paidAtById = Object.fromEntries((pipelineJobs ?? []).map(j => [j.id, (j as any).paid_at as string | null]))
   const activeJobsCount = acceptedQuotes.filter(q => !completedStatuses.has(activeJobStatusById[q.job_id])).length
 
+  // Fetch open disputes for the maker's active jobs
+  const { data: openDisputes } = allAcceptedJobIds.length > 0
+    ? await supabase.from('disputes').select('job_id').eq('status', 'open').in('job_id', allAcceptedJobIds)
+    : { data: [] as { job_id: string }[] }
+  const jobsWithDispute = new Set((openDisputes ?? []).map(d => d.job_id))
+
   const stats = [
     { label: 'Active Jobs',      value: activeJobsCount,                          color: 'text-emerald-600' },
     { label: 'Pending Quotes',   value: pendingQuotes.length,                     color: 'text-amber-600'   },
@@ -419,6 +425,8 @@ export default async function PrinterDashboardPage({ searchParams }: PageProps) 
               const shipOverdue  = needsShipment && daysLeft !== null && daysLeft <= 0
               const shipUrgent   = needsShipment && daysLeft !== null && daysLeft > 0 && daysLeft <= 2
 
+              const hasDispute = jobsWithDispute.has(q.job_id)
+
               return (
                 <div key={q.id} className={`p-4 hover:bg-warm-50 transition-colors ${shipOverdue ? 'bg-red-50' : ''}`}>
                   <div className="flex items-start justify-between gap-3">
@@ -430,6 +438,11 @@ export default async function PrinterDashboardPage({ searchParams }: PageProps) 
                     </div>
                     <div className="flex items-center gap-2 flex-shrink-0">
                       <span className="font-bold text-warm-900">{formatCurrency(q.price)}</span>
+                      {hasDispute && (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-orange-100 border border-orange-300 px-2 py-0.5 text-xs font-bold text-orange-700">
+                          ⚠ Complaint raised
+                        </span>
+                      )}
                       {shipOverdue && (
                         <span className="inline-flex items-center gap-1 rounded-full bg-red-100 border border-red-300 px-2 py-0.5 text-xs font-bold text-red-700">
                           ⚠ Due date passed
