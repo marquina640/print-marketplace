@@ -431,7 +431,8 @@ export default async function PrinterDashboardPage({ searchParams }: PageProps) 
               const hasDispute = jobsWithDispute.has(q.job_id)
 
               return (
-                <div key={q.id} className={`p-4 hover:bg-warm-50 transition-colors ${shipOverdue ? 'bg-red-50' : ''}`}>
+                <div key={q.id} className={`relative p-4 hover:bg-warm-50 transition-colors ${shipOverdue ? 'bg-red-50' : ''}`}>
+                  {job?.id && <Link href={`/jobs/${job.id}`} className="absolute inset-0" aria-label={`View job ${job.title}`} />}
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
                       <p className="font-semibold text-warm-900 truncate">{job?.title}</p>
@@ -476,7 +477,7 @@ export default async function PrinterDashboardPage({ searchParams }: PageProps) 
                         <span className="text-warm-500">Review submitted — waiting for client</span>
                       )}
                     </div>
-                    <div className="flex gap-2 flex-shrink-0">
+                    <div className="relative z-10 flex gap-2 flex-shrink-0">
                       {job?.id && (
                         <Link href={`/messages/${job.id}`}>
                           <Button variant="outline" size="sm">Message</Button>
