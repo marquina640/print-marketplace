@@ -18,7 +18,12 @@ export async function sendMessage({
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Not authenticated')
 
-  const { filtered, wasModified, removedTypes } = filterContactInfo(content.trim())
+  const { data: senderProfile } = await supabase.from('profiles').select('role').eq('user_id', user.id).single()
+  const isAdmin = (senderProfile as any)?.role === 'admin'
+
+  const { filtered, wasModified, removedTypes } = isAdmin
+    ? { filtered: content.trim(), wasModified: false, removedTypes: [] }
+    : filterContactInfo(content.trim())
 
   const { data, error } = await supabase
     .from('messages')
