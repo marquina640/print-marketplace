@@ -403,6 +403,28 @@ export function emailPayoutsReminder({ to, name, reminderNumber }: { to: string;
   })
 }
 
+export function emailPayoutPending({
+  to, name, jobTitle, amount, currency,
+}: { to: string; name: string | null; jobTitle: string; amount: string; currency: string }) {
+  const greeting = name ? `Hi ${name},` : 'Hi there,'
+  return sendEmail({
+    to,
+    subject: `You have ${currency} ${amount} waiting — connect Stripe to receive it`,
+    html: emailTemplate(`
+      <h2 style="margin:0 0 8px;font-size:20px;font-weight:800;color:#1a1625;">You have money waiting</h2>
+      <p style="margin:0 0 16px;color:#6b6760;font-size:14px;line-height:1.6;">
+        ${greeting} Your customer just confirmed delivery for <strong>"${jobTitle}"</strong>.
+        Your payment of <strong>${currency} ${amount}</strong> is ready to be sent to you.
+      </p>
+      <p style="margin:0 0 16px;color:#6b6760;font-size:14px;line-height:1.6;">
+        To receive it, finish connecting your Stripe account. It takes about 5 minutes.
+        Once your account is active, the payment will be sent automatically.
+      </p>
+      ${ctaButton('Finish Stripe setup &rarr;', `${APP_URL}/profile/setup`)}
+    `),
+  })
+}
+
 export function emailQuoteSubmitted({
   to, jobTitle, price, currency, jobUrl,
 }: { to: string; jobTitle: string; price: number; currency: string; jobUrl: string }) {

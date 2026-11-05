@@ -7,6 +7,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { createNotification, notifyJobShipped, notifyDeliveryConfirmed } from './notifications'
 import { transferToMaker, PLATFORM_FEE_PERCENT, REFERRAL_FEE_PERCENT, REFERRAL_COMMISSION_PERCENT } from '@/lib/stripe'
 import { sendPayPalPayout } from '@/lib/paypal'
+import { emailPayoutPending } from '@/lib/email'
 
 export interface ShippingDetails {
   inPerson: boolean
@@ -208,8 +209,25 @@ export async function confirmJobDelivery(jobId: string) {
       } catch (err) {
         console.error('Auto-payout failed for job', jobId, err)
       }
+    } else if (acceptedQuote.price) {
+      // No payout method: job stays at 'delivered'. Email maker to finish Stripe setup.
+      const { data: makerProf } = await adminClient.from('profiles').select('email, display_name').eq('user_id', acceptedQuote.printer_id).single()
+      if ((makerProf as any)?.email) {
+        const effectiveFee = resolveEffectiveFee(
+          (printerPayoutProfile as any)?.fee_waiver_until,
+          (printerPayoutProfile as any)?.referral_commission_until,
+          (printerPayoutProfile as any)?.referral_free_jobs_remaining,
+        )
+        const makerShare = (acceptedQuote.price * (1 - effectiveFee)).toFixed(2)
+        emailPayoutPending({
+          to:       (makerProf as any).email,
+          name:     (makerProf as any).display_name ?? null,
+          jobTitle: job.title,
+          amount:   makerShare,
+          currency: quoteCurrency,
+        }).catch(() => {})
+      }
     }
-    // If no payout method, job stays at 'delivered' → visible in admin Pending Payouts
   }
 
   revalidatePath(`/jobs/${jobId}`)

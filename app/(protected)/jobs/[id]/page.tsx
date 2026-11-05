@@ -124,17 +124,9 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
   // Maker profile completeness: requires at least one machine
   // (printer_profiles record is optional — don't block quoting if it's missing)
   let profileComplete = true
-  let hasPayoutMethod = true
   if (isPrinter && !isOwner && job.status === 'open') {
-    const [{ count: machineCount }, { data: makerPayout }] = await Promise.all([
-      supabase.from('machines').select('*', { count: 'exact', head: true }).eq('maker_id', effectiveUserId),
-      supabase.from('printer_profiles').select('stripe_account_id, stripe_onboarding_complete, paypal_email, country').eq('user_id', effectiveUserId).single(),
-    ])
+    const { count: machineCount } = await supabase.from('machines').select('*', { count: 'exact', head: true }).eq('maker_id', effectiveUserId)
     profileComplete = (machineCount ?? 0) > 0
-    const mp = makerPayout as any
-    const stripeReady = !!mp?.stripe_account_id && !!mp?.stripe_onboarding_complete
-    const paypalReady = !!mp?.paypal_email
-    hasPayoutMethod  = stripeReady || paypalReady
   }
 
   // Check if this maker was personally invited
@@ -600,24 +592,7 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
 
         {isPrinter && !isOwner && job.status === 'open' && (
           <div className="lg:col-span-2">
-            {!hasPayoutMethod ? (
-              <div className="card p-5 space-y-3">
-                <div className="flex items-start gap-3">
-                  <span className="text-2xl">💳</span>
-                  <div>
-                    <p className="font-semibold text-warm-900">Set up payouts first</p>
-                    <p className="text-sm text-warm-500 mt-1">
-                      You need to connect Stripe or add a PayPal email before you can submit quotes. Otherwise you won't be able to receive payment if a client accepts your quote.
-                    </p>
-                  </div>
-                </div>
-                <Link href="/profile/setup">
-                  <button className="w-full rounded-xl bg-gold-400 hover:bg-gold-500 text-ink-950 text-sm font-semibold py-2.5 transition-colors">
-                    Set up payouts →
-                  </button>
-                </Link>
-              </div>
-            ) : !profileComplete ? (
+            {!profileComplete ? (
               <div className="card p-5 space-y-3">
                 <div className="flex items-start gap-3">
                   <span className="text-2xl">🖨️</span>
