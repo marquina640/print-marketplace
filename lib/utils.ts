@@ -171,7 +171,7 @@ export const PRINTER_BRANDS: Record<string, string[]> = {
   'Sindoh':       ['3DWOX 1', '3DWOX 2X', '3DWOX 7X'],
   'FlashForge':   [
     'Adventurer 3', 'Adventurer 3 Pro', 'Adventurer 4', 'Adventurer 4 Pro',
-    'Adventurer 5M', 'Adventurer 5M Pro',
+    'Adventurer 5M', 'Adventurer 5M Pro', 'Adventurer AD5X',
     'Creator 3 Pro', 'Creator 4', 'Creator 4S', 'Creator 5 Pro',
     'Guider 3', 'Guider 3 Plus', 'Guider 3 Ultra',
     'Finder', 'Dreamer NX',
