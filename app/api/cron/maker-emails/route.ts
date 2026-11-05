@@ -5,6 +5,8 @@ import {
   emailMakerAddMachine,
   emailMakerMissingRequests,
   emailMakerSetupPayouts,
+  emailPayoutsReminder,
+  emailStripeIncomplete,
 } from '@/lib/email'
 
 // Called daily by Vercel Cron. Protected by CRON_SECRET.
@@ -23,7 +25,6 @@ export async function GET(req: NextRequest) {
   const admin = createAdminClient()
   const now = new Date()
 
-  // Fetch all maker profiles with their email and creation time
   const { data: makers } = await admin
     .from('profiles')
     .select('user_id, email, display_name, created_at')
@@ -34,29 +35,26 @@ export async function GET(req: NextRequest) {
 
   const makerIds = makers.map((m) => m.user_id)
 
-  // Fetch which emails have already been sent
-  const { data: alreadySent } = await admin
-    .from('email_sends')
-    .select('user_id, email_type')
-    .in('user_id', makerIds)
+  const [
+    { data: alreadySent },
+    { data: machineRows },
+    { data: printerProfiles },
+  ] = await Promise.all([
+    admin.from('email_sends').select('user_id, email_type').in('user_id', makerIds),
+    admin.from('machines').select('maker_id').in('maker_id', makerIds),
+    admin.from('printer_profiles')
+      .select('user_id, stripe_account_id, stripe_onboarding_complete, paypal_email')
+      .in('user_id', makerIds),
+  ])
 
   const sentSet = new Set((alreadySent ?? []).map((r) => `${r.user_id}:${r.email_type}`))
   const hasSent = (userId: string, type: string) => sentSet.has(`${userId}:${type}`)
 
-  // Fetch which makers have machines
-  const { data: machineRows } = await admin
-    .from('machines')
-    .select('maker_id')
-    .in('maker_id', makerIds)
   const withMachines = new Set((machineRows ?? []).map((m) => m.maker_id))
 
-  // Fetch which makers have Stripe connected
-  const { data: stripeRows } = await admin
-    .from('printer_profiles')
-    .select('user_id, stripe_account_id')
-    .in('user_id', makerIds)
-  const withStripe = new Set(
-    (stripeRows ?? []).filter((r) => r.stripe_account_id).map((r) => r.user_id)
+  // Build payout status maps
+  const payoutByUser = Object.fromEntries(
+    (printerProfiles ?? []).map((p) => [p.user_id, p])
   )
 
   let sent = 0
@@ -64,34 +62,65 @@ export async function GET(req: NextRequest) {
 
   for (const maker of makers) {
     const { user_id, email, display_name, created_at } = maker
-    const ageMs = now.getTime() - new Date(created_at).getTime()
-    const ageDays = ageMs / (1000 * 60 * 60 * 24)
+    const ageDays = (now.getTime() - new Date(created_at).getTime()) / 86400000
     const hasMachine = withMachines.has(user_id)
-    const hasStripe = withStripe.has(user_id)
 
-    // Day 1: no machine → "Add your printer"
+    const pp = payoutByUser[user_id]
+    const stripeComplete    = !!pp?.stripe_account_id && !!pp?.stripe_onboarding_complete
+    const stripeStarted     = !!pp?.stripe_account_id && !pp?.stripe_onboarding_complete
+    const hasPaypal         = !!pp?.paypal_email
+    const hasPayouts        = stripeComplete || hasPaypal
+
+    // ── Machine emails ───────────────────────────────────────────────────────
+
+    // Day 1: no machine yet
     if (ageDays >= 1 && !hasMachine && !hasSent(user_id, 'd1_add_machine')) {
       await emailMakerAddMachine({ to: email, name: display_name })
       newSends.push({ user_id, email_type: 'd1_add_machine' })
       sent++
     }
 
-    // Day 4: still no machine → "Missing requests"
+    // Day 4: still no machine
     if (ageDays >= 4 && !hasMachine && !hasSent(user_id, 'd4_missing_requests')) {
       await emailMakerMissingRequests({ to: email, name: display_name })
       newSends.push({ user_id, email_type: 'd4_missing_requests' })
       sent++
     }
 
-    // Day 7: has machine but no Stripe → "Set up payouts"
-    if (ageDays >= 7 && hasMachine && !hasStripe && !hasSent(user_id, 'd7_setup_payouts')) {
+    // ── Stripe incomplete (started but never finished) ────────────────────────
+
+    if (stripeStarted && !hasSent(user_id, 'stripe_incomplete')) {
+      await emailStripeIncomplete({ to: email, name: display_name })
+      newSends.push({ user_id, email_type: 'stripe_incomplete' })
+      sent++
+    }
+
+    // ── Payout setup reminders (only for makers with a machine) ──────────────
+
+    if (!hasMachine || hasPayouts) continue
+
+    // Day 7: first payout nudge
+    if (ageDays >= 7 && !hasSent(user_id, 'd7_setup_payouts')) {
       await emailMakerSetupPayouts({ to: email, name: display_name })
       newSends.push({ user_id, email_type: 'd7_setup_payouts' })
       sent++
     }
+
+    // Day 14: second nudge
+    if (ageDays >= 14 && !hasSent(user_id, 'd14_setup_payouts')) {
+      await emailPayoutsReminder({ to: email, name: display_name, reminderNumber: 2 })
+      newSends.push({ user_id, email_type: 'd14_setup_payouts' })
+      sent++
+    }
+
+    // Day 30: final push
+    if (ageDays >= 30 && !hasSent(user_id, 'd30_setup_payouts')) {
+      await emailPayoutsReminder({ to: email, name: display_name, reminderNumber: 3 })
+      newSends.push({ user_id, email_type: 'd30_setup_payouts' })
+      sent++
+    }
   }
 
-  // Record all sends (ignore conflicts — unique constraint prevents duplicates)
   if (newSends.length > 0) {
     await admin.from('email_sends').upsert(newSends, { onConflict: 'user_id,email_type' })
   }

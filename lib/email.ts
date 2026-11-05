@@ -361,6 +361,48 @@ export function emailMakerSetupPayouts({ to, name }: { to: string; name: string 
   })
 }
 
+export function emailStripeIncomplete({ to, name }: { to: string; name: string | null }) {
+  const greeting = name ? `Hi ${name},` : 'Hi there,'
+  return sendEmail({
+    to,
+    subject: 'You started connecting Stripe but did not finish',
+    html: emailTemplate(`
+      <h2 style="margin:0 0 8px;font-size:20px;font-weight:800;color:#1a1625;">Your Stripe setup is not complete</h2>
+      <p style="margin:0 0 16px;color:#6b6760;font-size:14px;line-height:1.6;">
+        ${greeting} You started connecting your bank account via Stripe but did not finish the process.
+        Until it is complete, you will not be able to receive payments for jobs you win on PrintMarketHub.
+      </p>
+      <p style="margin:0 0 20px;color:#6b6760;font-size:14px;line-height:1.6;">
+        Go to your profile settings and click "Continue Stripe setup" to pick up where you left off.
+        It usually takes less than 5 minutes to complete.
+      </p>
+      ${ctaButton('Finish Stripe setup &rarr;', `${APP_URL}/profile/setup`)}
+    `),
+  })
+}
+
+export function emailPayoutsReminder({ to, name, reminderNumber }: { to: string; name: string | null; reminderNumber: number }) {
+  const greeting = name ? `Hi ${name},` : 'Hi there,'
+  const urgency = reminderNumber >= 3
+    ? 'You have been on PrintMarketHub for a while now without a payout method. If a client accepts your quote today, there is no way to send you the money.'
+    : 'Clients are actively looking for makers like you, but without a payout method connected you cannot receive payment when you win a job.'
+  return sendEmail({
+    to,
+    subject: 'You still cannot receive payments on PrintMarketHub',
+    html: emailTemplate(`
+      <h2 style="margin:0 0 8px;font-size:20px;font-weight:800;color:#1a1625;">Connect your bank account to get paid</h2>
+      <p style="margin:0 0 16px;color:#6b6760;font-size:14px;line-height:1.6;">
+        ${greeting} ${urgency}
+      </p>
+      <p style="margin:0 0 20px;color:#6b6760;font-size:14px;line-height:1.6;">
+        Connect via Stripe (5 minutes) or add your PayPal email in your profile settings.
+        Payouts happen automatically after the client confirms delivery.
+      </p>
+      ${ctaButton('Set up payouts now &rarr;', `${APP_URL}/profile/setup`)}
+    `),
+  })
+}
+
 export function emailQuoteSubmitted({
   to, jobTitle, price, currency, jobUrl,
 }: { to: string; jobTitle: string; price: number; currency: string; jobUrl: string }) {
