@@ -152,6 +152,7 @@ export const PRINTER_BRANDS: Record<string, string[]> = {
     'Neptune 4', 'Neptune 4 Max', 'Neptune 4 Pro', 'Neptune 4 Plus',
     'Mars 4', 'Mars 4 Max', 'Mars 4 Ultra', 'Mars 5 Ultra',
     'Saturn 4', 'Saturn 4 Ultra', 'Saturn 3 Ultra',
+    'Centauri Carbon 2',
   ],
   'Anycubic':     [
     'Kobra 2', 'Kobra 2 Neo', 'Kobra 2 Max', 'Kobra 2 Pro', 'Kobra 3', 'Kobra 3 Max', 'Kobra S1',
