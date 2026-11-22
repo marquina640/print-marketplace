@@ -277,7 +277,11 @@ export async function markPayoutSent(jobId: string) {
     const sourceTransaction = paymentIntentId?.startsWith('pi_')
       ? await getChargeForPaymentIntent(paymentIntentId) ?? undefined
       : undefined
-    await transferToMaker(acceptedQuote.price, stripeAccountId, jobId, job.title, effectiveFee, quoteCurrency, sourceTransaction)
+    try {
+      await transferToMaker(acceptedQuote.price, stripeAccountId, jobId, job.title, effectiveFee, quoteCurrency, sourceTransaction)
+    } catch (err) {
+      throw new Error(err instanceof Error ? err.message : 'Stripe transfer failed')
+    }
   } else if (paypalEmail) {
     await sendPayPalPayout({
       recipientEmail: paypalEmail,
