@@ -155,8 +155,8 @@ export const PRINTER_BRANDS: Record<string, string[]> = {
     'Centauri Carbon 2',
   ],
   'Anycubic':     [
-    'Kobra 2', 'Kobra 2 Neo', 'Kobra 2 Max', 'Kobra 2 Pro', 'Kobra 3', 'Kobra 3 Max', 'Kobra S1',
-    'Photon Mono M5S', 'Photon Mono M7 Pro', 'Photon M3 Max', 'Photon D2',
+    'Kobra 2', 'Kobra 2 Neo', 'Kobra 2 Max', 'Kobra 2 Pro', 'Kobra 3', 'Kobra 3 Max', 'Kobra S1', 'Kobra S1 Max',
+    'Photon Mono 4', 'Photon Mono M5S', 'Photon Mono M7 Pro', 'Photon M3 Max', 'Photon D2',
   ],
   'Qidi Tech':    ['X-Max 3', 'X-Plus 3', 'X-Smart 3', 'Q1 Pro', 'X-CF Pro', 'iFast'],
   'Sovol':        ['SV06', 'SV06 Plus', 'SV07', 'SV07 Plus', 'SV08'],
@@ -209,7 +209,7 @@ export const CATEGORY_BRANDS: Record<MachineCategory, string[]> = {
 
 export const BRAND_MODELS_FOR_CATEGORY: Record<string, Partial<Record<MachineCategory, string[]>>> = {
   'Elegoo':    { fdm: ['Neptune 4', 'Neptune 4 Max', 'Neptune 4 Pro', 'Neptune 4 Plus'], resin: ['Mars 4', 'Mars 4 Max', 'Mars 4 Ultra', 'Mars 5 Ultra', 'Saturn 4', 'Saturn 4 Ultra', 'Saturn 3 Ultra'] },
-  'Anycubic':  { fdm: ['Kobra 2', 'Kobra 2 Neo', 'Kobra 2 Max', 'Kobra 2 Pro', 'Kobra 3', 'Kobra 3 Max', 'Kobra S1'], resin: ['Photon Mono M5S', 'Photon Mono M7 Pro', 'Photon M3 Max', 'Photon D2'] },
+  'Anycubic':  { fdm: ['Kobra 2', 'Kobra 2 Neo', 'Kobra 2 Max', 'Kobra 2 Pro', 'Kobra 3', 'Kobra 3 Max', 'Kobra S1', 'Kobra S1 Max'], resin: ['Photon Mono 4', 'Photon Mono M5S', 'Photon Mono M7 Pro', 'Photon M3 Max', 'Photon D2'] },
   'Creality':  { fdm: ['Ender 3', 'Ender 3 Pro', 'Ender 3 V2', 'Ender 3 S1', 'Ender 3 S1 Pro', 'Ender 3 V3', 'Ender 3 V3 KE', 'Ender 3 Max Neo', 'Ender 5', 'Ender 5 Pro', 'Ender 5 Plus', 'Ender 5 S1', 'CR-10', 'CR-10 V2', 'CR-10 V3', 'CR-10 Smart Pro', 'CR-M4', 'K1', 'K1 Max', 'K1C', 'K2', 'K2 Plus'], resin: ['Halot One', 'Halot Mage', 'Halot Mage Pro'] },
   'Prusa':     { fdm: ['MK4S', 'MK4', 'MK3S+', 'MK3S', 'MK3.5', 'CORE One', 'XL', 'XL 5-Tool', 'MINI+'], resin: ['SL1S Speed', 'SL1'] },
   'Zortrax':   { fdm: ['M200 Plus', 'M300 Plus'], resin: ['Inkspire 2'] },
