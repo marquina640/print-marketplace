@@ -47,6 +47,7 @@ export default async function AdminDashboardPage({ searchParams }: { searchParam
     { data: pendingPayouts },
     { data: referralCodes },
     { data: pendingCommissions },
+    { data: recentReviews },
   ] = await Promise.all([
     supabase.from('profiles').select('*', { count: 'exact', head: true }),
     supabase.from('jobs').select('*', { count: 'exact', head: true }),
@@ -72,6 +73,10 @@ export default async function AdminDashboardPage({ searchParams }: { searchParam
     (supabase as any).from('referral_commissions')
       .select('referral_code, commission_chf')
       .eq('paid_out', false),
+    supabase.from('reviews')
+      .select('id, job_id, rating, comment, is_public, created_at, reviewer:profiles!reviewer_id(display_name, email), jobs(title, id)')
+      .order('created_at', { ascending: false })
+      .limit(20),
   ])
 
   const commissionsByCode = (pendingCommissions ?? []).reduce((acc: Record<string, { pending_chf: number; pending_count: number }>, c: any) => {
@@ -292,6 +297,59 @@ export default async function AdminDashboardPage({ searchParams }: { searchParam
             </table>
         </div>
       </section>
+
+      {/* Reviews */}
+      {recentReviews && recentReviews.length > 0 && (
+        <section>
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Recent Reviews</h2>
+          <div className="card overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  {['Reviewer', 'Request', 'Rating', 'Comment', 'Visibility', 'Date'].map((h) => (
+                    <th key={h} className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      {h}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-100">
+                {recentReviews.map((r: any) => {
+                  const reviewer = r.reviewer as { display_name: string | null; email: string } | null
+                  const job = r.jobs as { title: string; id: string } | null
+                  return (
+                    <tr key={r.id} className="hover:bg-gray-50">
+                      <td className="px-4 py-3 text-sm text-gray-900 max-w-[140px] truncate">
+                        {reviewer?.display_name ?? reviewer?.email ?? '—'}
+                      </td>
+                      <td className="px-4 py-3 text-sm max-w-[160px] truncate">
+                        {job ? (
+                          <Link href={`/jobs/${job.id}`} className="text-indigo-600 hover:underline">
+                            {job.title}
+                          </Link>
+                        ) : '—'}
+                      </td>
+                      <td className="px-4 py-3 text-sm">
+                        <span className="text-gold-500">{'★'.repeat(r.rating)}</span>
+                        <span className="text-gray-200">{'★'.repeat(5 - r.rating)}</span>
+                      </td>
+                      <td className="px-4 py-3 text-sm text-gray-600 max-w-[220px] truncate">
+                        {r.comment ?? <span className="text-gray-400 italic">No comment</span>}
+                      </td>
+                      <td className="px-4 py-3 text-sm">
+                        <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${r.is_public ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-500'}`}>
+                          {r.is_public ? 'Public' : 'Private'}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-sm text-gray-400">{formatDate(r.created_at)}</td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      )}
 
       {/* Platform Settings */}
       <section>

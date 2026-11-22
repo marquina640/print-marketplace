@@ -19,6 +19,7 @@ import { MarkPayoutButton } from './mark-payout-button'
 import { RaiseDisputeButton } from './raise-dispute-button'
 import { CancelJobButton } from './cancel-job-button'
 import { WithdrawQuoteButton } from './withdraw-quote-button'
+import { JobStepper } from './job-stepper'
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -304,6 +305,18 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
           )}
         </div>
       </div>
+
+      {/* Progress stepper */}
+      {(job as any).status !== 'cancelled' && (
+        <JobStepper
+          createdAt={job.created_at}
+          acceptedQuoteExists={!!acceptedQuote}
+          paidAt={(job as any).paid_at}
+          shippedAt={(job as any).shipped_at}
+          deliveredAt={(job as any).delivered_at}
+          payoutAt={(job as any).payout_at}
+        />
+      )}
 
       {/* File warning for makers */}
       {isPrinter && canSeeFiles && files.filter(f => f.file_type !== 'link').length > 0 && (
