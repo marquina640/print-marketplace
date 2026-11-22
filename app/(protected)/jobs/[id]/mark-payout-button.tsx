@@ -8,7 +8,7 @@ export function MarkPayoutButton({ jobId, makerName, amount }: { jobId: string; 
   const [pending, startTransition] = useTransition()
 
   function handleClick() {
-    if (!confirm(`Confirm that you have sent CHF ${amount.toFixed(2)} to ${makerName}?`)) return
+    if (!confirm(`Send ${amount.toFixed(2)} to ${makerName} via Stripe now?`)) return
     startTransition(async () => {
       try {
         await markPayoutSent(jobId)
