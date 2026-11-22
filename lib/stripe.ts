@@ -102,6 +102,17 @@ export async function createPaymentIntent(
  * Transfer maker's share to their connected Stripe account after delivery.
  * Called when customer confirms receipt.
  */
+export async function getChargeForPaymentIntent(paymentIntentId: string): Promise<string | null> {
+  try {
+    const pi = await stripe.paymentIntents.retrieve(paymentIntentId)
+    const charge = pi.latest_charge
+    if (!charge) return null
+    return typeof charge === 'string' ? charge : charge.id
+  } catch {
+    return null
+  }
+}
+
 export async function transferToMaker(
   amount:             number,
   connectedAccountId: string,
@@ -109,12 +120,14 @@ export async function transferToMaker(
   jobTitle:           string,
   feePercent:         number = PLATFORM_FEE_PERCENT,
   currency:           string = 'CHF',
+  sourceTransaction?: string,
 ): Promise<string> {
   const makerShare = Math.round(toCents(amount, currency) * (1 - feePercent))
   const transfer = await stripe.transfers.create({
     amount:      makerShare,
     currency:    currency.toLowerCase(),
     destination: connectedAccountId,
+    ...(sourceTransaction ? { source_transaction: sourceTransaction } : {}),
     metadata:    { jobId, jobTitle },
   })
   return transfer.id

@@ -5,7 +5,7 @@ import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { createNotification, notifyJobShipped, notifyDeliveryConfirmed } from './notifications'
-import { transferToMaker, PLATFORM_FEE_PERCENT, REFERRAL_FEE_PERCENT, REFERRAL_COMMISSION_PERCENT } from '@/lib/stripe'
+import { transferToMaker, getChargeForPaymentIntent, PLATFORM_FEE_PERCENT, REFERRAL_FEE_PERCENT, REFERRAL_COMMISSION_PERCENT } from '@/lib/stripe'
 import { sendPayPalPayout } from '@/lib/paypal'
 import { emailPayoutPending } from '@/lib/email'
 
@@ -178,7 +178,11 @@ export async function confirmJobDelivery(jobId: string) {
 
       try {
         if (stripeAccountId) {
-          await transferToMaker(acceptedQuote.price, stripeAccountId, jobId, job.title, effectiveFee, quoteCurrency)
+          const paymentIntentId = (job as any).paypal_order_id as string | null
+          const sourceTransaction = paymentIntentId?.startsWith('pi_')
+            ? await getChargeForPaymentIntent(paymentIntentId) ?? undefined
+            : undefined
+          await transferToMaker(acceptedQuote.price, stripeAccountId, jobId, job.title, effectiveFee, quoteCurrency, sourceTransaction)
         } else if (paypalEmail) {
           await sendPayPalPayout({
             recipientEmail: paypalEmail,
@@ -269,7 +273,11 @@ export async function markPayoutSent(jobId: string) {
   const makerShare = (acceptedQuote.price * (1 - effectiveFee)).toFixed(2)
 
   if (stripeAccountId) {
-    await transferToMaker(acceptedQuote.price, stripeAccountId, jobId, job.title, effectiveFee, quoteCurrency)
+    const paymentIntentId = (job as any).paypal_order_id as string | null
+    const sourceTransaction = paymentIntentId?.startsWith('pi_')
+      ? await getChargeForPaymentIntent(paymentIntentId) ?? undefined
+      : undefined
+    await transferToMaker(acceptedQuote.price, stripeAccountId, jobId, job.title, effectiveFee, quoteCurrency, sourceTransaction)
   } else if (paypalEmail) {
     await sendPayPalPayout({
       recipientEmail: paypalEmail,
