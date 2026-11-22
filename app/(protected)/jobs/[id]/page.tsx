@@ -576,12 +576,12 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
                           {isAdmin && (
                             <>
                               <p className="text-xs text-emerald-700">
-                                Client confirmed receipt. Send {formatCurrency(q.price)} to the maker, then mark payout as sent.
+                                Client confirmed receipt. Maker payout: {formatCurrency(Math.round(q.price * 0.88 * 100) / 100, (q as any).currency ?? 'CHF')} (after 12% fee).
                               </p>
                               <MarkPayoutButton
                                 jobId={job.id}
                                 makerName={(q.profiles as { display_name: string | null; email: string } | null)?.display_name ?? 'maker'}
-                                amount={q.price}
+                                amount={Math.round(q.price * 0.88 * 100) / 100}
                               />
                             </>
                           )}
