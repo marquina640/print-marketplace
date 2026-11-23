@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { StatusBadge } from '@/components/ui/badge'
 import { formatDate, formatCurrency } from '@/lib/utils'
 import Link from 'next/link'
@@ -73,11 +74,22 @@ export default async function AdminDashboardPage({ searchParams }: { searchParam
     (supabase as any).from('referral_commissions')
       .select('referral_code, commission_chf')
       .eq('paid_out', false),
-    supabase.from('reviews')
-      .select('id, job_id, rating, comment, is_public, created_at, reviewer:profiles!reviewer_id(display_name, email), jobs(title, id)')
+    createAdminClient().from('reviews')
+      .select('id, job_id, reviewer_id, rating, comment, is_public, created_at')
       .order('created_at', { ascending: false })
       .limit(20),
   ])
+
+  // Fetch reviewer profiles and job titles for reviews (no FK constraints on reviewer_id)
+  const reviewerIds = (recentReviews ?? []).map((r: any) => r.reviewer_id).filter(Boolean)
+  const reviewJobIds  = (recentReviews ?? []).map((r: any) => r.job_id).filter(Boolean)
+  const adminDb = createAdminClient()
+  const [{ data: reviewerProfiles }, { data: reviewJobs }] = await Promise.all([
+    reviewerIds.length > 0 ? adminDb.from('profiles').select('user_id, display_name, email').in('user_id', reviewerIds) : Promise.resolve({ data: [] }),
+    reviewJobIds.length  > 0 ? adminDb.from('jobs').select('id, title').in('id', reviewJobIds) : Promise.resolve({ data: [] }),
+  ])
+  const reviewerMap = Object.fromEntries((reviewerProfiles ?? []).map((p: any) => [p.user_id, p]))
+  const reviewJobMap = Object.fromEntries((reviewJobs ?? []).map((j: any) => [j.id, j]))
 
   const commissionsByCode = (pendingCommissions ?? []).reduce((acc: Record<string, { pending_chf: number; pending_count: number }>, c: any) => {
     if (!acc[c.referral_code]) acc[c.referral_code] = { pending_chf: 0, pending_count: 0 }
@@ -315,19 +327,17 @@ export default async function AdminDashboardPage({ searchParams }: { searchParam
               </thead>
               <tbody className="bg-white divide-y divide-gray-100">
                 {recentReviews.map((r: any) => {
-                  const reviewer = r.reviewer as { display_name: string | null; email: string } | null
-                  const job = r.jobs as { title: string; id: string } | null
+                  const reviewer = reviewerMap[r.reviewer_id] as { display_name: string | null; email: string } | undefined
+                  const reviewJob = reviewJobMap[r.job_id] as { title: string } | undefined
                   return (
                     <tr key={r.id} className="hover:bg-gray-50">
                       <td className="px-4 py-3 text-sm text-gray-900 max-w-[140px] truncate">
-                        {reviewer?.display_name ?? reviewer?.email ?? '—'}
+                        {reviewer?.display_name ?? reviewer?.email ?? r.reviewer_id?.slice(0, 8) ?? '—'}
                       </td>
                       <td className="px-4 py-3 text-sm max-w-[160px] truncate">
-                        {job ? (
-                          <Link href={`/jobs/${job.id}`} className="text-indigo-600 hover:underline">
-                            {job.title}
-                          </Link>
-                        ) : '—'}
+                        <Link href={`/jobs/${r.job_id}`} className="text-indigo-600 hover:underline">
+                          {reviewJob?.title ?? r.job_id?.slice(0, 8)}
+                        </Link>
                       </td>
                       <td className="px-4 py-3 text-sm">
                         <span className="text-gold-500">{'★'.repeat(r.rating)}</span>
