@@ -135,11 +135,29 @@ export function ListingForm({ effectiveUserId, listing, onSaved, onCancel }: Pro
       if (item.type === 'existing') {
         allPhotos.push(item.url)
       } else {
-        const ext  = item.file.name.split('.').pop()?.toLowerCase() ?? 'jpg'
-        const path = `${effectiveUserId}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
+        const ext = item.file.name.split('.').pop()?.toLowerCase() ?? 'jpg'
+        const isHeic = ext === 'heic' || ext === 'heif' || item.file.type === 'image/heic' || item.file.type === 'image/heif'
+        let uploadFile: File | Blob = item.file
+        let uploadExt = ext
+        let uploadMime = item.file.type
+        if (isHeic) {
+          try {
+            const bitmap = await createImageBitmap(item.file)
+            const canvas = document.createElement('canvas')
+            canvas.width = bitmap.width
+            canvas.height = bitmap.height
+            canvas.getContext('2d')!.drawImage(bitmap, 0, 0)
+            uploadFile = await new Promise<Blob>((res, rej) => canvas.toBlob(b => b ? res(b) : rej(new Error('toBlob failed')), 'image/jpeg', 0.92))
+            uploadExt = 'jpg'
+            uploadMime = 'image/jpeg'
+          } catch {
+            // fall back to uploading as-is if conversion fails
+          }
+        }
+        const path = `${effectiveUserId}/${Date.now()}-${Math.random().toString(36).slice(2)}.${uploadExt}`
         const { error: uploadErr } = await supabase.storage
           .from('listing-photos')
-          .upload(path, item.file, { contentType: item.file.type })
+          .upload(path, uploadFile, { contentType: uploadMime })
         if (uploadErr) { setError(`Photo upload failed: ${uploadErr.message}`); setSaving(false); return }
         const { data: { publicUrl } } = supabase.storage.from('listing-photos').getPublicUrl(path)
         allPhotos.push(publicUrl)
